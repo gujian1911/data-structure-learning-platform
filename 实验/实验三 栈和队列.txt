@@ -1,0 +1,235 @@
+第二部分 栈和队列
+实验一：顺序栈的模拟入栈和出栈
+【实验要求】用顺序存储结构实现栈的入栈和出栈操作。
+【算法思想】当栈中没有元素时，栈顶指针值为-1， 入栈一个元素栈顶指针加1。
+参考程序（调试）：
+#include <stdio.h>
+#include <stdlib.h>
+int push(char s[],int n)
+{char c;
+ int top=-1;
+ while(n>0)
+  {top++;
+   scanf("%c",&c);
+   getchar();//读入回车
+   s[top]=c;//读入的元素入栈
+   n--;
+  }
+return top;// 返回栈顶指针
+};
+void pop(char s[],int n)
+{ char e;
+  int top=n;
+  while(top!=-1)
+       {e=s[top];
+        top--;
+        printf("%4c", e);
+        }   
+ };
+void main()
+{char a[20];
+ int k,i;
+ scanf("%d",&k);
+ getchar();
+ i=push(a,k);
+ pop(a,i);
+}
+运行结果：
+
+实验二：链栈的入栈和出栈
+【实验要求】用链式存储结构定义栈，并实现入栈和出栈操作。
+【算法思想】链栈的入栈和出栈，实际上就是单链表的插入和删除，插入和删除的位置受限，只能在头位置进行插入和删除。
+参考程序（调试）：
+//链栈的模拟程序
+#include <stdio.h>
+#include <stdlib.h>
+struct stack
+{char data;
+ struct stack *next;
+ };
+struct stack * push(int n)
+{ struct stack *p,*top;
+  int i;
+  top=(struct stack *)malloc(sizeof(struct stack));
+  printf("输入第一个结点的值\n");
+  getchar( );//读入回车
+  scanf("%c",&top->data);//读入一个字符入栈
+  top->next=NULL;//第一个结点还没有后继
+  getchar( );
+  printf("其他结点的值\n");
+ for(i=1;i<n;i++)//读入n-1个字符
+  {p=(struct stack *)malloc(sizeof(struct stack));
+   scanf("%c",&p->data);//输入字符
+   getchar();//读入回车
+   p->next=top;
+   top=p;
+  }
+return top;
+};
+void pop(struct stack *top,int n)
+{struct stack *p;
+ if(top!=NULL) while(top!=NULL)
+                {printf("%4c",top->data);//读出栈顶元素的值
+                 p=top;//定位在栈顶为了释放空间
+                 top=top->next;
+                 free(p);
+                  }               
+ else
+    printf("the stack is empty");
+ printf("\n");
+};
+ void main()
+ {int k;
+  struct stack *top;
+  printf("读入结点个数\n");
+  scanf("%d",&k);
+  top=push(k);
+  pop(top,k);
+  }
+运行结果：
+
+
+
+
+实验三 顺序队列的入队和出队
+
+【实验要求】用顺序存储结构定义队列，并实现入队和出队操作。
+【算法思想】顺序队列的入队列在尾指针，出队列在头指针。顺序队列的入队列要注意到空间已满，出队列时front指针始终指向的位置为第一个元素前一个位置。
+【参考程序（调试）】
+#include <stdio.h>
+void main()
+{int a[5],x,bool=1,y;
+ int front,rear;
+ front=rear=0;
+ while(bool)
+ { while((rear+1)%5!=front)
+ {scanf("%d",&x);
+  a[(rear+1)%5]=x;
+  rear=(rear+1)%5;
+ }
+ while(front!=rear!=0)
+ {x=a[(front+1)%5];
+  printf("%3d",x);
+  front=(front+1)%5;
+ }
+ printf("\n");
+ printf("继续入队列吗?是1否2\n");
+ scanf("%d",&y);
+ if(y==2) bool=0;}
+}
+运行结果：
+
+实验四 循环队列入队和出队
+【实验要求】用顺序存储结构，实现循环队列的入队和出队操作。
+【算法思想】循环队列的入队和出队是通过取余的方式让指针转动，要求尾指针指向最后一个结点，头指针指向第一个结点的前一个位置，当(rear+1)%max= =front时队列满，rear= = front时队空。
+
+参考程序（调试）：
+//循环队列模拟程序
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#define max 5
+struct Queue
+{char data[20];
+ int front,rear;
+};
+void iniQueue(struct Queue *s)
+{s->front=s->rear=0;
+}
+int noFull(struct Queue *s)//判断队列是否满了
+{if((s->rear+1)%max==s->front)
+     return 0;
+else return 1;}
+void delQueue(struct Queue *s)//出队列
+{
+	while(s->rear!=s->front)
+	{ s->front=(s->front+1)%max;
+      printf("%4c",s->data[s->front]);
+     }
+	printf("\n");
+  }
+void insertQueue(struct Queue *s)//入队列
+{  int flag;char x;
+   //	flag=isFull(s);
+	while(noFull(s))
+	{
+		scanf("%c",&x);
+        getchar();
+		s->rear=(s->rear+1)%max;
+        s->data[s->rear]=x;	
+	}
+		delQueue(s);
+ }
+void  main()
+{struct Queue *a=(struct Queue *)malloc(sizeof(struct Queue));
+ int n=1;
+ char x;
+ iniQueue(a);
+ insertQueue(a,x);  }
+运行结果：
+
+
+实验五 链队列模拟入队和出队
+【实验要求】用链式存储结构实现队列的入队和出队操作。
+【算法分析】链队列的入队不用考虑什么只要在头结点后插入即可。链队列的出队列则要考虑到队列中如果只有一个结点，则要将尾指针修改一下和头指针都指向队列的头结点。其他的情况都插入在尾指针所指向的结点后面。
+
+【参考程序（调试）】
+#include <stdio.h>
+#include <stdlib.h>
+struct queue
+{char data;
+ struct queue *next;
+ };
+struct queueSS
+ {struct queue *front,*rear;
+  };
+struct queueSS *iniQueue()
+ {struct queueSS *p;
+  struct queue *r;
+  p=(struct queueSS *)malloc(sizeof(struct queueSS));
+  p->rear=p->front=r=(struct queue *)malloc(sizeof(struct queue));
+  r->next=NULL;
+  return p;
+  }
+void insertQueue(struct queueSS *s,int n)
+ {struct queue *r;
+  char x;
+  while(n>0)
+  {r=(struct queue *)malloc(sizeof(struct queue));
+   scanf("%c",&x);
+   r->data=x;
+   r->next=NULL;
+   s->rear->next=r;
+   s->rear=r;
+   n--;}
+};
+void delQueue(struct queueSS *p,int n)
+{struct queue *r;
+  while(n>0&&p->rear!=p->front)
+   {if(p->front->next!=p->rear)
+     {  r=p->front->next;
+        printf("%4c",r->data);
+        p->front->next=r->next;     
+       free(r);
+     }
+    else
+     { r=p->front->next;
+      printf("%4c",r->data);
+      p->front->next=NULL;
+      p->rear=p->front;     
+      free(r);
+     }
+    n--;}
+};
+ void main()
+ {struct queueSS *p;
+  int i;
+  p=iniQueue();//初始化队列
+  printf("读入结点个数\n");
+  scanf("%d",&i);
+  insertQueue(p,i);//全部入队列
+  delQueue(p,i);// 全部出队列 
+}
+运行结果：
+
+

@@ -1,0 +1,441 @@
+第六部分 查找
+实验一 顺序表的查找
+【实验要求】实现顺序表的简单查找算法。
+【算法思想】基于顺序表S，将给定的值key依次与表中每个元素的关键字进行比较，若某个元素的关键字值等于给定值key，则查找成功，返回该元素所在位置的下标；若在所有元素都比较完毕后，没有找到关键字值为key的元素，则表示查找失败，返回某个约定的标识。可以把待查找的关键字key存入表头或表尾作为哨兵，如果查找不成功，返回哨兵的下标。下面算法将哨兵存入表头，从表尾开始进行查找。
+【参考程序（调试）】
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 20
+typedef  struct
+{   int    key;  
+}SElemtype; 
+typedef struct
+{	SElemtype elem[MAX];
+	int length;
+}SSTable;  
+int Seq_Search (SSTable A,int key) 
+{	int i;
+	A.elem[0].key = key;      // “哨兵”
+	for(i=A.length;A.elem[i].key!=key;i--);  
+	return i;            // 找不到时，i为0
+}
+void main()
+{	int i ,key; 
+　　SSTable S; 
+	printf("输入顺序表的长度：\n");
+	scanf("%d",&S.length);
+	printf("输入%d个数值：\n",S.length);
+	for(i=1;i<=S.length;i++)
+		scanf("%d",&S.elem[i].key);
+	printf("输入要查找的关键字：\n");
+	scanf("%d",&key);
+	printf("输出查找到的位置<若查找不成功输出0>\n");
+	i=Seq_Search(S,key); 
+	printf("位置%d\n",i);
+}
+运行结果：
+  
+实验二  折半查找
+【实验要求】利用顺序表实现有序表的折半查找。
+【算法思想】折半查找又叫二分法查找，折半查找是基于有序表进行的一种查找。以有序表的“中间”记录为准，将查找表分为左、右两个子表。用给定的值key与中间记录的关键字进行比较，若比较结果相等，则查找成功；若给定的值key小于中间记录的关键字，则取左子表继续这种查找过程；若给定值key大于中间记录的关键字，则取右子表继续这种查找过程。不断重复这种做法，直到查找成功，或失败为止。
+【参考程序（调试）】
+#include <stdio.h>
+void main()
+{int s[10]={1,2,3,4,5,6,7,8,9,10},i,j;
+ printf("请输入删除结点的位置\n");
+ scanf("%d",&i);
+ if(i<1||i>9)
+	{ printf("位置非法\n");
+      printf("请输入删除位置\n");
+      scanf("%d",&i);}
+ else	 for(j=i-1;j<=9;j++)//从第i个位置到最后所有元素往前移
+		 s[j]=s[j+1];     
+for(i=0;i<=8;i++)//输出线性表表长减1了
+   printf("%3d",s[i]);
+printf("\n");//换行，可有可无 }
+运行结果：
+实验三   二叉排序树
+动态查找表的特点：表结构本身是在查找过程中动态生成的，即对于给定值Key，若表中存在其关键字等于Key的记录，则查找成功返回，否则插入关键字等于Key的记录。所以二叉排序树的建立是在查找过程中建立的。
+【实验要求】建立二叉排序树，并实现查找某个结点的算法。
+【算法思想】若二叉排序树为空树，则新插入的结点为新的根结点；否则，新插入的结点必为一个新的叶子结点，其插入位置由查找过程得到。
+若二叉排序树为空，则查找不成功；否则，
+（1）若给定值等于根结点的关键字，则查找成功；
+（2）若给定值小于根结点的关键字，则继续在左子树上进行查找；
+（3）若给定值大于根结点的关键字，则继续在右子树上进行查找。
+【参考程序（调试）】
+#include <stdio.h>
+#include <malloc.h>
+#define N 20
+typedef char ElemType[10];
+typedef struct Bnode
+{	int key;
+	ElemType data;
+	struct Bnode *lchild,*rchild;
+} BSTNode;
+BSTNode *BSTSearch(BSTNode *bt,int k)
+{	BSTNode *p=bt;
+	while (p!=NULL && p->key!=k)
+	{  if (k<p->key)
+            p=p->lchild;  /*沿左子树查找*/
+		else
+            p=p->rchild;  /*沿右子树查找*/
+	}
+	return(p);
+}
+int BSTInsert(BSTNode *&bt,int k)
+{	BSTNode *f,*p=bt;
+	while (p!=NULL)
+	{	if (p->key==k)
+			return(0);
+		f=p;						/*f指向*p结点的双亲结点*/
+		if (p->key>k)
+			p=p->lchild;			/*在左子树中查找*/
+		else
+			p=p->rchild;			/*在右子树中查找*/
+	}
+	p=(BSTNode *)malloc(sizeof(BSTNode));	/*建立新结点*/
+	p->key=k;
+	p->lchild=p->rchild=NULL;
+	if (bt==NULL)					/*原树为空时,*p作为根结点插入*/
+		bt=p;
+	else if (k<f->key)
+		f->lchild=p;				/*插入*p作为*f的左孩子*/
+	else
+		f->rchild=p;				/*插入*p作为*f的右孩子*/
+	return(1);
+}
+void CreateBST(BSTNode *&bt,int str[],int n)
+{	bt=NULL;         			  /*初始时bt为空树*/
+	int i=0;
+	while (i<n) 
+	{  	BSTInsert(bt,str[i]); /*将关键字str[i]插入二叉排序树bt中*/
+		i++;
+    }
+}
+void DispBST(BSTNode *bt)
+{	if (bt!=NULL)
+	{	printf("%d",bt->key);
+		if (bt->lchild!=NULL || bt->rchild!=NULL)
+		{	printf("(");
+			DispBST(bt->lchild);				/*递归遍历左子树*/
+			if (bt->rchild!=NULL) printf(",");
+			DispBST(bt->rchild);				/*递归遍历右子树*/
+			printf(")");
+		}
+	}
+}
+void main()
+{	BSTNode *bt=NULL,*p;
+	int a[N],key;
+	int n,i;
+	printf("输入二叉排序树结点个数：");
+	scanf("%d",&n);
+	printf("输入二叉排序树的%d个结点值\n",n);
+	for(i=0;i<n;i++)
+		scanf("%d",&a[i]);
+	CreateBST(bt,a,n);  
+	printf("创建的二叉排序树为:\n");
+	DispBST(bt);
+	printf("\n");
+	printf("输入要查找的关键字key: ");
+	scanf("%d",&key);
+	p=BSTSearch(bt,key);
+	if(p!=NULL)
+		printf("存在关键字为%d结点\n",key);
+	else
+		printf("不存在关键字为%d结点\n",key);
+	printf("输入要插入的结点： ");
+	scanf("%d",&key);
+	BSTInsert(bt,key);
+	printf("插入结点后的二叉排序树为：\n");
+	DispBST(bt);
+	printf("\n");
+}
+运行结果：
+
+
+
+
+
+第七部分 排序
+实验一 选择法排序
+1、简单选择法排序
+【实验要求】 用简单选择法排序
+【算法思想】第1趟从n个待排序的关键字序列中选出最小的，第2趟从n-1待排序的关键字序列中选出次小的，如此反复进行下去，直到整个排序结束
+参考程序（调试）：
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void SelectSort(LineList R[],int n)
+{	int i,j,k;
+	LineList tmp;
+	for (i=0;i<n-1;i++)
+	{	k=i;
+		for (j=i+1;j<n;j++)
+			if (R[j].key<R[k].key) 
+				k=j;		/*用k指出每趟在无序区段的最小元素*/
+		tmp=R[i];			/*将R[k]与R[i]交换*/
+		R[i]=R[k];
+		R[k]=tmp;
+	}
+}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={75,87,68,92,88,61,77,96,80,72};
+	int n=10,i;
+	for (i=0;i<n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	SelectSort(R,n);
+	printf("排序后:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+2、堆排序
+【实验要求】利用堆排序的思想进行排序 
+【算法思想】堆排序如果初始序列是堆，则可通过反复执行如下操作而最终得到一个有序序列：输出根：即将根（第一个元素）与当前子序列中的最后一个元素交换。调整堆：将输出根之后的子序列调整为堆。如果初始序列不是堆，则首先要将其先建成堆，然后再按前面的方式来实现。
+参考程序（调试）：
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void Sift(LineList R[],int low,int high)
+{	int i=low,j=2*i;     		/*R[j]是R[i]的左孩子*/
+	LineList tmp=R[i];
+	while (j<=high) 
+	{	if (j<high && R[j].key<R[j+1].key) 	/*若右孩子较大,把j指向右孩子*/
+			j++;    				/*j变为2i+1,指向右孩子结点*/
+		if (tmp.key<R[j].key) 
+		{	R[i]=R[j];           /*将R[j]调整到双亲结点位置上*/
+			i=j;                  /*修改i和j值,以便继续向下筛选*/
+			j=2*i;
+		}
+		else break;              /*筛选结束*/
+	}
+	R[i]=tmp;                     /*被筛选结点的值放入最终位置*/
+}
+void HeapSort(LineList R[],int n)
+{	int i;
+	LineList tmp;
+	for (i=n/2;i>=1;i--)  	/*循环建立初始堆*/
+		Sift(R,i,n); 
+	for (i=n;i>=2;i--)   	/*进行n-1次循环,完成堆排序*/
+	{  	tmp=R[1];        	/*将第一个元素同当前区间内R[1]对换*/
+		R[1]=R[i];
+		R[i]=tmp;
+		Sift(R,1,i-1);   }  	/*筛选R[1]结点,得到i-1个结点的堆*/
+	}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={0,75,87,68,92,88,61,77,96,80,72};	/*有效数据从a[1]开始*/
+	int n=10,i;
+	for (i=0;i<=n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=1;i<=n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	HeapSort(R,n);
+	printf("排序后:");
+	for (i=1;i<=n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+运行结果：
+
+实验二 交换法排序
+1、冒泡法排序
+【实验要求】用冒泡法对无序数据进行排序
+【算法思想】将第一个记录的关键字与第二个记录的关键字进行比较，若为逆序r[1].key>r[2].key，则交换；然后比较第二个记录与第三个记录；依次类推，直至第n-1个记录和第n个记录比较为止——第一趟冒泡排序，结果关键字最大的记录被安置在最后一个记录上；对前n-1个记录进行第二趟冒泡排序，结果使关键字次大的记录被安置在第n-1个记录位置；重复上述过程，直到“在一趟排序过程中没有进行过交换记录的操作”为止
+【参考程序（调试）】
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void BubbleSort(LineList R[],int n)
+{	int i,j,exchange;
+	LineList tmp;
+	for (i=0;i<n-1;i++) 
+	{	exchange=0;
+		for (j=n-1;j>i;j--)	/*比较,找出最小关键字的记录*/
+			if (R[j].key<R[j-1].key)   	
+			{	tmp=R[j];  /*R[j]与R[j-1]进行交换,将最小关键字记录前移*/
+				R[j]=R[j-1];
+				R[j-1]=tmp;
+				exchange=1;
+			}
+		if (exchange==0) 	/*本趟未发生交换时结束算法*/
+			return;
+	}
+}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={75,87,68,92,88,61,77,96,80,72};
+	int n=10,i;
+	for (i=0;i<n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	BubbleSort(R,n);
+	printf("排序后:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+2、快速排序
+【实验要求】用快速排序算法，对无序数据进行排序
+【算法思想】找一个记录，以它的关键字作为“轴”，凡其关键字小于轴的记录均移动至该记录之前，反之，凡关键字大于枢轴的记录均移动至该记录之后。 
+【参考程序（调试）】
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void QuickSort(LineList R[],int s,int t) /*对R[s]至R[t]的元素进行快速排序*/
+{	int i=s,j=t;
+	LineList tmp;
+	if (s<t) 				/*区间内至少存在一个元素的情况*/
+	{	tmp=R[s];     		/*用区间的第1个记录作为基准*/
+		while (i!=j)  		/*从区间两端交替向中间扫描,直至i=j为止*/
+		{	while (j>i && R[j].key>tmp.key) 
+				j--;  		/*从右向左扫描,找第1个关键字小于tmp.key的R[j]*/ 
+			R[i]=R[j];		/*找到这样的R[j],则R[i]和R[j]交换*/
+			while (i<j && R[i].key<tmp.key) 
+				i++;		/*从左向右扫描,找第1个关键字大于tmp.key的R[i]*/
+			R[j]=R[i];		/*找到这样的R[i],则R[i]和R[j]交换*/
+		}
+		R[i]=tmp;
+		QuickSort(R,s,i-1);	/*对左区间递归排序*/
+		QuickSort(R,i+1,t);	/*对右区间递归排序*/
+	}
+}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={75,87,68,92,88,61,77,96,80,72};
+	int n=10,i;
+	for (i=0;i<n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	QuickSort(R,0,n-1);
+	printf("排序后:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+运行结果：
+实验三 插入法排序
+1、直接插入排序
+【实验要求】用直接插入排序算法，对无序数据进行排序
+【算法思想】在已形成的有序表中线性查找，并在适当位置插入，把原来位置上的元素向后顺移。
+【参考程序（调试）】
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void InsertSort(LineList R[],int n)
+{	int i,j;
+	LineList tmp;
+	for (i=1;i<n;i++)
+	{	tmp=R[i];
+		j=i-1;
+		while (j>=0 && tmp.key<R[j].key)/*元素后移,以便腾出一个位置插入tmp*/
+		{	R[j+1]=R[j];
+			j--;
+		}
+		R[j+1]=tmp;		/*在j+1位置处插入tmp*/
+	}
+}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={75,87,68,92,88,61,77,96,80,72};
+	int n=10,i;
+	for (i=0;i<n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	InsertSort(R,n);
+	printf("排序后:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+运行结果：
+
+
+2、希尔排序
+【实验要求】用希尔排序算法，对无序数据进行排序
+【算法思想】先将整个待排记录序列分割成若干子序列,分别进行直接插入排序，待整个序列中的记录“基本有序”时，再对全体记录进行一次直接插入排序。
+【参考程序（调试）】
+#include <stdio.h>
+#define MaxSize 100
+typedef int KeyType;		/*关键字类型*/
+typedef char ElemType[10];	/*其他数据项类型*/
+typedef struct 
+{	KeyType key;   			/*关键字域*/
+	ElemType data; 			/*其他数据域*/
+} LineList;					/*线性表元素类型*/
+void ShellSort(LineList R[],int n)
+{	int i,j,gap;
+	LineList tmp;
+	gap=n/2;					/*增量置初值*/
+	while (gap>0)
+	{	for (i=gap;i<n;i++)  	/*对所有相隔gap位置的所有元素组进行排序*/
+		{	tmp=R[i];
+			j=i-gap;
+			while (j>=0 && tmp.key<R[j].key)/*对相隔gap位置的元素组进行排序*/
+			{R[j+gap]=R[j];
+				j=j-gap;		/*移到本组中的前一个元素*/			}
+			R[j+gap]=tmp;
+			j=j-gap;
+		}
+		gap=gap/2;	/*减小增量*/
+	}
+}
+void main()
+{	LineList R[MaxSize];
+	KeyType a[]={75,87,68,92,88,61,77,96,80,72};
+	int n=10,i;
+	for (i=0;i<n;i++)
+		R[i].key=a[i];
+	printf("排序前:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+	ShellSort(R,n);
+	printf("排序后:");
+	for (i=0;i<n;i++)
+		printf("%3d",R[i].key);
+	printf("\n");
+}
+运行结果：

@@ -1,0 +1,143 @@
+第四部分 二叉树
+实验一 建立二叉树并遍历
+【实验要求】自定义数据结构，实现建立二叉树，并实现先序、中序和后序遍历。
+【算法思想】二叉树是以括号表示法进行输入，例：如图所示，括号表示法为A(B(,D),C(E,F(G)))，若以’(’开头，当前结点为左孩子，若以’,’开头，当前结点为右孩子。
+   二叉树的遍历采用括号表示法、先序递归、中序递归、后序递归和中序非递归方式进行遍历。
+   用递归的方式求所生成的二叉树的高度，二叉树高度是其左、右子树最大高度加1。
+用递归的方式求所生成的二叉树的结点个数，二叉树的结点个数是其左、右子树结点个数加1。
+用递归的方式求所生成的二叉树的叶子结点个数，二叉树的叶子结点个数是其左、右子树叶子结点个数之和。
+【参考程序（调试）】
+#include <stdio.h>
+#include <malloc.h>
+#define MaxSize 100
+typedef struct bnode
+{	char data;
+	struct bnode *lchild,*rchild;
+} BTNode;
+void CreateBTree(BTNode * &bt,char *str)	/*由str创建二叉链bt*/
+{	BTNode *St[MaxSize],*p=NULL;
+	int top=-1,k,j=0;  
+	char ch;
+	bt=NULL;			/*建立的二叉树初始时为空*/
+	ch=str[j];
+	while (ch!='\0')  	/*str未扫描完时循环*/
+	{   	switch(ch) 
+		{case '(':top++;St[top]=p;k=1; break;	/*为左孩子结点*/
+		 case ')':top--;break;
+		 case ',':k=2; break;                    /*为孩子结点右结点*/
+		default:p=(BTNode *)malloc(sizeof(BTNode));
+				p->data=ch;p->lchild=p->rchild=NULL;
+				if (bt==NULL)                   /**p为二叉树的根结点*/
+					bt=p;
+				else  							/*已建立二叉树根结点*/
+				{	switch(k) 
+					{case 1:St[top]->lchild=p;break;
+					 case 2:St[top]->rchild=p;break;	}
+				}
+		}
+		j++;
+		ch=str[j];	}
+}
+void DispBTree(BTNode *bt)	/*以括号表示法输出二叉树*/
+{	if (bt!=NULL)
+	{	printf("%c",bt->data);
+		if (bt->lchild!=NULL || bt->rchild!=NULL)
+		{	printf("(");
+			DispBTree(bt->lchild);		
+			if (bt->rchild!=NULL) 
+				printf(",");
+			DispBTree(bt->rchild);		
+			printf(")");}
+	}
+}
+void preorder(BTNode *bt)   /*先序递归遍历二叉树*/
+{  	if(bt!=NULL)
+	{  	printf("%c ",bt->data);
+		preorder(bt->lchild);
+		preorder(bt->rchild);
+	}
+}
+void  inorder(BTNode  *bt)  /*中序递归遍历二叉树*/
+{ 	if(bt!=NULL) 
+	{   	inorder(bt->lchild);
+		printf("%c ",bt->data);
+		inorder(bt->rchild);
+	}}
+void  postorder(BTNode  *bt)  /*后序递归遍历二叉树*/
+{	if(bt!=NULL) 
+	{   postorder(bt->lchild);
+        postorder(bt->rchild);
+        printf("%c ",bt->data);  } 
+}
+void inorder1(BTNode *bt)  /*中序非递归遍历二叉树*/
+{	BTNode *St[MaxSize],*p=bt;
+	int top=-1;
+	while((p!=NULL)||(top!=-1))
+	{	while(p)                   
+		{	top++;
+			St[top]=p;        
+			p=p->lchild;       //子树根结点全部进栈
+		}
+		if(top!=-1)
+		{	p=St[top];
+			top--;
+			printf("%c ",p->data);  
+			p=p->rchild;           //进入右孩子访问
+		}
+	}
+}
+int BTHeight(BTNode *bt)	/*求二叉树高度*/
+{   	int lchilddep,rchilddep;
+   	if (bt==NULL) return(0); 			/*空树的高度为0*/
+   	else  
+	{	lchilddep=BTHeight(bt->lchild);	/*求左子树的高度为lchilddep*/
+	  	rchilddep=BTHeight(bt->rchild);	/*求右子树的高度为rchilddep*/
+		return (lchilddep>rchilddep)? (lchilddep+1):(rchilddep+1);
+   	}
+}
+int NodeCount(BTNode *bt)	/*求二叉树bt的结点个数*/
+{    	int num1,num2;
+    	if (bt==NULL)	/*空树结点个数为0*/ 
+			return 0;
+    	else
+    	{	num1=NodeCount(bt->lchild);	/*求出左子树的结点数*/
+        	num2=NodeCount(bt->rchild);	/*求出右子树的结点数*/
+        	return (num1+num2+1);	}
+}
+int LeafCount(BTNode *bt)	/*求二叉树bt的叶子结点个数*/
+{	int num1,num2;
+    	if (bt==NULL)	/*空树叶子结点个数为0*/ 
+			return 0;
+    	else if (bt->lchild==NULL && bt->rchild==NULL) 
+			return 1;	/*若为叶子结点返回1*/ 
+    	else
+    	{	num1=LeafCount(bt->lchild);	/*求出左子树的叶子结点数*/
+        	num2=LeafCount(bt->rchild);	/*求出右子树的叶子结点数*/
+        	return (num1+num2);}
+}
+void main()
+{	BTNode *bt;
+	char s[MaxSize];
+	printf("以括号表示法输入二叉树：\n");
+	gets(s);
+	CreateBTree(bt,s);	
+	printf("以括号表示法输出二叉树bt:\n");
+	DispBTree(bt);
+	printf("\n");
+	printf("先序递归遍历二叉树bt:\n");
+	preorder(bt);
+	printf("\n");
+	printf("中序递归遍历二叉树bt:\n");
+	inorder(bt);
+	printf("\n");
+	printf("中序非递归遍历二叉树bt:\n");
+	inorder1(bt);
+	printf("\n");
+	printf("后序递归遍历二叉树bt:\n");
+	postorder(bt);
+	printf("\n");
+	printf("bt的高度:%d\n",BTHeight(bt));
+	printf("bt的结点数:%d\n",NodeCount(bt));
+	printf("bt的叶子结点数:%d\n",LeafCount(bt));
+}
+

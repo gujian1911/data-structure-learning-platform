@@ -1,0 +1,156 @@
+实验二 单链表的建立
+【实验要求】建立带头结点的单链表。
+【算法思想】用尾插法建立一个有头结点的单链表。先申请一个空间结点作为头结点，之后所有申请的结点都插在链表的尾结点之后。算法的执行过程如下图所示。
+
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct node
+{
+ int data;
+ struct node *next;
+}node;
+void print(node *head)
+{
+ node *p;
+ p=head->next;
+ while(p!=NULL)
+ {
+  printf("%d ",p->data);
+  p=p->next;
+ }
+}
+node* search(node *head,int x)
+{
+ node *p,*q;
+ q=head;
+ p=head->next;
+ while(p!=NULL&&p->data!=x)
+ {
+  q=p;
+  p=p->next;
+ }
+ if(p==NULL)
+  return 0;
+ else
+ {
+  return q;
+ }
+}
+void replace(node *head,int x,int y)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要替换的值\n");
+ else
+ {
+  p=q->next;
+  p->data=y;
+ }
+}
+void dele(node *head,int x)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要删除的值\n");
+ else
+ {
+  p=q->next;
+  q->next=p->next;
+  free(p);
+ }
+
+}
+void instert(node *head,int x ,int y)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要插入的数");
+ else
+ {
+  p=(node *)malloc(sizeof(node ));
+  p->data=y;
+  p->next=q->next;
+  q->next=p;
+ }
+}
+void weicha(node *head,int n)
+{
+ node *r,*p;
+ r=head;
+ while(n>=1)
+ {
+  p=(node *)malloc(sizeof(node ));
+  scanf("%d",&p->data);
+  p->next=NULL;
+  r->next=p;
+  r=p;
+  n--;
+ }
+}
+void toucha(node *head,int n)
+{
+ node *p;
+  while(n>=1)
+ {
+  p=(node *)malloc(sizeof(node ));
+  scanf("%d",&p->data);
+  p->next=head->next;
+  head->next=p;
+  n--;
+ }
+}struct node * chazhao(struct node *head,int x)
+{
+ struct node *p,*q;
+ p=head;
+ q=head->next;
+ while(q!=NULL&&q->data!=x)
+ {
+  p=q;
+  q=p->next;
+ }
+ if(q==NULL)
+  return 0;
+ else
+ return p;
+}
+void main()
+{
+ node *head;
+ int n,choice,x,y,z;
+ head=(node *)malloc(sizeof(node));
+ head->next=NULL;
+ printf("请输入选项: 1 头插 2 尾插\n");
+ scanf("%d",&z);
+ printf("请输入数的个数\n");
+ scanf("%d",&n);
+ printf("请输入%d个数\n",n);
+ if(z==1)
+  toucha(head,n);
+ if(z==2)
+ weicha(head,n);
+ printf("请输入选项: 1 替换 2 删除 3 插入 4 查找\n");
+ scanf("%d",&choice);
+ if(choice==1)
+ {
+  printf("请输入被替换的数和替换的数\n");
+  scanf("%d %d",&x,&y);
+  replace(head,x,y);
+  print(head);
+ }
+ if(choice==2)
+ {
+  printf("请输入想要删除得数\n");
+  scanf("%d",&x);
+  dele(head,x);
+  print(head);
+ }
+ if(choice==3)
+ {
+  printf("请输入在哪个数之前，在输入要插入的数\n");
+  scanf("%d %d",&x,&y);
+  inster(head,x,y);
+ ｝
+｝
