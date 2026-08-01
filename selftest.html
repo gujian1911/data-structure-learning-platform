@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>题库自测 - 数据结构课程学习平台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 导航栏（与平台保持一致） -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html" class="active">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <!-- Banner区 -->
+    <div style="background: linear-gradient(135deg, #1a56db 0%, #1e429f 100%); color: white; padding: 48px 24px;">
+      <div class="container" style="text-align: center;">
+        <h1 style="font-size: 2.2rem; margin-bottom: 12px;">📋 数据结构题库自测</h1>
+        <p style="font-size: 1.05rem; opacity: 0.9; max-width: 600px; margin: 0 auto;">
+          按章节和题型自主组卷，针对性练习，即时评分并查看详细解析
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- 统计概览 -->
+      <div class="card" style="margin-top: -32px; position: relative; z-index: 10;">
+        <div class="stats-bar" style="justify-content: center;">
+          <div class="stat-item">
+            <span class="stat-num" id="total-judge">0</span>
+            <span class="stat-label">判断题</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="total-choice">0</span>
+            <span class="stat-label">选择题</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="total-fill">0</span>
+            <span class="stat-label">填空题</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="total-application">0</span>
+            <span class="stat-label">应用题</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="total-all">0</span>
+            <span class="stat-label">总题量</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第一步：选择章节 -->
+      <div style="margin-top: 32px;">
+        <div class="page-header">
+          <h2>📖 第一步：选择章节</h2>
+          <p>点击选择章节进行自测（可多选）。提示：按 Ctrl+A 可全选所有章节和题型</p>
+        </div>
+        <div class="chapter-select-grid" id="chapter-grid">
+          <!-- 由JS动态生成 -->
+        </div>
+      </div>
+
+      <!-- 第二步：选择题型 -->
+      <div style="margin-top: 40px;">
+        <div class="page-header">
+          <h2>📝 第二步：选择题型</h2>
+          <p>选择要测试的题型（可多选）</p>
+        </div>
+        <div class="type-cards" id="type-grid">
+          <div class="type-card" data-type="judge" onclick="toggleType(this)">
+            <div class="type-icon">✅</div>
+            <div class="type-name">判断题</div>
+            <div class="type-count" id="count-judge">0 题</div>
+          </div>
+          <div class="type-card" data-type="choice" onclick="toggleType(this)">
+            <div class="type-icon">🔘</div>
+            <div class="type-name">选择题</div>
+            <div class="type-count" id="count-choice">0 题</div>
+          </div>
+          <div class="type-card" data-type="fill" onclick="toggleType(this)">
+            <div class="type-icon">✏️</div>
+            <div class="type-name">填空题</div>
+            <div class="type-count" id="count-fill">0 题</div>
+          </div>
+          <div class="type-card" data-type="application" onclick="toggleType(this)">
+            <div class="type-icon">📝</div>
+            <div class="type-name">应用题</div>
+            <div class="type-count" id="count-application">0 题</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第三步：出题数量和模式 -->
+      <div style="margin-top: 40px;">
+        <div class="page-header">
+          <h2>⚙️ 第三步：设置出题参数</h2>
+          <p>设置出题数量和出题模式</p>
+        </div>
+        <div class="card">
+          <div class="selftest-filter">
+            <div class="filter-group">
+              <label>出题数量</label>
+              <select id="quiz-count">
+                <option value="5">5 题</option>
+                <option value="10" selected>10 题</option>
+                <option value="15">15 题</option>
+                <option value="20">20 题</option>
+                <option value="30">30 题</option>
+                <option value="0">全部题目</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>出题模式</label>
+              <select id="quiz-mode">
+                <option value="random">随机出题</option>
+                <option value="order">顺序出题</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 8px; color: var(--text-light); font-size: 0.9rem;">
+            当前可选题目数：<strong id="available-count" style="color: var(--primary);">0</strong> 题
+          </div>
+        </div>
+      </div>
+
+      <!-- 开始按钮 -->
+      <div style="text-align: center; margin-top: 32px; margin-bottom: 48px;">
+        <button class="btn btn-primary" style="padding: 14px 48px; font-size: 1.1rem;" onclick="startQuiz()">🚀 开始自测</button>
+        <div id="start-hint" style="margin-top: 12px; color: #dc2626; font-size: 0.9rem; display: none;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/selftest-data.js?v=3"></script>
+  <script>
+    // 章节信息（与平台章节一致）
+    const chapters = [
+      { id: 1, name: '绪论', desc: '基本概念、逻辑结构、存储结构、算法复杂度' },
+      { id: 2, name: '线性表', desc: '顺序表、链表、基本操作与应用' },
+      { id: 3, name: '栈和队列', desc: '栈与队列的定义、存储实现、递归' },
+      { id: 4, name: '串、数组和广义表', desc: '串的模式匹配、数组压缩存储、广义表' },
+      { id: 5, name: '树', desc: '二叉树、遍历、线索化、哈夫曼树' },
+      { id: 6, name: '图', desc: '存储结构、遍历、最小生成树、最短路径' },
+      { id: 7, name: '查找', desc: '顺序查找、折半查找、二叉排序树、哈希表' },
+      { id: 8, name: '排序', desc: '插入排序、交换排序、选择排序、归并排序' }
+    ];
+
+    let selectedChapters = new Set();
+    let selectedTypes = new Set();
+
+    // 初始化章节网格
+    function initChapterGrid() {
+      const grid = document.getElementById('chapter-grid');
+      grid.innerHTML = chapters.map(ch => `
+        <div class="chapter-select-item" data-chapter="${ch.id}" onclick="toggleChapter(this)">
+          <div class="ch-num">第${ch.id}章</div>
+          <div class="ch-name">${ch.name}</div>
+          <div style="font-size:0.8rem;color:var(--text-light);margin-top:4px;">${ch.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    // 切换章节选择
+    function toggleChapter(el) {
+      const chId = parseInt(el.dataset.chapter);
+      if (selectedChapters.has(chId)) {
+        selectedChapters.delete(chId);
+        el.classList.remove('selected');
+      } else {
+        selectedChapters.add(chId);
+        el.classList.add('selected');
+      }
+      updateCounts();
+    }
+
+    // 切换题型选择
+    function toggleType(el) {
+      const type = el.dataset.type;
+      if (selectedTypes.has(type)) {
+        selectedTypes.delete(type);
+        el.classList.remove('selected');
+      } else {
+        selectedTypes.add(type);
+        el.classList.add('selected');
+      }
+      updateCounts();
+    }
+
+    // 更新题目计数
+    function updateCounts() {
+      let totalJudge = 0, totalChoice = 0, totalFill = 0, totalApp = 0;
+      const chs = selectedChapters.size > 0 ? [...selectedChapters] : chapters.map(c => c.id);
+
+      chs.forEach(chId => {
+        const chKey = 'ch' + chId;
+        if (selftestData[chKey]) {
+          totalJudge += (selftestData[chKey].judge || []).length;
+          totalChoice += (selftestData[chKey].choice || []).length;
+          totalFill += (selftestData[chKey].fill || []).length;
+          totalApp += (selftestData[chKey].application || []).length;
+        }
+      });
+
+      if (selectedChapters.size === 0) {
+        let gJ = 0, gC = 0, gF = 0, gA = 0;
+        chapters.forEach(c => {
+          const k = 'ch' + c.id;
+          if (selftestData[k]) {
+            gJ += (selftestData[k].judge || []).length;
+            gC += (selftestData[k].choice || []).length;
+            gF += (selftestData[k].fill || []).length;
+            gA += (selftestData[k].application || []).length;
+          }
+        });
+        document.getElementById('total-judge').textContent = gJ;
+        document.getElementById('total-choice').textContent = gC;
+        document.getElementById('total-fill').textContent = gF;
+        document.getElementById('total-application').textContent = gA;
+        document.getElementById('total-all').textContent = gJ + gC + gF + gA;
+      }
+
+      document.getElementById('count-judge').textContent = totalJudge + ' 题';
+      document.getElementById('count-choice').textContent = totalChoice + ' 题';
+      document.getElementById('count-fill').textContent = totalFill + ' 题';
+      document.getElementById('count-application').textContent = totalApp + ' 题';
+
+      let available = 0;
+      if (selectedTypes.size > 0) {
+        if (selectedTypes.has('judge')) available += totalJudge;
+        if (selectedTypes.has('choice')) available += totalChoice;
+        if (selectedTypes.has('fill')) available += totalFill;
+        if (selectedTypes.has('application')) available += totalApp;
+      }
+      document.getElementById('available-count').textContent = available;
+    }
+
+    // 开始测试
+    function startQuiz() {
+      const hint = document.getElementById('start-hint');
+      if (selectedChapters.size === 0) {
+        hint.textContent = '请至少选择一个章节！';
+        hint.style.display = 'block';
+        return;
+      }
+      if (selectedTypes.size === 0) {
+        hint.textContent = '请至少选择一种题型！';
+        hint.style.display = 'block';
+        return;
+      }
+      hint.style.display = 'none';
+
+      const params = new URLSearchParams({
+        ch: [...selectedChapters].join(','),
+        type: [...selectedTypes].join(','),
+        count: document.getElementById('quiz-count').value,
+        mode: document.getElementById('quiz-mode').value
+      });
+      location.href = 'selftest-quiz.html?' + params.toString();
+    }
+
+    // 初始化
+    initChapterGrid();
+    updateCounts();
+
+    // 全选快捷操作
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        document.querySelectorAll('.chapter-select-item').forEach(el => {
+          const chId = parseInt(el.dataset.chapter);
+          selectedChapters.add(chId);
+          el.classList.add('selected');
+        });
+        document.querySelectorAll('.type-card').forEach(el => {
+          selectedTypes.add(el.dataset.type);
+          el.classList.add('selected');
+        });
+        updateCounts();
+      }
+    });
+  </script>
+</body>
+</html>

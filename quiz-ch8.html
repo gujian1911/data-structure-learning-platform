@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第9章测试 - 排序 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch8.html">课程学习</a></li>
+      <li><a href="quiz-ch8.html" class="active">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📝 测试目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="quiz-ch1.html">第一章 绪论</a></li>
+            <li><a href="quiz-ch2.html">第二章 线性表</a></li>
+            <li><a href="quiz-ch3.html">第三章 栈和队列</a></li>
+            <li><a href="quiz-ch4.html">第四章 串、数组和广义表</a></li>
+            <li><a href="quiz-ch5.html">第五章 树</a></li>
+            <li><a href="quiz-ch6.html">第六章 图</a></li>
+            <li><a href="quiz-ch7.html">第七章 查找</a></li>
+            <li><a href="quiz-ch8.html">第八章 排序</a></li>
+            <li><a href="quiz-mock.html">模拟试题</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第9章</span>
+            <span class="tag tag-orange">测试</span>
+          </div>
+          <h1>排序 - 在线测试</h1>
+          <p>选择题与判断题共14题，答完后点击提交查看得分</p>
+        </div>
+
+        <form id="quiz-form" class="quiz-container">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📝 选择题（共9题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、一组记录的排序码为（46，79，56，38，40，84），则利用堆排序的方法建立的初始堆为。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q0" value="A"> A. 79，46，56，38，40，80</label>
+              <label><input type="radio" name="q0" value="B"> B. 84，79，56，38，40，46</label>
+              <label><input type="radio" name="q0" value="C"> C. 84，79，56，46，40，38</label>
+              <label><input type="radio" name="q0" value="D"> D. 84，56，79，40，46，38</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、排序趟数与序列原始状态(原始排列)有关的排序方法是方法。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="A"> A. ）方法。</label>
+              <label><input type="radio" name="q1" value="B"> B. 插入排序</label>
+              <label><input type="radio" name="q1" value="C"> C. 选择排序</label>
+              <label><input type="radio" name="q1" value="D"> D. 冒泡排序</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、下列排序方法中，是稳定的排序方法。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="A"> A. 直接选择排序</label>
+              <label><input type="radio" name="q2" value="B"> B. 二分法插入排序</label>
+              <label><input type="radio" name="q2" value="C"> C. 希尔排序</label>
+              <label><input type="radio" name="q2" value="D"> D. 快速排序</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、数据序列（8，9，10，4，5，6，20，1，2）只能是下列排序算法中的两趟排序后的结果。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="A"> A. 选择排序</label>
+              <label><input type="radio" name="q3" value="B"> B. 冒泡排序</label>
+              <label><input type="radio" name="q3" value="C"> C. 插入排序</label>
+              <label><input type="radio" name="q3" value="D"> D. 堆排序</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、对序列(15，9，7，8，20，-1，4)进行排序，进行一趟排序后，数据的排列变为（4，9，-1，8，20，7，15），则采用的是排序。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="A"> A. 选择</label>
+              <label><input type="radio" name="q4" value="B"> B. 快速</label>
+              <label><input type="radio" name="q4" value="C"> C. 希尔</label>
+              <label><input type="radio" name="q4" value="D"> D. 冒泡</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、一组待排序记录的关键字为（46，79，56，38，40，84），则利用快速排序，以第一个记录为基准元素得到的一次划分结果为。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="A"> A. (38,40,46,56,79,84)</label>
+              <label><input type="radio" name="q5" value="B"> B. (40,38,46,79,56,84)</label>
+              <label><input type="radio" name="q5" value="C"> C. (40,38,46,56,79,84)</label>
+              <label><input type="radio" name="q5" value="D"> D. (40,38,46,84,56,79)</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、用直接插入排序对下面四个序列进行排序（由小到大），元素比较次数最少的是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="A"> A. 94,32,40,90,80,46,21,69</label>
+              <label><input type="radio" name="q6" value="B"> B. 32,40,21,46,69,94,90,80</label>
+              <label><input type="radio" name="q6" value="C"> C. 21,32,46,40,80,69,90,94</label>
+              <label><input type="radio" name="q6" value="D"> D. 90,69,80,46,21,32,94,40</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、若用冒泡排序对关键字序列（18,16,14,12,10,8）进行从小到大的排序，所需进行的关键字比较总次数是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="A"> A. 10</label>
+              <label><input type="radio" name="q7" value="B"> B. 15</label>
+              <label><input type="radio" name="q7" value="C"> C. 21</label>
+              <label><input type="radio" name="q7" value="D"> D. 34</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>9、就排序算法所用的辅助空间而言，堆排序、快速排序和归并排序的关系。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q8" value="A"> A. 堆排序&lt;快速排序&lt;归并排序</label>
+              <label><input type="radio" name="q8" value="B"> B. 堆排序&lt;归并排序&lt;快速排序</label>
+              <label><input type="radio" name="q8" value="C"> C. 堆排序&gt;归并排序&gt;快速排序</label>
+              <label><input type="radio" name="q8" value="D"> D. 堆排序&gt;快速排序&gt;归并排序 E、以上答案都不对</label>
+            </div>
+          </div>
+
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>10、快速排序是不稳定的排序算法。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q9" value="A"> A. 正确</label>
+              <label><input type="radio" name="q9" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>11、冒泡排序和直接插入排序都是稳定的排序算法。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q10" value="A"> A. 正确</label>
+              <label><input type="radio" name="q10" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>12、堆排序的空间复杂度是O(1)。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q11" value="A"> A. 正确</label>
+              <label><input type="radio" name="q11" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>13、归并排序的时间复杂度是O(n²)。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q12" value="A"> A. 正确</label>
+              <label><input type="radio" name="q12" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>14、排序趟数与初始序列状态无关的算法是简单选择排序。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q13" value="A"> A. 正确</label>
+              <label><input type="radio" name="q13" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          <div id="quiz-result" style="display: none; padding: 16px; background: var(--primary-light); border-radius: 8px; margin-bottom: 16px; color: var(--primary);"></div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary" onclick="scoreQuiz('quiz-form', ['A','A','A','A','A','A','A','A','A','A','A','A','B','A'])">提交答案</button>
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('quiz-result').style.display='none'; document.querySelectorAll('.quiz-options label').forEach(l=>l.style.background=''); document.querySelectorAll('.quiz-options input').forEach(i=>i.disabled=false);">重新答题</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

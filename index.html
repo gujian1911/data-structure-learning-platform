@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据结构课程学习平台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main page-home">
+    <!-- ============ Hero Banner ============ -->
+    <section class="hero-banner">
+      <!-- 浮动气泡 -->
+      <div class="hero-bubbles">
+        <span class="hero-bubble" style="left:10%;width:40px;height:40px;animation-duration:14s;animation-delay:0s;"></span>
+        <span class="hero-bubble" style="left:25%;width:24px;height:24px;animation-duration:18s;animation-delay:2s;"></span>
+        <span class="hero-bubble" style="left:40%;width:56px;height:56px;animation-duration:16s;animation-delay:1s;"></span>
+        <span class="hero-bubble" style="left:58%;width:32px;height:32px;animation-duration:20s;animation-delay:3s;"></span>
+        <span class="hero-bubble" style="left:72%;width:48px;height:48px;animation-duration:15s;animation-delay:0.5s;"></span>
+        <span class="hero-bubble" style="left:88%;width:28px;height:28px;animation-duration:19s;animation-delay:2.5s;"></span>
+      </div>
+      <!-- 装饰几何图形 -->
+      <div class="hero-deco" aria-hidden="true">
+        <span class="hero-shape s1"></span>
+        <span class="hero-shape s2"></span>
+        <span class="hero-shape s3"></span>
+        <span class="hero-shape s4"></span>
+      </div>
+      <!-- 代码符号装饰 -->
+      <div class="hero-icons" aria-hidden="true">
+        <span class="hero-icon i1">{ }</span>
+        <span class="hero-icon i2">→</span>
+        <span class="hero-icon i3">[ ]</span>
+        <span class="hero-icon i4">O(n)</span>
+        <span class="hero-icon i5">⟨ ⟩</span>
+        <span class="hero-icon i6">∑</span>
+      </div>
+
+      <div class="hero-inner">
+        <div class="hero-badge">✨ 基于 AIGC 知识库的智能学习平台</div>
+        <h1 class="hero-title">数据结构<br>课程学习平台</h1>
+        <p class="hero-subtitle" id="typingSubtitle">
+          <span class="typing-text"></span><span class="typing-cursor"></span>
+        </p>
+        <div class="hero-actions">
+          <a href="ch1.html" class="hero-btn hero-btn-primary">
+            <span>🚀</span> 开始学习
+          </a>
+          <a href="#mindmap" class="hero-btn hero-btn-ghost">
+            <span>🗺️</span> 思维导图
+          </a>
+          <a href="selftest.html" class="hero-btn hero-btn-ghost">
+            <span>🎯</span> 题库自测
+          </a>
+          <a href="experiment.html" class="hero-btn hero-btn-ghost">
+            <span>🧪</span> 算法实验
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 统计数据 ============ -->
+    <section class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon">📖</div>
+        <div class="stat-num" data-count="8" data-suffix="">0</div>
+        <div class="stat-label">核心章节</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-num" data-count="480" data-suffix="+">0</div>
+        <div class="stat-label">题库题目</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🧪</div>
+        <div class="stat-num" data-count="9" data-suffix="">0</div>
+        <div class="stat-label">算法动画实验</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-num" data-count="4" data-suffix="">0</div>
+        <div class="stat-label">模拟试卷</div>
+      </div>
+    </section>
+
+    <div class="home-section">
+      <!-- ============ 核心功能 ============ -->
+      <div class="section-header reveal">
+        <h2 class="section-title">核心功能</h2>
+        <p class="section-desc">一站式学习平台，课程、测试、实验、社区全覆盖</p>
+      </div>
+
+      <div class="feature-grid">
+        <a href="ch1.html" class="feature-card fc-blue reveal">
+          <div class="fc-icon fc-icon-blue">📖</div>
+          <div class="fc-title">课程学习</div>
+          <div class="fc-desc">八章核心内容，配套 PPT 课件逐章讲解，覆盖绪论、线性表、栈队列、串数组、树、图、查找、排序。</div>
+          <div class="fc-link">进入学习 →</div>
+        </a>
+
+        <a href="selftest.html" class="feature-card fc-green reveal">
+          <div class="fc-icon fc-icon-green">🧠</div>
+          <div class="fc-title">题库自测</div>
+          <div class="fc-desc">每章选择、判断、填空、应用题随机组卷，实时解析与自评，错题检测查漏补缺。</div>
+          <div class="fc-link">开始自测 →</div>
+        </a>
+
+        <a href="experiment.html" class="feature-card fc-amber reveal">
+          <div class="fc-icon fc-icon-amber">🧪</div>
+          <div class="fc-title">实验中心</div>
+          <div class="fc-desc">9 个算法可视化实验：栈队列、链表、二叉树、二分查找、冒泡/选择排序，动画演示核心过程。</div>
+          <div class="fc-link">进入实验 →</div>
+        </a>
+
+        <a href="mock-exam.html" class="feature-card fc-purple reveal">
+          <div class="fc-icon fc-icon-purple">🎯</div>
+          <div class="fc-title">模拟试题</div>
+          <div class="fc-desc">4 套完整模拟试卷 + 参考答案下载，综合检验数据结构掌握程度，备战期末考试。</div>
+          <div class="fc-link">查看试卷 →</div>
+        </a>
+
+        <a href="knowledge.html" class="feature-card fc-pink reveal">
+          <div class="fc-icon fc-icon-pink">💎</div>
+          <div class="fc-title">知识库</div>
+          <div class="fc-desc">核心概念速查、常用算法模板、公式与复杂度总结，打造你的数据结构速查手册。</div>
+          <div class="fc-link">打开知识库 →</div>
+        </a>
+
+        <a href="discuss.html" class="feature-card fc-cyan reveal">
+          <div class="fc-icon fc-icon-cyan">💬</div>
+          <div class="fc-title">交流讨论</div>
+          <div class="fc-desc">发帖提问、求助答疑、学习分享；支持文字、图片、文件附件，互相交流共同进步。</div>
+          <div class="fc-link">加入讨论 →</div>
+        </a>
+      </div>
+
+      <!-- ============ 知识思维导图 ============ -->
+      <div class="section-header reveal" id="mindmap">
+        <h2 class="section-title">🗺️ 知识思维导图</h2>
+        <p class="section-desc">点击任意节点快速跳转对应章节，系统梳理数据结构知识脉络</p>
+      </div>
+
+      <div class="mindmap reveal">
+        <!-- 曲线连接层 -->
+        <svg class="mm-lines" aria-hidden="true" preserveAspectRatio="none"></svg>
+        <!-- 中心节点 -->
+        <div class="mm-root">
+          <div class="mm-node mm-center">
+            <span class="mm-icon">🌳</span>
+            <span class="mm-text">数据结构</span>
+          </div>
+        </div>
+
+        <!-- 分支层 -->
+        <div class="mm-branches">
+          <!-- 分支1：基础概念 -->
+          <div class="mm-branch mm-branch-top-left">
+            <a href="ch1.html" class="mm-node mm-lv1 mm-c1">
+              <span class="mm-icon">📘</span><span class="mm-text">基础概念</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch1.html" class="mm-node mm-lv2">绪论·复杂度</a>
+              <a href="ch1.html" class="mm-node mm-lv2">逻辑/存储结构</a>
+              <a href="ch1.html" class="mm-node mm-lv2">算法分析</a>
+            </div>
+          </div>
+
+          <!-- 分支2：线性结构 -->
+          <div class="mm-branch mm-branch-top-right">
+            <a href="ch2.html" class="mm-node mm-lv1 mm-c2">
+              <span class="mm-icon">📗</span><span class="mm-text">线性结构</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch2.html" class="mm-node mm-lv2">顺序表 / 链表</a>
+              <a href="ch3.html" class="mm-node mm-lv2">栈 & 队列</a>
+              <a href="ch4.html" class="mm-node mm-lv2">串 / 数组 / 广义表</a>
+            </div>
+          </div>
+
+          <!-- 分支3：树形结构 -->
+          <div class="mm-branch mm-branch-bottom-left">
+            <a href="ch5.html" class="mm-node mm-lv1 mm-c3">
+              <span class="mm-icon">📙</span><span class="mm-text">树形结构</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch5.html" class="mm-node mm-lv2">二叉树·遍历</a>
+              <a href="ch5.html" class="mm-node mm-lv2">线索 / 森林</a>
+              <a href="ch5.html" class="mm-node mm-lv2">哈夫曼树</a>
+            </div>
+          </div>
+
+          <!-- 分支4：图结构 -->
+          <div class="mm-branch mm-branch-bottom-right">
+            <a href="ch6.html" class="mm-node mm-lv1 mm-c4">
+              <span class="mm-icon">📕</span><span class="mm-text">图结构</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch6.html" class="mm-node mm-lv2">存储·遍历</a>
+              <a href="ch6.html" class="mm-node mm-lv2">最小生成树</a>
+              <a href="ch6.html" class="mm-node mm-lv2">最短路·拓扑</a>
+            </div>
+          </div>
+
+          <!-- 分支5：查找算法 -->
+          <div class="mm-branch mm-branch-mid-left">
+            <a href="ch7.html" class="mm-node mm-lv1 mm-c5">
+              <span class="mm-icon">🔍</span><span class="mm-text">查找</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch7.html" class="mm-node mm-lv2">顺序 / 折半</a>
+              <a href="ch7.html" class="mm-node mm-lv2">BST / AVL</a>
+              <a href="ch7.html" class="mm-node mm-lv2">哈希查找</a>
+            </div>
+          </div>
+
+          <!-- 分支6：排序算法 -->
+          <div class="mm-branch mm-branch-mid-right">
+            <a href="ch8.html" class="mm-node mm-lv1 mm-c6">
+              <span class="mm-icon">📊</span><span class="mm-text">排序</span>
+            </a>
+            <div class="mm-sub">
+              <a href="ch8.html" class="mm-node mm-lv2">插入 / 交换</a>
+              <a href="ch8.html" class="mm-node mm-lv2">选择 / 归并</a>
+              <a href="ch8.html" class="mm-node mm-lv2">基数 / 性能</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 章节导览 ============ -->
+      <div class="section-header reveal">
+        <h2 class="section-title">章节导览</h2>
+        <p class="section-desc">点击章节卡片进入学习，或选择测试检验掌握程度</p>
+      </div>
+
+      <div class="chapter-grid">
+        <div class="chapter-card ch1 reveal" onclick="location.href='ch1.html'">
+          <div class="chapter-num">第一章</div>
+          <div class="chapter-title">绪论</div>
+          <div class="chapter-desc">数据结构基本概念、逻辑与存储结构、算法复杂度分析</div>
+          <div class="chapter-actions">
+            <a href="ch1.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch1.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch2 reveal" onclick="location.href='ch2.html'">
+          <div class="chapter-num">第二章</div>
+          <div class="chapter-title">线性表</div>
+          <div class="chapter-desc">顺序表与链表的存储结构、基本操作及典型应用实例</div>
+          <div class="chapter-actions">
+            <a href="ch2.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch2.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch3 reveal" onclick="location.href='ch3.html'">
+          <div class="chapter-num">第三章</div>
+          <div class="chapter-title">栈和队列</div>
+          <div class="chapter-desc">栈与队列的定义、存储实现、递归与表达式求值应用</div>
+          <div class="chapter-actions">
+            <a href="ch3.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch3.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch4 reveal" onclick="location.href='ch4.html'">
+          <div class="chapter-num">第四章</div>
+          <div class="chapter-title">串、数组和广义表</div>
+          <div class="chapter-desc">串的模式匹配；数组压缩存储；广义表存储与操作</div>
+          <div class="chapter-actions">
+            <a href="ch4.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch4.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch5 reveal" onclick="location.href='ch5.html'">
+          <div class="chapter-num">第五章</div>
+          <div class="chapter-title">树</div>
+          <div class="chapter-desc">二叉树性质与遍历、线索二叉树、树与森林、哈夫曼树</div>
+          <div class="chapter-actions">
+            <a href="ch5.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch5.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch6 reveal" onclick="location.href='ch6.html'">
+          <div class="chapter-num">第六章</div>
+          <div class="chapter-title">图</div>
+          <div class="chapter-desc">图的存储、遍历算法、最小生成树、最短路径、拓扑排序</div>
+          <div class="chapter-actions">
+            <a href="ch6.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch6.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch7 reveal" onclick="location.href='ch7.html'">
+          <div class="chapter-num">第七章</div>
+          <div class="chapter-title">查找</div>
+          <div class="chapter-desc">顺序/折半查找、二叉排序树、平衡二叉树、哈希查找</div>
+          <div class="chapter-actions">
+            <a href="ch7.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch7.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+
+        <div class="chapter-card ch8 reveal" onclick="location.href='ch8.html'">
+          <div class="chapter-num">第八章</div>
+          <div class="chapter-title">排序</div>
+          <div class="chapter-desc">插入/交换/选择/归并/基数排序，算法性能综合对比</div>
+          <div class="chapter-actions">
+            <a href="ch8.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
+            <a href="quiz-ch8.html" class="btn btn-secondary" onclick="event.stopPropagation()">测试</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ CTA Banner ============ -->
+      <div class="cta-banner reveal">
+        <div class="cta-inner">
+          <div class="cta-content">
+            <h3>🎓 准备好了吗？开始你的数据结构学习之旅</h3>
+            <p>从第一章开始系统学习，配合题库自测和算法动画实验，打牢基础，轻松掌握核心算法与数据结构。</p>
+            <div class="cta-features">
+              <div class="cta-feature">
+                <div class="cf-icon">📚</div>
+                <span>PPT课件+讲义</span>
+              </div>
+              <div class="cta-feature">
+                <div class="cf-icon">🎯</div>
+                <span>480+题目练习</span>
+              </div>
+              <div class="cta-feature">
+                <div class="cf-icon">🎬</div>
+                <span>9个算法动画</span>
+              </div>
+              <div class="cta-feature">
+                <div class="cf-icon">📄</div>
+                <span>4套模拟试卷</span>
+              </div>
+            </div>
+          </div>
+          <div class="cta-action">
+            <a href="ch1.html" class="cta-btn">🚀 立即开始学习</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习平台 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script>
+    // ============ 打字机效果 ============
+    (function initTyping() {
+      const phrases = [
+        '八章核心内容 · PPT课件 · 在线测试 · 算法动画 · 模拟试卷 · 交流社区',
+        '系统化掌握数据结构核心知识，助你高效通关！',
+        '从线性表到图论，从排序到查找 —— 一站全搞定！',
+        '配套 480+ 题目练习 + 9 个算法可视化动画实验 💡'
+      ];
+      const target = document.querySelector('#typingSubtitle .typing-text');
+      if (!target) return;
+      let pIdx = 0, cIdx = 0, deleting = false;
+      function tick() {
+        const phrase = phrases[pIdx];
+        if (!deleting) {
+          target.textContent = phrase.slice(0, ++cIdx);
+          if (cIdx === phrase.length) {
+            deleting = true;
+            return setTimeout(tick, 1800);
+          }
+        } else {
+          target.textContent = phrase.slice(0, --cIdx);
+          if (cIdx === 0) {
+            deleting = false;
+            pIdx = (pIdx + 1) % phrases.length;
+          }
+        }
+        setTimeout(tick, deleting ? 32 : 58);
+      }
+      tick();
+    })();
+
+    // ============ 数字滚动计数 ============
+    (function initCounters() {
+      const nums = document.querySelectorAll('.stat-num[data-count]');
+      const run = (el) => {
+        const target = parseInt(el.dataset.count, 10) || 0;
+        const suffix = el.dataset.suffix || '';
+        const duration = 1400;
+        const start = performance.now();
+        function frame(now) {
+          const p = Math.min(1, (now - start) / duration);
+          // easeOutCubic
+          const ease = 1 - Math.pow(1 - p, 3);
+          const cur = Math.round(target * ease);
+          el.textContent = cur + suffix;
+          if (p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      };
+      if ('IntersectionObserver' in window) {
+        const ob = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              run(e.target);
+              ob.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        nums.forEach(n => ob.observe(n));
+      } else {
+        nums.forEach(run);
+      }
+    })();
+
+    // ============ 滚动触发动画 ============
+    function initScrollReveal() {
+      const reveals = document.querySelectorAll('.reveal');
+      reveals.forEach(el => el.classList.add('reveal'));
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+      reveals.forEach(el => observer.observe(el));
+    }
+    if (typeof IntersectionObserver !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', initScrollReveal);
+    }
+
+    // ============ 思维导图：入场动画 + 曲线连接 ============
+    (function initMindmapAnim() {
+      const root = document.querySelector('.mm-center');
+      const lv1 = document.querySelectorAll('.mm-lv1');
+      const lv2 = document.querySelectorAll('.mm-lv2');
+      if (root) {
+        root.style.opacity = '0';
+        root.style.transform = 'scale(0.6)';
+        root.style.transition = 'all 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+      }
+      lv1.forEach((n, i) => {
+        n.style.opacity = '0';
+        n.style.transform = 'translateY(14px) scale(0.85)';
+        n.style.transition = `all 0.55s cubic-bezier(0.34,1.56,0.64,1) ${0.12 + i * 0.08}s`;
+      });
+      lv2.forEach((n, i) => {
+        n.style.opacity = '0';
+        n.style.transform = 'translateY(10px)';
+        n.style.transition = `all 0.45s ease ${0.55 + i * 0.05}s`;
+      });
+      function play() {
+        if (root) { root.style.opacity = '1'; root.style.transform = 'scale(1)'; }
+        lv1.forEach(n => { n.style.opacity = '1'; n.style.transform = 'translateY(0) scale(1)'; });
+        lv2.forEach(n => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; });
+        // 动画结束后绘制曲线
+        setTimeout(drawMindmapLines, 900);
+      }
+      const wrap = document.querySelector('.mindmap');
+      if (wrap && 'IntersectionObserver' in window) {
+        const ob = new IntersectionObserver((es) => {
+          es.forEach(e => { if (e.isIntersecting) { play(); ob.disconnect(); } });
+        }, { threshold: 0.2 });
+        ob.observe(wrap);
+      } else {
+        document.addEventListener('DOMContentLoaded', play);
+      }
+
+      // ---- 曲线绘制 ----
+      const BRANCH_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
+      const SVGNS = 'http://www.w3.org/2000/svg';
+
+      function edgePoint(el, containerRect, toward) {
+        // toward: 目标节点中心方向，返回节点边缘最合适的连接点
+        const r = el.getBoundingClientRect();
+        const cx = r.left - containerRect.left + r.width / 2;
+        const cy = r.top - containerRect.top + r.height / 2;
+        return { x: cx, y: cy, w: r.width, h: r.height };
+      }
+
+      function curvePath(x1, y1, x2, y2) {
+        // 三次贝塞尔，控制点水平偏移，形成柔和 S 曲线
+        const dx = x2 - x1;
+        const cp1x = x1 + dx * 0.5;
+        const cp1y = y1;
+        const cp2x = x2 - dx * 0.5;
+        const cp2y = y2;
+        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+
+      function drawMindmapLines() {
+        const mindmap = document.querySelector('.mindmap');
+        const svg = document.querySelector('.mm-lines');
+        if (!mindmap || !svg) return;
+        // 移动端不画曲线（布局为网格）
+        if (window.innerWidth <= 900) { svg.innerHTML = ''; return; }
+
+        const rect = mindmap.getBoundingClientRect();
+        svg.setAttribute('width', rect.width);
+        svg.setAttribute('height', rect.height);
+        svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+        svg.innerHTML = '';
+
+        const centerEl = mindmap.querySelector('.mm-center');
+        const c = edgePoint(centerEl, rect);
+
+        // defs：渐变 + 光点
+        const defs = document.createElementNS(SVGNS, 'defs');
+        BRANCH_COLORS.forEach((col, i) => {
+          const grad = document.createElementNS(SVGNS, 'linearGradient');
+          grad.setAttribute('id', `mmGrad${i}`);
+          grad.setAttribute('x1', '0%'); grad.setAttribute('y1', '0%');
+          grad.setAttribute('x2', '100%'); grad.setAttribute('y2', '100%');
+          grad.innerHTML = `<stop offset="0%" stop-color="#1a56db" stop-opacity="0.7"/><stop offset="100%" stop-color="${col}" stop-opacity="0.85"/>`;
+          defs.appendChild(grad);
+        });
+        svg.appendChild(defs);
+
+        const branches = mindmap.querySelectorAll('.mm-branch');
+        branches.forEach((branch, i) => {
+          const color = BRANCH_COLORS[i % BRANCH_COLORS.length];
+          const lv1El = branch.querySelector('.mm-lv1');
+          if (!lv1El) return;
+          const b = edgePoint(lv1El, rect);
+
+          // 中心 -> 一级
+          const d1 = curvePath(c.x, c.y, b.x, b.y);
+          addPath(svg, d1, `url(#mmGrad${i})`, 2.4, 'mm-line', 0.85);
+          addDot(svg, d1, color, 3.5, i * 0.3);
+
+          // 一级 -> 二级
+          const subs = branch.querySelectorAll('.mm-lv2');
+          subs.forEach((sub, j) => {
+            const s = edgePoint(sub, rect);
+            const d2 = curvePath(b.x, b.y + b.h / 2, s.x, s.y);
+            addPath(svg, d2, color, 1.8, 'mm-line-sub', 0.5);
+            addDot(svg, d2, color, 2.5, i * 0.3 + j * 0.15 + 0.8);
+          });
+        });
+
+        // 跨分支关联虚线（知识点关联）
+        drawAssocLines(svg, rect);
+      }
+
+      function addPath(svg, d, stroke, w, cls, opacity) {
+        const p = document.createElementNS(SVGNS, 'path');
+        p.setAttribute('d', d);
+        p.setAttribute('stroke', stroke);
+        p.setAttribute('stroke-width', w);
+        p.setAttribute('fill', 'none');
+        p.setAttribute('opacity', opacity);
+        p.setAttribute('stroke-linecap', 'round');
+        p.classList.add(cls);
+        svg.appendChild(p);
+      }
+
+      function addDot(svg, pathD, color, r, delay) {
+        const dot = document.createElementNS(SVGNS, 'circle');
+        dot.setAttribute('r', r);
+        dot.setAttribute('fill', color);
+        dot.classList.add('mm-dot');
+        const motion = document.createElementNS(SVGNS, 'animateMotion');
+        motion.setAttribute('dur', '4s');
+        motion.setAttribute('repeatCount', 'indefinite');
+        motion.setAttribute('begin', `${delay}s`);
+        motion.setAttribute('path', pathD);
+        dot.appendChild(motion);
+        svg.appendChild(dot);
+      }
+
+      function drawAssocLines(svg, rect) {
+        // 关联：树(分支3)二叉树 → 查找(分支5) BST/AVL
+        // 关联：查找(分支5) → 排序(分支6)
+        const assoc = [
+          { from: '.mm-branch-bottom-left .mm-lv2:nth-child(1)', to: '.mm-branch-mid-left .mm-lv2:nth-child(2)' },
+          { from: '.mm-branch-mid-left .mm-lv1', to: '.mm-branch-mid-right .mm-lv1' }
+        ];
+        assoc.forEach(a => {
+          const f = svg.parentNode.querySelector(a.from);
+          const t = svg.parentNode.querySelector(a.to);
+          if (!f || !t) return;
+          const p1 = edgePoint(f, rect);
+          const p2 = edgePoint(t, rect);
+          const d = curvePath(p1.x, p1.y, p2.x, p2.y);
+          const path = document.createElementNS(SVGNS, 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('stroke', '#94a3b8');
+          path.setAttribute('stroke-width', '1.6');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke-dasharray', '5 5');
+          path.setAttribute('opacity', '0.55');
+          path.classList.add('mm-line-assoc');
+          svg.appendChild(path);
+        });
+      }
+
+      // 窗口缩放重绘
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawMindmapLines, 200);
+      });
+    })();
+  </script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模拟试题 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .exam-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .exam-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+    .exam-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .exam-card .exam-number {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .exam-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+      color: var(--dark);
+    }
+    .exam-card .exam-meta {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+    .exam-card .exam-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 12px;
+      margin-right: 6px;
+    }
+    .exam-tag-blue { background: #e0f2fe; color: #0369a1; }
+    .exam-tag-green { background: #dcfce7; color: #15803d; }
+    .exam-tag-orange { background: #ffedd5; color: #c2410c; }
+    .exam-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .exam-actions a {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-dl-paper {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-dl-paper:hover { background: #1d4ed8; }
+    .btn-dl-ans {
+      background: #f3f4f6;
+      color: var(--dark);
+      border: 1px solid #e5e7eb;
+    }
+    .btn-dl-ans:hover { background: #e5e7eb; }
+    .online-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .online-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html" class="active">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container" style="padding-top: 32px;">
+      <div class="page-header">
+        <h1>📝 模拟试题</h1>
+        <p>下载历年试卷与参考答案，支持打印和线下练习</p>
+      </div>
+
+      <h2 style="margin-top: 32px; margin-bottom: 8px;">📘 期末试题</h2>
+      <p style="color: var(--text-light);">精选5套数据结构期末试题，含完整参考答案</p>
+      <div class="exam-grid">
+        <div class="exam-card">
+          <div class="exam-number">1</div>
+          <h3>数据结构期末试题一</h3>
+          <div class="exam-meta">
+            判断题 10道 · 填空题 9道 · 选择题 10道
+          </div>
+          <span class="exam-tag exam-tag-blue">综合练习</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构期末1-1.doc" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构1-1答案.doc" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+          <a href="mock-paper.html?set=final1" class="online-link">💻 在线练习 →</a>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">2</div>
+          <h3>数据结构期末试题二</h3>
+          <div class="exam-meta">
+            判断题 10道 · 填空题 10道 · 选择题 10道
+          </div>
+          <span class="exam-tag exam-tag-blue">综合练习</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构期末2-1.doc" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构2-1答案.doc" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+          <a href="mock-paper.html?set=final2" class="online-link">💻 在线练习 →</a>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">3</div>
+          <h3>数据结构期末试题三</h3>
+          <div class="exam-meta">
+            判断题 10道 · 填空题 10道 · 选择题 10道
+          </div>
+          <span class="exam-tag exam-tag-blue">综合练习</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构期末3-1.doc" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构3-1答案.doc" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+          <a href="mock-paper.html?set=final3" class="online-link">💻 在线练习 →</a>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">4</div>
+          <h3>数据结构期末试题四</h3>
+          <div class="exam-meta">
+            判断题 10道 · 填空题 10道 · 选择题 10道
+          </div>
+          <span class="exam-tag exam-tag-blue">综合练习</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构期末4-1.doc" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构4-1答案.doc" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+          <a href="mock-paper.html?set=final4" class="online-link">💻 在线练习 →</a>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">5</div>
+          <h3>数据结构期末试题五</h3>
+          <div class="exam-meta">
+            判断题 10道 · 填空题 10道 · 选择题 10道
+          </div>
+          <span class="exam-tag exam-tag-blue">综合练习</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构期末5-1.doc" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构5-1答案.doc" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+          <a href="mock-paper.html?set=final5" class="online-link">💻 在线练习 →</a>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 48px; margin-bottom: 8px;">📗 模拟试卷</h2>
+      <p style="color: var(--text-light);">4套模拟试题，每套含试卷与参考答案，支持下载打印练习</p>
+      <div class="exam-grid">
+        <div class="exam-card">
+          <div class="exam-number">1</div>
+          <h3>数据结构模拟试题（一）</h3>
+          <div class="exam-meta">
+            含判断题、填空题、选择题及应用题，附完整参考答案
+          </div>
+          <span class="exam-tag exam-tag-blue">试题+答案</span>
+          <div class="exam-actions">
+            <a href="模拟试题/模拟试题一.docx" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/模拟试题一参考答案.docx" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">2</div>
+          <h3>数据结构模拟试题（二）</h3>
+          <div class="exam-meta">
+            含判断题、填空题、选择题及应用题，附完整参考答案
+          </div>
+          <span class="exam-tag exam-tag-blue">试题+答案</span>
+          <div class="exam-actions">
+            <a href="模拟试题/模拟试题二.docx" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/模拟试题二 参考答案.docx" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">3</div>
+          <h3>数据结构模拟试题（三）</h3>
+          <div class="exam-meta">
+            含判断题、填空题、选择题及应用题，附完整参考答案
+          </div>
+          <span class="exam-tag exam-tag-blue">试题+答案</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构模拟试题3.docx" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构模拟试题3-答案.docx" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+        </div>
+
+        <div class="exam-card">
+          <div class="exam-number">4</div>
+          <h3>数据结构模拟试题（四）</h3>
+          <div class="exam-meta">
+            含判断题、填空题、选择题及应用题，附完整参考答案
+          </div>
+          <span class="exam-tag exam-tag-blue">试题+答案</span>
+          <div class="exam-actions">
+            <a href="模拟试题/数据结构模拟试题4.docx" class="btn-dl-paper" download>📄 下载试卷</a>
+            <a href="模拟试题/数据结构模拟试题4-参考答案.docx" class="btn-dl-ans" download>🔑 下载答案</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+</body>
+</html>

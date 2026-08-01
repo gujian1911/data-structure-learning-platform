@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第6章测试 - 树 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch5.html">课程学习</a></li>
+      <li><a href="quiz-ch5.html" class="active">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📝 测试目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="quiz-ch1.html">第一章 绪论</a></li>
+            <li><a href="quiz-ch2.html">第二章 线性表</a></li>
+            <li><a href="quiz-ch3.html">第三章 栈和队列</a></li>
+            <li><a href="quiz-ch4.html">第四章 串、数组和广义表</a></li>
+            <li><a href="quiz-ch5.html">第五章 树</a></li>
+            <li><a href="quiz-ch6.html">第六章 图</a></li>
+            <li><a href="quiz-ch7.html">第七章 查找</a></li>
+            <li><a href="quiz-ch8.html">第八章 排序</a></li>
+            <li><a href="quiz-mock.html">模拟试题</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第6章</span>
+            <span class="tag tag-orange">测试</span>
+          </div>
+          <h1>树 - 在线测试</h1>
+          <p>选择题与判断题共10题，答完后点击提交查看得分</p>
+        </div>
+
+        <form id="quiz-form" class="quiz-container">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📝 选择题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、假定在一棵二叉树中，度为2的分支结点个数为15，度为1的分支结点个数为30个，则叶子结点数为。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q0" value="A"> A. 15</label>
+              <label><input type="radio" name="q0" value="B"> B. 16</label>
+              <label><input type="radio" name="q0" value="C"> C. 17</label>
+              <label><input type="radio" name="q0" value="D"> D. 47</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、设n，m为一棵树上的两个结点，在中根遍历时，n在m前的条件是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="A"> A. n在m右方</label>
+              <label><input type="radio" name="q1" value="B"> B. n是m祖先</label>
+              <label><input type="radio" name="q1" value="C"> C. n在m左方</label>
+              <label><input type="radio" name="q1" value="D"> D. n是m子孙</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、7的四个叶子结点构造一棵哈夫曼树，该树的带树路径长度为。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="A"> A. 23</label>
+              <label><input type="radio" name="q2" value="B"> B. 37</label>
+              <label><input type="radio" name="q2" value="C"> C. 46</label>
+              <label><input type="radio" name="q2" value="D"> D. 44</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、如果F是由树T转换而来的二叉树，则T中结点的前根就是F中结点的。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="A"> A. 中根遍历</label>
+              <label><input type="radio" name="q3" value="B"> B. 先根遍历</label>
+              <label><input type="radio" name="q3" value="C"> C. 后根遍历</label>
+              <label><input type="radio" name="q3" value="D"> D. 按层遍历</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、某二叉树的先根遍历结点序列和后根遍历结点序列刚好相反，则该二叉树一定是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="A"> A. 空树或只有一个根结点</label>
+              <label><input type="radio" name="q4" value="B"> B. 完全二叉树</label>
+              <label><input type="radio" name="q4" value="C"> C. 二叉排序树</label>
+              <label><input type="radio" name="q4" value="D"> D. 高度等于其结点数</label>
+            </div>
+          </div>
+
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、二叉树中叶子结点数等于度为2的结点数加1。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="A"> A. 正确</label>
+              <label><input type="radio" name="q5" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、满二叉树一定是完全二叉树。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="A"> A. 正确</label>
+              <label><input type="radio" name="q6" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、二叉排序树的中序遍历序列是递增有序的。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="A"> A. 正确</label>
+              <label><input type="radio" name="q7" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>9、哈夫曼树是带权路径长度最大的二叉树。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q8" value="A"> A. 正确</label>
+              <label><input type="radio" name="q8" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>10、平衡二叉树的左右子树高度差不超过1。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q9" value="A"> A. 正确</label>
+              <label><input type="radio" name="q9" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          <div id="quiz-result" style="display: none; padding: 16px; background: var(--primary-light); border-radius: 8px; margin-bottom: 16px; color: var(--primary);"></div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary" onclick="scoreQuiz('quiz-form', ['A','A','A','A','A','A','A','A','B','A'])">提交答案</button>
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('quiz-result').style.display='none'; document.querySelectorAll('.quiz-options label').forEach(l=>l.style.background=''); document.querySelectorAll('.quiz-options input').forEach(i=>i.disabled=false);">重新答题</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

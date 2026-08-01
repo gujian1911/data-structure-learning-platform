@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验七 二分法查找 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .lab-container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+    .lab-section { background:#fff; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .lab-section h2 { margin-top:0; }
+    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow-x:auto; }
+    .algo-code .kw { color:#c084fc; }
+    .algo-code .fn { color:#60a5fa; }
+    .algo-code .cm { color:#64748b; }
+    .algo-code .num { color:#fbbf24; }
+
+    .viz-area { background:#f8fafc; border-radius:12px; padding:32px 20px; text-align:center; }
+    .bars-container { display:flex; justify-content:center; align-items:flex-end; gap:8px; min-height:200px; margin-bottom:24px; flex-wrap:wrap; }
+    .bar { width:52px; border-radius:6px 6px 0 0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transition:all 0.3s ease; position:relative; }
+    .bar .bar-val { font-size:1.1rem; font-weight:700; color:#fff; padding:8px 0; }
+    .bar .bar-idx { font-size:0.75rem; color:#64748b; margin-top:4px; }
+    .bar-default { background:#6366f1; }
+    .bar-low { background:#94a3b8; opacity:0.5; }
+    .bar-high { background:#94a3b8; opacity:0.5; }
+    .bar-mid { background:#f59e0b; transform:scale(1.1); box-shadow:0 0 16px rgba(245,158,11,0.6); }
+    .bar-found { background:#10b981; transform:scale(1.2); box-shadow:0 0 20px rgba(16,185,129,0.7); }
+    .bar-eliminated { background:#e2e8f0; opacity:0.3; }
+
+    .range-labels { display:flex; justify-content:center; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+    .range-label { padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:600; }
+
+    .controls { display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-top:20px; }
+    .controls input[type="number"] { width:80px; padding:8px 12px; border:2px solid #e5e7eb; border-radius:8px; font-size:1rem; text-align:center; }
+    .controls input[type="number"]:focus { outline:none; border-color:var(--primary); }
+
+    .step-info { background:#eff6ff; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin:16px 0; font-size:0.95rem; min-height:48px; }
+    .step-info strong { color:var(--primary); }
+
+    .stats-row { display:flex; justify-content:center; gap:24px; margin-top:16px; flex-wrap:wrap; }
+    .stat-box { text-align:center; }
+    .stat-box .stat-val { font-size:1.6rem; font-weight:700; color:var(--primary); }
+    .stat-box .stat-lbl { font-size:0.85rem; color:var(--text-light); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="lab-container">
+      <div class="page-header">
+        <h1>🔍 实验七 二分法查找</h1>
+        <p>通过动画模拟理解二分查找（折半查找）的执行过程</p>
+      </div>
+
+      <div class="lab-section">
+        <h2>📖 算法原理</h2>
+        <p>二分查找（Binary Search）是一种在<strong>有序数组</strong>中查找某一特定元素的搜索算法。搜索过程从数组的中间元素开始，如果中间元素正好是要查找的元素，则搜索过程结束；如果某一特定元素大于或者小于中间元素，则在数组大于或小于中间元素的那一半中查找，而且跟开始一样从中间元素开始比较。如果在某一步骤数组为空，则代表找不到。</p>
+        <p><strong>前提条件：</strong>数组必须有序（升序或降序）</p>
+        <p><strong>时间复杂度：</strong>O(log₂n)　<strong>空间复杂度：</strong>O(1)</p>
+      </div>
+
+      <div class="lab-section">
+        <h2>💻 算法代码</h2>
+<pre class="algo-code"><span class="kw">int</span> <span class="fn">BinarySearch</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n, <span class="kw">int</span> key) {
+  <span class="kw">int</span> low = <span class="num">0</span>, high = n - <span class="num">1</span>, mid;
+  <span class="kw">while</span> (low &lt;= high) {
+    mid = (low + high) / <span class="num">2</span>;        <span class="cm">// 计算中间位置</span>
+    <span class="kw">if</span> (arr[mid] == key)
+      <span class="kw">return</span> mid;              <span class="cm">// 找到，返回下标</span>
+    <span class="kw">else if</span> (arr[mid] &lt; key)
+      low = mid + <span class="num">1</span>;           <span class="cm">// 在右半部分查找</span>
+    <span class="kw">else</span>
+      high = mid - <span class="num">1</span>;          <span class="cm">// 在左半部分查找</span>
+  }
+  <span class="kw">return</span> -<span class="num">1</span>;                  <span class="cm">// 未找到</span>
+}</pre>
+      </div>
+
+      <div class="lab-section">
+        <h2>🎬 动画模拟</h2>
+        <div class="viz-area">
+          <div class="range-labels">
+            <span class="range-label" id="label-low" style="background:#fef3c7;color:#d97706;display:none;">low</span>
+            <span class="range-label" id="label-mid" style="background:#ffedd5;color:#ea580c;display:none;">mid</span>
+            <span class="range-label" id="label-high" style="background:#fef3c7;color:#d97706;display:none;">high</span>
+          </div>
+          <div class="bars-container" id="bars-container"></div>
+
+          <div class="step-info" id="step-info">
+            点击「开始查找」按钮，观察二分查找的执行过程。
+          </div>
+
+          <div class="controls">
+            <label>查找值：</label>
+            <input type="number" id="search-key" value="37" placeholder="输入数字">
+            <button class="btn btn-primary" onclick="startSearch()">▶ 开始查找</button>
+            <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
+            <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-val" id="stat-compare">0</div>
+              <div class="stat-lbl">比较次数</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="stat-result">—</div>
+              <div class="stat-lbl">查找结果</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-section">
+        <h2>📝 实验要点</h2>
+        <ul style="line-height:1.8;">
+          <li>二分查找要求数组必须<strong>有序</strong>，无序数组需先排序</li>
+          <li>每次比较后，查找范围缩小一半，效率远高于顺序查找</li>
+          <li>注意 <code>mid = (low + high) / 2</code> 的计算，以及 <code>low &lt;= high</code> 的循环条件</li>
+          <li>当 <code>low &gt; high</code> 时查找失败，说明元素不在数组中</li>
+          <li>二分查找适用于<strong>顺序存储</strong>的有序表，不适用于链表</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script>
+    let data = [12, 25, 31, 37, 45, 53, 68, 74, 82, 95];
+    let isAnimating = false;
+
+    function renderBars(states) {
+      const container = document.getElementById('bars-container');
+      container.innerHTML = data.map((val, i) => {
+        let cls = 'bar bar-default';
+        if (states) {
+          if (states[i] === 'low') cls = 'bar bar-low';
+          else if (states[i] === 'high') cls = 'bar bar-high';
+          else if (states[i] === 'mid') cls = 'bar bar-mid';
+          else if (states[i] === 'found') cls = 'bar bar-found';
+          else if (states[i] === 'eliminated') cls = 'bar bar-eliminated';
+        }
+        return `<div class="${cls}"><span class="bar-val">${val}</span><span class="bar-idx">[${i}]</span></div>`;
+      }).join('');
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function updateStepInfo(html) {
+      document.getElementById('step-info').innerHTML = html;
+    }
+
+    function updateLabels(low, mid, high) {
+      const ll = document.getElementById('label-low');
+      const lm = document.getElementById('label-mid');
+      const lh = document.getElementById('label-high');
+      if (low !== null) { ll.style.display = 'inline-block'; } else { ll.style.display = 'none'; }
+      if (mid !== null) { lm.style.display = 'inline-block'; } else { lm.style.display = 'none'; }
+      if (high !== null) { lh.style.display = 'inline-block'; } else { lh.style.display = 'none'; }
+    }
+
+    async function startSearch() {
+      if (isAnimating) return;
+      isAnimating = true;
+      const key = parseInt(document.getElementById('search-key').value);
+      if (isNaN(key)) { alert('请输入有效数字'); isAnimating = false; return; }
+
+      let low = 0, high = data.length - 1, compareCount = 0;
+      document.getElementById('stat-result').textContent = '—';
+      document.getElementById('stat-compare').textContent = '0';
+
+      while (low <= high) {
+        let mid = Math.floor((low + high) / 2);
+        compareCount++;
+        document.getElementById('stat-compare').textContent = compareCount;
+
+        // 生成状态
+        let states = {};
+        for (let i = 0; i < data.length; i++) {
+          if (i < low || i > high) states[i] = 'eliminated';
+        }
+        states[low] = 'low';
+        states[high] = 'high';
+        states[mid] = 'mid';
+        renderBars(states);
+
+        updateStepInfo(`<strong>第${compareCount}次比较：</strong>low=${low}, high=${high}, mid=${mid}。比较 arr[${mid}]=${data[mid]} 与 key=${key}`);
+        await sleep(1500);
+
+        if (data[mid] === key) {
+          states[mid] = 'found';
+          renderBars(states);
+          updateStepInfo(`<strong>✅ 查找成功！</strong>key=${key} 在数组下标 ${mid} 处，共比较 ${compareCount} 次。`);
+          document.getElementById('stat-result').textContent = `位置[${mid}]`;
+          document.getElementById('stat-result').style.color = '#10b981';
+          isAnimating = false;
+          return;
+        } else if (data[mid] < key) {
+          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &lt; ${key}</strong>，key 在右半部分，调整 low = mid + 1 = ${mid + 1}`);
+          await sleep(1200);
+          low = mid + 1;
+        } else {
+          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &gt; ${key}</strong>，key 在左半部分，调整 high = mid - 1 = ${mid - 1}`);
+          await sleep(1200);
+          high = mid - 1;
+        }
+      }
+
+      // 查找失败
+      renderBars({});
+      for (let i = 0; i < data.length; i++) states = {};
+      let failStates = {};
+      for (let i = 0; i < data.length; i++) failStates[i] = 'eliminated';
+      renderBars(failStates);
+      updateStepInfo(`<strong>❌ 查找失败！</strong>key=${key} 不在数组中，共比较 ${compareCount} 次。low=${low} > high=${high}，查找范围为空。`);
+      document.getElementById('stat-result').textContent = '未找到';
+      document.getElementById('stat-result').style.color = '#ef4444';
+      isAnimating = false;
+    }
+
+    function resetViz() {
+      if (isAnimating) return;
+      renderBars();
+      updateStepInfo('点击「开始查找」按钮，观察二分查找的执行过程。');
+      document.getElementById('stat-compare').textContent = '0';
+      document.getElementById('stat-result').textContent = '—';
+      document.getElementById('stat-result').style.color = '';
+      updateLabels(null, null, null);
+    }
+
+    function randomData() {
+      if (isAnimating) return;
+      let arr = [];
+      let used = new Set();
+      while (arr.length < 10) {
+        let n = Math.floor(Math.random() * 99) + 1;
+        if (!used.has(n)) { used.add(n); arr.push(n); }
+      }
+      arr.sort((a, b) => a - b);
+      data = arr;
+      resetViz();
+    }
+
+    // 初始化
+    renderBars();
+  </script>
+</body>
+</html>

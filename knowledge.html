@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识库 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 知识库专用样式 */
+    .kb-header {
+      background: linear-gradient(135deg, #1a56db 0%, #1e429f 100%);
+      color: #fff;
+      padding: 48px 24px;
+      text-align: center;
+      border-radius: 0 0 32px 32px;
+      margin-bottom: 32px;
+    }
+    .kb-header h1 { font-size: 2rem; margin-bottom: 8px; }
+    .kb-header p { opacity: 0.9; font-size: 1rem; }
+
+    /* 搜索区 */
+    .kb-search-wrap {
+      max-width: 700px;
+      margin: -24px auto 32px;
+      position: relative;
+      z-index: 10;
+      padding: 0 16px;
+    }
+    .kb-search-box {
+      width: 100%;
+      padding: 16px 24px 16px 52px;
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-size: 1rem;
+      background: var(--card);
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s;
+      outline: none;
+    }
+    .kb-search-box:focus { border-color: var(--primary); }
+    .kb-search-wrap::before {
+      content: "🔍";
+      position: absolute;
+      left: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+    }
+
+    /* 模式切换 */
+    .kb-mode-switch {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .kb-mode-switch button {
+      padding: 10px 24px;
+      border: 2px solid var(--border);
+      background: var(--card);
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      color: var(--text);
+    }
+    .kb-mode-switch button.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 章节筛选 */
+    .kb-chapter-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+      padding: 0 16px;
+    }
+    .kb-chapter-filter button {
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      color: var(--text);
+    }
+    .kb-chapter-filter button:hover,
+    .kb-chapter-filter button.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* 问答卡片 */
+    .kb-list {
+      display: grid;
+      gap: 12px;
+      padding: 0 16px;
+      max-width: 900px;
+      margin: 0 auto 32px;
+    }
+    .kb-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .kb-item:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .kb-item-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .kb-item-chapter {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .kb-item-q {
+      flex: 1;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    .kb-item-arrow {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .kb-item.open .kb-item-arrow { transform: rotate(90deg); }
+    .kb-item-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .kb-item.open .kb-item-body { max-height: 500px; }
+    .kb-item-answer {
+      padding: 0 20px 16px 20px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      border-top: 1px dashed var(--border);
+      margin: 0 20px;
+      padding-top: 12px;
+    }
+    .kb-item-answer strong { color: var(--text); }
+
+    /* 问答模式 */
+    .qa-chat {
+      max-width: 700px;
+      margin: 0 auto 32px;
+      padding: 0 16px;
+    }
+    .qa-input-wrap {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .qa-input-wrap input {
+      flex: 1;
+      padding: 14px 20px;
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .qa-input-wrap input:focus { border-color: var(--primary); }
+    .qa-input-wrap button {
+      padding: 14px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .qa-input-wrap button:hover { background: var(--primary-dark); }
+    .qa-message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .qa-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .qa-avatar.user { background: var(--primary-light); }
+    .qa-avatar.bot { background: #dcfce7; }
+    .qa-bubble {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      max-width: 80%;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+    .qa-bubble.user { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .qa-bubble .related-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 12px;
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+    .qa-bubble .related-link:hover { background: var(--primary); color: #fff; }
+
+    /* 推荐问题 */
+    .kb-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+      padding: 0 16px;
+    }
+    .kb-suggestions span {
+      padding: 6px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text);
+    }
+    .kb-suggestions span:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    /* 结果统计 */
+    .kb-result-info {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    /* 空状态 */
+    .kb-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-light);
+    }
+    .kb-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* 百度搜索链接 */
+    .baidu-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #2932e1;
+      color: #fff;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    .baidu-link:hover { background: #1a1eb5; transform: scale(1.02); }
+
+    /* 添加知识按钮 */
+    .add-kb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--secondary);
+      color: #fff;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .add-kb-btn:hover { background: #065f46; transform: scale(1.02); }
+
+    /* 反馈按钮 */
+    .feedback-bar {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .feedback-bar span { font-size: 0.85rem; color: var(--text-light); }
+    .feedback-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .feedback-btn:hover { background: var(--primary-light); border-color: var(--primary); }
+    .feedback-btn.good { border-color: #10b981; color: #047857; }
+    .feedback-btn.good:hover { background: #d1fae5; }
+    .feedback-btn.bad { border-color: #ef4444; color: #b91c1c; }
+    .feedback-btn.bad:hover { background: #fee2e2; }
+
+    /* 候选答案卡片 */
+    .candidate-item {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .candidate-item:hover { background: var(--primary-light); border-color: var(--primary); }
+    .candidate-q { font-weight: 500; font-size: 0.9rem; margin-bottom: 4px; }
+    .candidate-a { font-size: 0.85rem; color: var(--text-light); line-height: 1.6; }
+    .candidate-score { font-size: 0.75rem; color: #9ca3af; margin-top: 4px; }
+
+    /* 我的知识库标签 */
+    .kb-item-custom .kb-item-chapter {
+      background: #dcfce7;
+      color: #047857;
+    }
+
+    /* 弹窗 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .modal-field input,
+    .modal-field textarea,
+    .modal-field select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .modal-field input:focus,
+    .modal-field textarea:focus,
+    .modal-field select:focus { border-color: var(--primary); }
+    .modal-field textarea { resize: vertical; min-height: 80px; }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .modal-actions button {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .modal-actions .btn-cancel { background: var(--border); color: var(--text); }
+    .modal-actions .btn-save { background: var(--primary); color: #fff; }
+
+    @media (max-width: 600px) {
+      .kb-header { padding: 32px 16px; }
+      .kb-header h1 { font-size: 1.5rem; }
+      .kb-item-header { padding: 14px 16px; }
+      .kb-item-answer { margin: 0 16px; padding: 12px 0 14px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html" class="active">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <!-- 头部 -->
+    <div class="kb-header">
+      <h1>🧠 智能知识库</h1>
+      <p>基于《数据结构习题册》构建，100+核心知识点，随时提问即时解答</p>
+    </div>
+
+    <!-- 搜索框 -->
+    <div class="kb-search-wrap">
+      <input type="text" class="kb-search-box" placeholder="输入关键词搜索知识点，例如：二叉树、哈希、排序..." id="searchInput" oninput="handleSearch()">
+    </div>
+
+    <!-- 模式切换 -->
+    <div class="kb-mode-switch">
+      <button class="active" onclick="switchMode('browse')" id="btnBrowse">📋 浏览模式</button>
+      <button onclick="switchMode('qa')" id="btnQA">💬 问答模式</button>
+      <button onclick="openAddModal()" id="btnAdd">➕ 添加知识</button>
+    </div>
+
+    <!-- 浏览模式 -->
+    <div id="browseMode">
+      <!-- 章节筛选 -->
+      <div class="kb-chapter-filter" id="chapterFilter"></div>
+
+      <!-- 推荐问题 -->
+      <div class="kb-suggestions" id="suggestions"></div>
+
+      <!-- 结果统计 -->
+      <div class="kb-result-info" id="resultInfo"></div>
+
+      <!-- 知识列表 -->
+      <div class="kb-list" id="knowledgeList"></div>
+    </div>
+
+    <!-- 问答模式 -->
+    <div id="qaMode" style="display:none;">
+      <div class="qa-chat" id="qaChat"></div>
+      <div class="kb-search-wrap" style="margin-top:0;">
+        <div class="qa-input-wrap">
+          <input type="text" id="qaInput" placeholder="输入你的问题，例如：什么是二叉排序树？" onkeydown="if(event.key==='Enter')doQA()">
+          <button onclick="doQA()">提问</button>
+        </div>
+      </div>
+      <div class="kb-suggestions" id="qaSuggestions"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <!-- 添加知识弹窗 -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+      <div class="modal-title">
+        <span>➕ 添加到知识库</span>
+        <button class="modal-close" onclick="closeAddModal()">&times;</button>
+      </div>
+      <div class="modal-field">
+        <label>问题</label>
+        <input type="text" id="modalQuestion" placeholder="输入问题，例如：什么是红黑树？">
+      </div>
+      <div class="modal-field">
+        <label>答案</label>
+        <textarea id="modalAnswer" placeholder="输入答案内容..."></textarea>
+      </div>
+      <div class="modal-field">
+        <label>所属章节</label>
+        <select id="modalChapter">
+          <option value="1">第一章 绪论</option>
+          <option value="2">第二章 线性表</option>
+          <option value="3">第三章 栈和队列</option>
+          <option value="4">第四章 串、数组和广义表</option>
+          <option value="5">第五章 树</option>
+          <option value="6">第六章 图</option>
+          <option value="7">第七章 查找</option>
+          <option value="8">第八章 排序</option>
+          <option value="0">其他</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>关键词（用空格分隔）</label>
+        <input type="text" id="modalKeywords" placeholder="例如：红黑树 平衡 自平衡 BST">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAddModal()">取消</button>
+        <button class="btn-save" onclick="saveCustomKnowledge()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/knowledge-data.js"></script>
+  <script>
+    // ========== 状态 ==========
+    var currentMode = 'browse';
+    var activeChapter = 0; // 0 = 全部, -1 = 我的知识库
+    var searchKeyword = '';
+    var filteredData = knowledgeData.slice();
+    var customKnowledge = []; // 用户自定义知识
+    var allKnowledge = [];    // 内置 + 自定义
+
+    // ========== localStorage 读写 ==========
+    function loadCustomFromStorage() {
+      try {
+        var raw = localStorage.getItem('ds_custom_knowledge');
+        if (raw) customKnowledge = JSON.parse(raw);
+      } catch (e) { customKnowledge = []; }
+      rebuildAllKnowledge();
+    }
+    function saveCustomToStorage() {
+      localStorage.setItem('ds_custom_knowledge', JSON.stringify(customKnowledge));
+      rebuildAllKnowledge();
+    }
+    function rebuildAllKnowledge() {
+      allKnowledge = knowledgeData.slice();
+      for (var i = 0; i < customKnowledge.length; i++) {
+        allKnowledge.push(customKnowledge[i]);
+      }
+    }
+
+    // ========== 初始化 ==========
+    function init() {
+      loadCustomFromStorage();
+      renderChapterFilter();
+      renderSuggestions();
+      renderList();
+    }
+
+    // ========== 章节筛选器 ==========
+    function renderChapterFilter() {
+      var chapters = [{id:0, name:'全部'}];
+      var seen = {};
+      for (var i = 0; i < knowledgeData.length; i++) {
+        var c = knowledgeData[i];
+        if (!seen[c.chapter]) {
+          seen[c.chapter] = true;
+          chapters.push({id: c.chapter, name: '第' + c.chapter + '章 ' + c.chapterName});
+        }
+      }
+      chapters.sort(function(a,b){return a.id-b.id;});
+
+      // 添加"我的知识库"选项
+      var customCount = customKnowledge.length;
+      var customLabel = customCount > 0 ? '我的知识库(' + customCount + ')' : '我的知识库';
+      chapters.push({id: -1, name: customLabel});
+
+      var html = '';
+      for (var j = 0; j < chapters.length; j++) {
+        var ch = chapters[j];
+        var cls = (ch.id === activeChapter) ? 'active' : '';
+        html += '<button class="' + cls + '" onclick="filterChapter(' + ch.id + ')">' + ch.name + '</button>';
+      }
+      document.getElementById('chapterFilter').innerHTML = html;
+    }
+
+    function filterChapter(chapterId) {
+      activeChapter = chapterId;
+      renderChapterFilter();
+      applyFilter();
+    }
+
+    // ========== 推荐问题 ==========
+    function renderSuggestions() {
+      var hot = [
+        "什么是数据结构？",
+        "栈和队列的区别",
+        "二叉树的遍历方式",
+        "快速排序的时间复杂度",
+        "哈希冲突的处理方法",
+        "图的DFS和BFS区别"
+      ];
+      var html = '';
+      for (var i = 0; i < hot.length; i++) {
+        html += '<span onclick="quickSearch(\'' + hot[i] + '\')">' + hot[i] + '</span>';
+      }
+      document.getElementById('suggestions').innerHTML = html;
+      document.getElementById('qaSuggestions').innerHTML = html;
+    }
+
+    function quickSearch(text) {
+      if (currentMode === 'browse') {
+        document.getElementById('searchInput').value = text;
+        handleSearch();
+      } else {
+        document.getElementById('qaInput').value = text;
+        doQA();
+      }
+    }
+
+    // ========== 搜索过滤 ==========
+    function handleSearch() {
+      searchKeyword = document.getElementById('searchInput').value.trim();
+      applyFilter();
+    }
+
+    function applyFilter() {
+      filteredData = [];
+      var kw = searchKeyword.toLowerCase();
+      for (var i = 0; i < allKnowledge.length; i++) {
+        var item = allKnowledge[i];
+        // 我的知识库筛选
+        if (activeChapter === -1 && !item.isCustom) continue;
+        if (activeChapter !== 0 && activeChapter !== -1 && item.chapter !== activeChapter) continue;
+        if (kw === '') {
+          filteredData.push(item);
+        } else {
+          var q = item.question.toLowerCase();
+          var a = item.answer.toLowerCase();
+          var keys = (item.keywords || '').toLowerCase();
+          if (q.indexOf(kw) !== -1 || a.indexOf(kw) !== -1 || keys.indexOf(kw) !== -1) {
+            filteredData.push(item);
+          }
+        }
+      }
+      renderList();
+    }
+
+    // ========== 渲染列表 ==========
+    function renderList() {
+      var container = document.getElementById('knowledgeList');
+      var info = document.getElementById('resultInfo');
+
+      if (filteredData.length === 0) {
+        container.innerHTML = '<div class="kb-empty"><div class="kb-empty-icon">🔍</div><p>没有找到相关知识点</p><p style="font-size:0.85rem;">换个关键词试试，或切换到问答模式提问</p></div>';
+        info.textContent = '';
+        return;
+      }
+
+      var customCount = 0;
+      for (var c = 0; c < filteredData.length; c++) if (filteredData[c].isCustom) customCount++;
+      var infoText = '共找到 ' + filteredData.length + ' 个知识点';
+      if (customCount > 0) infoText += '（含 ' + customCount + ' 个自建）';
+      info.textContent = infoText;
+
+      var html = '';
+      for (var i = 0; i < filteredData.length; i++) {
+        var item = filteredData[i];
+        var customCls = item.isCustom ? 'kb-item-custom' : '';
+        var chapterLabel = item.isCustom ? '我的' : ('第' + item.chapter + '章');
+        var deleteBtn = item.isCustom ? '<span style="color:#ef4444;font-size:0.75rem;margin-left:auto;cursor:pointer;padding:4px 8px;" onclick="event.stopPropagation();deleteCustomKnowledge(' + item.id + ')">🗑 删除</span>' : '<span class="kb-item-arrow">▶</span>';
+        html += '<div class="kb-item ' + customCls + '" onclick="toggleItem(this,' + item.id + ')">' +
+          '<div class="kb-item-header">' +
+            '<span class="kb-item-chapter">' + chapterLabel + '</span>' +
+            '<span class="kb-item-q">' + highlight(item.question, searchKeyword) + '</span>' +
+            deleteBtn +
+          '</div>' +
+          '<div class="kb-item-body"><div class="kb-item-answer">' + highlight(item.answer, searchKeyword) + '</div></div>' +
+        '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function highlight(text, keyword) {
+      if (!keyword) return text;
+      var re = new RegExp('(' + escapeRegExp(keyword) + ')', 'gi');
+      return text.replace(re, '<mark style="background:#fef08a;padding:1px 3px;border-radius:3px;">$1</mark>');
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function toggleItem(el, id) {
+      var isOpen = el.classList.contains('open');
+      // 关闭所有
+      var all = document.querySelectorAll('.kb-item');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('open');
+      // 切换当前
+      if (!isOpen) el.classList.add('open');
+    }
+
+    // ========== 模式切换 ==========
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnBrowse').classList.toggle('active', mode === 'browse');
+      document.getElementById('btnQA').classList.toggle('active', mode === 'qa');
+      document.getElementById('browseMode').style.display = mode === 'browse' ? 'block' : 'none';
+      document.getElementById('qaMode').style.display = mode === 'qa' ? 'block' : 'none';
+      if (mode === 'qa') {
+        setTimeout(function(){ document.getElementById('qaInput').focus(); }, 100);
+      }
+    }
+
+    // ========== 问答模式 ==========
+    var lastQuestion = '';
+    function doQA() {
+      var input = document.getElementById('qaInput');
+      var question = input.value.trim();
+      if (!question) return;
+      input.value = '';
+      lastQuestion = question;
+
+      var chat = document.getElementById('qaChat');
+
+      // 用户消息
+      var userMsg = document.createElement('div');
+      userMsg.className = 'qa-message';
+      userMsg.innerHTML = '<div class="qa-avatar user">👤</div><div class="qa-bubble user">' + escapeHtml(question) + '</div>';
+      chat.appendChild(userMsg);
+
+      // 匹配答案（取Top-3）
+      var topResults = findTopAnswers(question);
+      var botMsg = document.createElement('div');
+      botMsg.className = 'qa-message';
+      botMsg.id = 'qa-reply-' + Date.now();
+
+      var answerHtml = '';
+      if (topResults.length > 0) {
+        var best = topResults[0].item;
+        // 存储候选，用于不满意时展示
+        botMsg.dataset.candidates = JSON.stringify(topResults.slice(1).map(function(s){ return {q: s.item.question, a: s.item.answer}; }));
+        botMsg.dataset.question = question;
+
+        answerHtml = '<div style="font-weight:600;margin-bottom:6px;">' + escapeHtml(best.question) + '</div>' +
+          escapeHtml(best.answer) +
+          '<div class="feedback-bar">' +
+            '<span>这个答案对你有帮助吗？</span>' +
+            '<button class="feedback-btn good" onclick="handleFeedback(this,true)">👍 满意</button>' +
+            '<button class="feedback-btn bad" onclick="handleFeedback(this,false)">👎 不满意</button>' +
+          '</div>';
+      } else {
+        var baiduUrl = 'https://www.baidu.com/s?wd=' + encodeURIComponent(question + ' 数据结构') + '&rsv_dl=ops_pc';
+        answerHtml = '抱歉，知识库中暂时没有找到相关答案。<br><br>' +
+          '<a href="' + baiduUrl + '" target="_blank" class="baidu-link">🔍 去百度搜索（含AI智能回答）</a>' +
+          '<button class="add-kb-btn" onclick="openAddModalWithQuestion(\'' + escapeJs(question) + '\')">➕ 找到答案后添加</button><br><br>' +
+          '<span style="font-size:0.85rem;color:#6b7280;">试试这些关键词：<b>二叉树、栈、队列、排序、哈希、图、查找</b></span>';
+      }
+
+      botMsg.innerHTML = '<div class="qa-avatar bot">🤖</div><div class="qa-bubble">' + answerHtml + '</div>';
+      chat.appendChild(botMsg);
+
+      // 滚动到底部
+      setTimeout(function(){ chat.scrollTop = chat.scrollHeight; }, 50);
+    }
+
+    // 满意度反馈处理
+    function handleFeedback(btn, isGood) {
+      var bubble = btn.closest('.qa-bubble');
+      var botMsg = btn.closest('.qa-message');
+      var feedbackBar = bubble.querySelector('.feedback-bar');
+      if (!feedbackBar) return;
+
+      if (isGood) {
+        feedbackBar.innerHTML = '<span style="color:#047857;">✅ 太棒了！继续加油 💪</span>';
+      } else {
+        var candidates = [];
+        try { candidates = JSON.parse(botMsg.dataset.candidates || '[]'); } catch(e) {}
+        var question = botMsg.dataset.question || '';
+        var baiduUrl = 'https://www.baidu.com/s?wd=' + encodeURIComponent(question + ' 数据结构');
+
+        var moreHtml = '<span style="color:#b91c1c;">抱歉，让我为你提供更多选择：</span>';
+
+        // 显示其他候选
+        if (candidates.length > 0) {
+          moreHtml += '<div style="margin-top:8px;"><span style="font-size:0.8rem;color:#6b7280;">其他可能相关的答案：</span></div>';
+          for (var i = 0; i < candidates.length; i++) {
+            var c = candidates[i];
+            moreHtml += '<div class="candidate-item" onclick="showCandidateDetail(this)">' +
+              '<div class="candidate-q">' + escapeHtml(c.q) + '</div>' +
+              '<div class="candidate-a" style="display:none;">' + escapeHtml(c.a) + '</div>' +
+            '</div>';
+          }
+        }
+
+        moreHtml += '<div style="margin-top:10px;">' +
+          '<a href="' + baiduUrl + '" target="_blank" class="baidu-link">🔍 去百度搜索更多答案（含AI智能回答）</a>' +
+          '<button class="add-kb-btn" onclick="openAddModalWithQuestion(\'' + escapeJs(question) + '\')">➕ 找到答案后添加</button>' +
+        '</div>';
+
+        feedbackBar.innerHTML = moreHtml;
+      }
+
+      // 滚动到底部
+      var chat = document.getElementById('qaChat');
+      setTimeout(function(){ chat.scrollTop = chat.scrollHeight; }, 50);
+    }
+
+    // 展开候选答案详情
+    function showCandidateDetail(el) {
+      var ans = el.querySelector('.candidate-a');
+      if (ans.style.display === 'none') {
+        ans.style.display = 'block';
+      } else {
+        ans.style.display = 'none';
+      }
+    }
+
+    function quickQA(text) {
+      document.getElementById('qaInput').value = text;
+      doQA();
+    }
+
+    function findTopAnswers(question) {
+      var q = question.toLowerCase();
+      var words = q.split(/\s+/).filter(function(w){ return w.length >= 2; });
+      // 中文 n-gram 分词（2~4字滑动窗口）
+      var clean = q.replace(/[\u3000-\u303f\uff00-\uffef\s?？!！,，.。:：;；]/g, '');
+      var ngrams2 = [], ngrams3 = [], ngrams4 = [];
+      for (var pos = 0; pos <= clean.length - 2; pos++) ngrams2.push(clean.substring(pos, pos + 2));
+      for (var pos = 0; pos <= clean.length - 3; pos++) ngrams3.push(clean.substring(pos, pos + 3));
+      for (var pos = 0; pos <= clean.length - 4; pos++) ngrams4.push(clean.substring(pos, pos + 4));
+
+      // 停用词字符集，用于判断n-gram是否有意义
+      var stopChars = '的是吗呢和与在了着过就都而及其或为以于上下来去出入进回把被让向从到对比给往由自至因将还也只最更太已经正在曾经忽然突然渐渐慢慢马上终于始终永远暂时常常往往一直一起一同一边首先其次然后接着最后总之综上所述例如比如譬如像如似的通常普通特别非常十分极其相当比较稍微略微儿几乎简直根本决绝对完全都全总统统一律一概单单唯独不过仅仅光净老真好很挺怪便仍已经将要一方面';
+      function meaningfulCount(ng) {
+        var cnt = 0;
+        for (var i = 0; i < ng.length; i++) {
+          if (stopChars.indexOf(ng.charAt(i)) === -1) cnt++;
+        }
+        return cnt;
+      }
+
+      // 给所有条目打分
+      var scored = [];
+      for (var i = 0; i < allKnowledge.length; i++) {
+        var item = allKnowledge[i];
+        var score = 0;
+        var hasStrongMatch = false;
+        var iq = item.question.toLowerCase();
+        var ia = item.answer.toLowerCase();
+        var ik = item.keywords.toLowerCase();
+
+        // 完全包含匹配
+        if (iq.indexOf(q) !== -1) score += 100;
+        if (ia.indexOf(q) !== -1) score += 50;
+        if (ik.indexOf(q) !== -1) score += 40;
+
+        // 空格分词匹配
+        for (var j = 0; j < words.length; j++) {
+          var w = words[j];
+          if (iq.indexOf(w) !== -1) score += 15;
+          if (ia.indexOf(w) !== -1) score += 10;
+          if (ik.indexOf(w) !== -1) score += 12;
+        }
+
+        // 4-gram匹配
+        for (var n4 = 0; n4 < ngrams4.length; n4++) {
+          var ng = ngrams4[n4];
+          var mc = meaningfulCount(ng);
+          if (iq.indexOf(ng) !== -1) { score += (mc >= 2 ? 25 : 3); if (mc >= 2) hasStrongMatch = true; }
+          if (ia.indexOf(ng) !== -1) { score += (mc >= 2 ? 15 : 2); if (mc >= 2) hasStrongMatch = true; }
+          if (ik.indexOf(ng) !== -1) { score += (mc >= 2 ? 20 : 2); if (mc >= 2) hasStrongMatch = true; }
+        }
+
+        // 3-gram匹配
+        for (var n3 = 0; n3 < ngrams3.length; n3++) {
+          var ng = ngrams3[n3];
+          var mc = meaningfulCount(ng);
+          if (iq.indexOf(ng) !== -1) { score += (mc >= 2 ? 15 : 3); if (mc >= 2) hasStrongMatch = true; }
+          if (ia.indexOf(ng) !== -1) { score += (mc >= 2 ? 10 : 2); if (mc >= 2) hasStrongMatch = true; }
+          if (ik.indexOf(ng) !== -1) { score += (mc >= 2 ? 12 : 2); if (mc >= 2) hasStrongMatch = true; }
+        }
+
+        // 2-gram匹配
+        for (var n2 = 0; n2 < ngrams2.length; n2++) {
+          var ng = ngrams2[n2];
+          if (iq.indexOf(ng) !== -1) score += 4;
+          if (ia.indexOf(ng) !== -1) score += 2;
+          if (ik.indexOf(ng) !== -1) score += 3;
+        }
+
+        // 单字符匹配
+        for (var c = 0; c < q.length; c++) {
+          var ch = q.charAt(c);
+          if (/[\s?？!！,，.。:：;；]/.test(ch)) continue;
+          if (iq.indexOf(ch) !== -1 || ia.indexOf(ch) !== -1 || ik.indexOf(ch) !== -1) {
+            score += 0.3;
+          }
+        }
+
+        // 惩罚
+        if (clean.length >= 4 && !hasStrongMatch) {
+          score = score * 0.1;
+        }
+
+        scored.push({ item: item, score: score, hasStrongMatch: hasStrongMatch });
+      }
+
+      // 按分数排序
+      scored.sort(function(a, b) { return b.score - a.score; });
+
+      // 过滤掉低分条目
+      var top = scored.filter(function(s) { return s.score >= 12; });
+      if (top.length === 0) return [];
+
+      // 取前3个
+      return top.slice(0, 3);
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function escapeJs(text) {
+      return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    // ========== 弹窗操作 ==========
+    function openAddModal() {
+      document.getElementById('modalQuestion').value = lastQuestion || '';
+      document.getElementById('modalAnswer').value = '';
+      document.getElementById('modalChapter').value = '0';
+      document.getElementById('modalKeywords').value = '';
+      document.getElementById('addModal').classList.add('active');
+    }
+    function openAddModalWithQuestion(q) {
+      document.getElementById('modalQuestion').value = q || '';
+      document.getElementById('modalAnswer').value = '';
+      document.getElementById('modalChapter').value = '0';
+      document.getElementById('modalKeywords').value = '';
+      document.getElementById('addModal').classList.add('active');
+    }
+    function closeAddModal() {
+      document.getElementById('addModal').classList.remove('active');
+    }
+    function saveCustomKnowledge() {
+      var q = document.getElementById('modalQuestion').value.trim();
+      var a = document.getElementById('modalAnswer').value.trim();
+      var ch = parseInt(document.getElementById('modalChapter').value);
+      var kw = document.getElementById('modalKeywords').value.trim();
+      if (!q || !a) {
+        alert('问题和答案不能为空');
+        return;
+      }
+      var names = ['绪论','线性表','栈和队列','串','数组和广义表','树','图','查找','排序','其他'];
+      var newItem = {
+        id: 'c_' + Date.now(),
+        chapter: ch,
+        chapterName: names[ch] || '其他',
+        question: q,
+        answer: a,
+        keywords: kw,
+        isCustom: true
+      };
+      customKnowledge.push(newItem);
+      saveCustomToStorage();
+      closeAddModal();
+      renderChapterFilter();
+      // 如果当前在浏览模式，刷新列表
+      if (currentMode === 'browse') {
+        applyFilter();
+      }
+      alert('已保存到"我的知识库"');
+    }
+    function deleteCustomKnowledge(id) {
+      if (!confirm('确定要删除这条知识吗？')) return;
+      var idx = -1;
+      for (var i = 0; i < customKnowledge.length; i++) {
+        if (customKnowledge[i].id === id) { idx = i; break; }
+      }
+      if (idx >= 0) {
+        customKnowledge.splice(idx, 1);
+        saveCustomToStorage();
+        renderChapterFilter();
+        applyFilter();
+      }
+    }
+    // 点击弹窗外部关闭
+    document.getElementById('addModal').addEventListener('click', function(e) {
+      if (e.target === this) closeAddModal();
+    });
+
+    // ========== 启动 ==========
+    init();
+  </script>
+</body>
+</html>

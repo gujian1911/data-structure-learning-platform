@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>实验四 循环队列 & 实验五 链队列</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
+body{background:#f4f7fc;padding:24px;}
+.wrap{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:480px 1fr;gap:24px;}
+.left-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
+.right-box{display:flex;flex-direction:column;gap:20px;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
+h2{color:#1d3557;margin-bottom:16px;border-left:6px #2563eb solid;padding-left:10px;font-size:20px;}
+h3{margin:14px 0 8px;color:#222;font-size:16px;}
+.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:-20px -20px 16px -20px;border-radius:12px 12px 0 0;}
+pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow:auto;max-height:340px;font-size:13px;line-height:1.5;}
+.tip-text{color:#555;font-size:14px;line-height:1.6;margin-bottom:10px;}
+.split{height:1px;background:#ddd;margin:30px 0;}
+/* 画布通用 */
+.canvas-box{width:100%;height:260px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;margin-bottom:12px;}
+/* 循环队列格子 */
+.cq-cell{position:absolute;width:60px;height:50px;background:#4285f4;color:#fff;text-align:center;line-height:50px;border-radius:6px;transition:0.3s;}
+.cq-empty{background:#e8edf5;color:#666;border:1px solid #bbc;}
+.cq-front{box-shadow:0 0 12px #f44336;}
+.cq-rear{box-shadow:0 0 12px #ff9800;}
+/* 链队列节点 */
+.link-node{position:absolute;display:flex;}
+.link-head{background:#2563eb;}
+.link-data{width:50px;height:46px;background:#10b981;color:#fff;text-align:center;line-height:46px;border-radius:6px 0 0 6px;}
+.link-ptr{width:30px;height:46px;background:#ecf0f1;border:1px solid #999;border-left:none;border-radius:0 6px 6px 0;}
+.arrow-line{position:absolute;height:2px;background:#222;z:1;}
+.arrow-tip{position:absolute;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #222;position:absolute;}
+.del-ani{opacity:0;transform:translateY(-30px);transition:0.4s;}
+/* 操作栏 */
+.oper-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;}
+input{padding:8px 10px;border:1px #ccd6e0 solid;border-radius:6px;width:200px;font-size:14px;}
+button{padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;font-size:14px;}
+button:hover{background:#3b82f6;}
+#logBox{height:150px;border:1px solid #dde2eb;padding:12px;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<!-- 左侧：两份实验C源码 -->
+<div class="left-box">
+    <h2>实验四 循环队列</h2>
+    <h3>实验要求</h3>
+    <p class="tip-text">顺序存储实现循环队列入队、出队操作。</p>
+    <h3>算法思想</h3>
+    <p class="tip-text">max=5；(rear+1)%max==front 队列满；rear==front队空；front指向队头前一位置，rear指向队尾。</p>
+    <div class="code-header">循环队列C调试代码</div>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#define max 5
+struct Queue
+{
+    char data[20];
+    int front,rear;
+};
+// 初始化队列
+void iniQueue(struct Queue *s)
+{
+    s->front=s->rear=0;
+}
+// 判断队列是否未满
+int noFull(struct Queue *s)
+{
+    if((s->rear+1)%max==s->front)
+        return 0;
+    else return 1;
+}
+// 出队
+void delQueue(struct Queue *s)
+{
+	while(s->rear!=s->front)
+	{
+		s->front=(s->front+1)%max;
+        printf("%4c",s->data[s->front]);
+	}
+	printf("\n");
+}
+// 入队
+void insertQueue(struct Queue *s)
+{
+	int flag;
+	char x;
+	while(noFull(s))
+	{
+		scanf("%c",&x);
+        getchar();
+		s->rear=(s->rear+1)%max;
+        s->data[s->rear]=x;	
+	}
+	delQueue(s);
+}
+void main()
+{
+	struct Queue *a=(struct Queue *)malloc(sizeof(struct Queue));
+    iniQueue(a);
+    char x;
+    insertQueue(a,x);
+}
+</pre>
+
+<div class="split"></div>
+
+<h2>实验五 链队列</h2>
+<h3>实验要求</h3>
+<p class="tip-text">链式存储实现链队列，带头结点，front队头指针，rear队尾指针。</p>
+<h3>算法思想</h3>
+入队：在rear后新增节点；出队：删除front后继，仅剩一个节点时rear置回头结点。
+<div class="code-header">链队列C调试代码</div>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+// 数据节点
+struct queue
+{
+    char data;
+    struct queue *next;
+};
+// 头尾指针结构体
+struct queueSS
+{
+    struct queue *front,*rear;
+};
+// 初始化带头链队列
+struct queueSS *iniQueue()
+{
+    struct queueSS *p;
+    struct queue *r;
+    p=(struct queueSS *)malloc(sizeof(struct queueSS));
+    p->rear=p->front=r=(struct queue *)malloc(sizeof(struct queue));
+    r->next=NULL;
+    return p;
+}
+// 批量入队
+void insertQueue(struct queueSS *s,int n)
+{
+    struct queue *r;
+    char x;
+    while(n>0)
+    {
+        r=(struct queue *)malloc(sizeof(struct queue));
+        scanf("%c",&x);
+        getchar();
+        r->data=x;
+        r->next=NULL;
+        s->rear->next=r;
+        s->rear=r;
+        n--;
+    }
+};
+// 批量出队
+void delQueue(struct queueSS *p,int n)
+{
+    struct queue *r;
+    while(n>0&&p->rear!=p->front)
+    {
+        if(p->front->next!=p->rear)
+        {
+            r=p->front->next;
+            printf("%4c",r->data);
+            p->front->next=r->next;
+            free(r);
+        }
+        else
+        {
+            r=p->front->next;
+            printf("%4c",r->data);
+            p->front->next=NULL;
+            p->rear=p->front;
+            free(r);
+        }
+        n--;
+    }
+};
+void main()
+{
+    struct queueSS *p;
+    int i;
+    p=iniQueue();
+    printf("输入个数：");
+    scanf("%d",&i);
+    insertQueue(p,i);
+    delQueue(p,i);
+}
+</pre>
+</div>
+
+<!-- 右侧动画区 -->
+<div class="right-box">
+    <!-- 循环队列 -->
+    <div class="card">
+        <h2>实验四 循环队列动画(max=5)</h2>
+        <div class="canvas-box" id="cqCanvas"></div>
+        <div class="oper-row">
+            <input id="cqInput" placeholder="批量字符，如a,b,c">
+            <button onclick="cqBatchIn()">批量入队</button>
+            <button onclick="cqSingleIn()">单个入队</button>
+            <button onclick="cqSingleOut()">单个出队</button>
+            <button onclick="cqAllOut()">全部出队</button>
+            <button onclick="cqReset()">重置</button>
+        </div>
+        <p class="tip-text">规则：max=5；(rear+1)%5==front 满；rear==front空；红front，橙rear</p>
+    </div>
+    <!-- 链队列 -->
+    <div class="card">
+        <h2>实验五 链队列动画（带头结点）</h2>
+        <div class="canvas-box" id="lqCanvas"></div>
+        <div class="oper-row">
+            <input id="lqInput" placeholder="批量字符，如x,y,z">
+            <button onclick="lqBatchIn()">批量入队</button>
+            <button onclick="lqSingleIn()">单个入队</button>
+            <button onclick="lqSingleOut()">单个出队</button>
+            <button onclick="lqAllOut()">全部出队</button>
+            <button onclick="lqReset()">重置</button>
+        </div>
+        <p class="tip-text">规则：带头结点，队尾入、队头出；仅剩元素时rear归头</p>
+    </div>
+    <!-- 运行日志 -->
+    <div class="card">
+        <h3>C程序运行日志</h3>
+        <div id="logBox"></div>
+    </div>
+</div>
+</div>
+
+<script>
+// 全局日志
+const logBox = document.getElementById("logBox");
+function log(msg){
+    const t = new Date();
+    logBox.innerHTML += `[${t.getHours()}:${t.getMinutes()}] ${msg}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+}
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ===================== 循环队列 完全不动，保留原有可用代码 =====================
+const MAX_CQ = 5;
+let cqData = [null,null,null,null,null];
+let c_front = 0;
+let c_rear = 0;
+const cqCanvas = document.getElementById("cqCanvas");
+const CELL_W = 60;
+const CELL_H = 50;
+const RADIUS = 90;
+const CX = 220;
+const CY = 130;
+
+function renderCQ(){
+    cqCanvas.innerHTML = "";
+    for(let i=0;i<MAX_CQ;i++){
+        const deg = (360 / MAX_CQ) * i;
+        const rad = deg * Math.PI / 180;
+        const x = CX + Math.cos(rad) * RADIUS - CELL_W / 2;
+        const y = CY + Math.sin(rad) * RADIUS - CELL_H / 2;
+        const div = document.createElement("div");
+        div.className = "cq-cell";
+        div.style.left = x + "px";
+        div.style.top = y + "px";
+        if(cqData[i] === null){
+            div.classList.add("cq-empty");
+            div.innerText = "["+i+"]";
+        }else{
+            div.innerText = cqData[i];
+        }
+        if(i === c_front) div.classList.add("cq-front");
+        if(i === c_rear) div.classList.add("cq-rear");
+        cqCanvas.appendChild(div);
+    }
+}
+function isCQFull(){
+    return (c_rear + 1) % MAX_CQ === c_front;
+}
+function isCQEmpty(){
+    return c_rear === c_front;
+}
+function parseInput(id){
+    const raw = document.getElementById(id).value.trim().replace(/\s/g,"");
+    if(!raw){
+        log("输入不能为空，英文逗号分隔单字符，例a,b,c");
+        return null;
+    }
+    return raw.split(",").filter(item => item.length === 1);
+}
+async function cqBatchIn(){
+    const arr = parseInput("cqInput");
+    if(!arr) return;
+    cqData = [null,null,null,null,null];
+    c_front = 0;
+    c_rear = 0;
+    renderCQ();
+    log("===== 循环队列批量入队 =====");
+    for(let ch of arr){
+        if(isCQFull()){
+            log("队列已满，停止入队");
+            break;
+        }
+        await sleep(400);
+        c_rear = (c_rear + 1) % MAX_CQ;
+        cqData[c_rear] = ch;
+        renderCQ();
+        log(`入队${ch} front=${c_front} rear=${c_rear}`);
+    }
+    log("批量入队结束");
+}
+async function cqSingleIn(){
+    const ch = document.getElementById("cqInput").value.trim();
+    if(ch.length !== 1){
+        log("请输入单个字符");
+        return;
+    }
+    if(isCQFull()){
+        log("循环队列已满，无法入队");
+        return;
+    }
+    c_rear = (c_rear + 1) % MAX_CQ;
+    cqData[c_rear] = ch;
+    renderCQ();
+    log(`单个入队${ch} front=${c_front} rear=${c_rear}`);
+}
+async function cqSingleOut(){
+    if(isCQEmpty()){
+        log("循环队列为空，无法出队");
+        return;
+    }
+    c_front = (c_front + 1) % MAX_CQ;
+    const out = cqData[c_front];
+    cqData[c_front] = null;
+    renderCQ();
+    log(`出队${out} front=${c_front} rear=${c_rear}`);
+}
+async function cqAllOut(){
+    log("循环队列全部出队：");
+    while(!isCQEmpty()){
+        await sleep(300);
+        c_front = (c_front + 1) % MAX_CQ;
+        const out = cqData[c_front];
+        cqData[c_front] = null;
+        renderCQ();
+        log(`出队${out}`);
+    }
+    log("队列清空 front="+c_front+" rear="+c_rear);
+}
+function cqReset(){
+    cqData = [null,null,null,null,null];
+    c_front = 0;
+    c_rear = 0;
+    renderCQ();
+    document.getElementById("cqInput").value = "";
+    log("循环队列已重置 front=0 rear=0");
+}
+
+// ===================== 全新修复链队列代码（仅此处修改） =====================
+let lqList = [];
+const lqCanvas = document.getElementById("lqCanvas");
+const NODE_W = 80;
+const NODE_GAP = 95;
+const L_START_X = 10;
+const L_Y = 100;
+
+function drawArrow(x1,y1,x2,y2){
+    const line = document.createElement("div");
+    line.className = "arrow-line";
+    line.style.left = x1 + "px";
+    line.style.top = y1 + "px";
+    line.style.width = (x2 - x1 - 8) + "px";
+    lqCanvas.appendChild(line);
+    const tip = document.createElement("div");
+    tip.className = "arrow-tip";
+    tip.style.left = (x2 - 8) + "px";
+    tip.style.top = (y1 - 6) + "px";
+    lqCanvas.appendChild(tip);
+}
+
+function renderLQ(){
+    lqCanvas.innerHTML = "";
+    // 绘制头结点
+    const headWrap = document.createElement("div");
+    headWrap.className = "link-node";
+    headWrap.style.left = L_START_X + "px";
+    headWrap.style.top = L_Y + "px";
+    const hd = document.createElement("div");
+    hd.className = "link-data link-head";
+    hd.innerText = "头";
+    const hp = document.createElement("div");
+    hp.className = "link-ptr";
+    headWrap.appendChild(hd);
+    headWrap.appendChild(hp);
+    lqCanvas.appendChild(headWrap);
+    // 绘制所有数据节点
+    for(let i=0;i<lqList.length;i++){
+        const wrap = document.createElement("div");
+        wrap.className = "link-node";
+        const curX = L_START_X + (i+1)*NODE_GAP;
+        wrap.style.left = curX + "px";
+        wrap.style.top = L_Y + "px";
+        const data = document.createElement("div");
+        data.className = "link-data";
+        data.innerText = lqList[i];
+        const ptr = document.createElement("div");
+        ptr.className = "link-ptr";
+        wrap.appendChild(data);
+        wrap.appendChild(ptr);
+        lqCanvas.appendChild(wrap);
+        // 绘制前后箭头
+        const prevEnd = L_START_X + i*NODE_GAP + NODE_W;
+        drawArrow(prevEnd, L_Y+22, curX, L_Y+22);
+    }
+}
+
+// 链队列：批量入队
+async function lqBatchIn(){
+    const arr = parseInput("lqInput");
+    if(!arr) return;
+    lqList = [];
+    renderLQ();
+    log("===== 链队列批量入队 =====");
+    for(let ch of arr){
+        await sleep(400);
+        lqList.push(ch);
+        renderLQ();
+        log(`队尾入队元素：${ch}`);
+    }
+    log("链队列批量入队完成");
+}
+
+// 链队列：单个入队
+async function lqSingleIn(){
+    const ch = document.getElementById("lqInput").value.trim();
+    if(ch.length !== 1){
+        log("链队列单个入队请输入单个字符");
+        return;
+    }
+    lqList.push(ch);
+    renderLQ();
+    log(`队尾单个入队：${ch}`);
+}
+
+// 链队列：单个出队（带头结点，删除第一个数据节点，带消失动画）
+async function lqSingleOut(){
+    if(lqList.length === 0){
+        log("链队列为空，无法出队");
+        return;
+    }
+    const nodes = lqCanvas.querySelectorAll(".link-node");
+    nodes[1].classList.add("del-ani");
+    await sleep(400);
+    const out = lqList.shift();
+    renderLQ();
+    log(`队头出队元素：${out}`);
+}
+
+// 链队列：全部出队
+async function lqAllOut(){
+    log("链队列全部出队：");
+    while(lqList.length > 0){
+        await sleep(300);
+        const nodes = lqCanvas.querySelectorAll(".link-node");
+        nodes[1].classList.add("del-ani");
+        await sleep(400);
+        const out = lqList.shift();
+        renderLQ();
+        log(`出队：${out}`);
+    }
+    log("链队列已清空，仅剩头结点");
+}
+
+// 链队列重置
+function lqReset(){
+    lqList = [];
+    renderLQ();
+    document.getElementById("lqInput").value = "";
+    log("链队列重置完成");
+}
+
+window.onload = function(){
+    renderCQ();
+    renderLQ();
+}
+</script>
+</body>
+</html>

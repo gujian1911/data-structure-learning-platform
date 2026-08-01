@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>实验二 单链表的建立</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
+body{background:#f4f7fc;padding:24px;}
+.wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:420px 1fr;gap:24px;}
+.left-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
+.right-box{display:flex;flex-direction:column;gap:20px;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
+h2{color:#1d3557;margin-bottom:16px;border-left:5px solid #2980b9;padding-left:10px;font-size:20px;}
+h3{margin:14px 0 8px;color:#222;font-size:16px;}
+.code-header{background:#2980b9;color:#fff;padding:8px 14px;margin:-20px -20px 16px -20px;border-radius:12px 12px 0 0;}
+pre{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8;overflow:auto;max-height:420px;font-size:13px;line-height:1.5;}
+.tip-text{color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;}
+#linkCanvas{width:100%;height:280px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;}
+.node{position:absolute;display:flex;}
+.head-node{width:60px;height:44px;background:#2980b9;color:#fff;text-align:center;line-height:44px;border-radius:6px;}
+.data-box{width:50px;height:44px;background:#3498db;color:#fff;text-align:center;line-height:44px;border-radius:6px 0 6px 0;}
+.pointer-box{width:30px;height:44px;background:#ecf0f1;border:1px #999 solid;border-left:none;border-radius:0 6px 6px 0;position:relative;}
+.arrow-line{position:absolute;height:2px;background:#222;z:1;}
+.arrow-tip{position:absolute;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #222;}
+.node.active{transform:scale(1.1);z-index:10;box-shadow:0 0 12px #f39c12;}
+.node.del{opacity:0;transform:translateY(-40px);transition:0.4s;}
+.oper-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;}
+input[type="text"],input[type="number"]{padding:8px 10px;border:1px #ccd6e0 solid;border-radius:6px;width:180px;font-size:14px;}
+button{padding:8px 14px;border:none;border-radius:6px;background:#2980b9;color:#fff;cursor:pointer;transition:0.2s;font-size:14px;}
+button:hover{background:#3498db;}
+#logBox{height:160px;border:1px #dde2eb solid;padding:12;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+.speed-bar{display:flex;align-items:center;gap:10px;margin-top:8px;}
+</style>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+<div class="wrap">
+    <div class="left-box">
+        <h2>实验二 单链表的建立</h2>
+        <h3>实验要求</h3>
+        <p class="tip-text">建立带头结点的单链表，支持头插法、尾插法创建链表；实现查找、替换、按值删除、指定数值后插入功能。</p>
+        <h3>算法思想</h3>
+        <p class="tip-text">尾插法：先分配头结点，所有新结点依次连接到链表尾部；头插法：新结点插入在头结点之后。</p>
+        <h3>C语言完整代码</h3>
+        <div class="code-header"></div>
+<pre>
+#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+typedef struct node
+{
+ int data;
+ struct node *next;
+}node;
+
+void print(node *head)
+{
+ node *p;
+ p=head->next;
+ while(p!=NULL)
+ {
+  printf("%d ",p->data);
+  p=p->next;
+ }
+ printf("\n");
+}
+
+node* search(node *head,int x)
+{
+ node *p,*q;
+ q=head;
+ p=head->next;
+ while(p!=NULL&&p->data!=x)
+ {
+  q=p;
+  p=p->next;
+ }
+ if(p==NULL)
+  return 0;
+ else
+  return q;
+}
+
+void replace(node *head,int x,int y)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要替换的值\n");
+ else
+ {
+  p=q->next;
+  p->data=y;
+ }
+}
+
+void dele(node *head,int x)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要删除的值\n");
+ else
+ {
+  p=q->next;
+  q->next=p->next;
+  free(p);
+ }
+void instert(node *head,int x ,int y)
+{
+ node *p,*q;
+ q=search(head,x);
+ if(q==0)
+  printf("没有你要插入的数");
+ else
+ {
+  p=(node *)malloc(sizeof(node ));
+  p->data=y;
+  p->next=q->next;
+  q->next=p;
+ }
+}
+
+void weicha(node *head,int n)
+{
+ node *r,*p;
+ r=head;
+ while(n>=1)
+ {
+  p=(node *)malloc(sizeof(node ));
+  scanf("%d",&p->data);
+  p->next=NULL;
+  r->next=p;
+  r=p;
+  n--;
+ }
+}
+
+void toucha(node *head,int n)
+{
+ node *p;
+  while(n>=1)
+ {
+  p=(node *)malloc(sizeof(node ));
+  scanf("%d",&p->data);
+  p->next=head->next;
+  head->next=p;
+  n--;
+ }
+
+void main()
+{
+ node *head;
+ int n,choice,x,y,z;
+ head=(node *)malloc(sizeof(node));
+ head->next=NULL;
+ printf("请输入选项: 1 头插 2 尾插\n");
+ scanf("%d",&z);
+ printf("请输入数的个数\n");
+ scanf("%d",&n);
+ printf("请输入%d个数\n",n);
+ if(z==1)
+  toucha(head,n);
+ if(z==2)
+ weicha(head,n);
+ printf("请输入选项: 1 替换 2 删除 3 插入 4 查找\n");
+ scanf("%d",&choice);
+ if(choice==1)
+ {
+  printf("请输入被替换的数和替换的数\n");
+  scanf("%d %d",&x,&y);
+  replace(head,x,y);
+ }
+ if(choice==2)
+ {
+  printf("请输入想要删除得数\n");
+  scanf("%d",&x);
+  dele(head,x);
+  print(head);
+ }
+ if(choice==3)
+ {
+  printf("请输入在哪个数之后插入，再输入新数\n");
+  scanf("%d %d",&x,&y);
+  instert(head,x,y);
+  print(head);
+ }
+ if(choice==4)
+ {
+  printf("查找数值：");
+  scanf("%d",&x);
+  search(head,x);
+ }
+}
+</pre>
+    </div>
+    <div class="right-box">
+        <div class="card">
+            <h2>单链表动画模拟演示区（带头结点）</h2>
+            <div id="linkCanvas"></div>
+            <div class="oper-row">
+                <input type="text" id="initNums" placeholder="数字英文逗号分隔，示例1,2,3,4">
+                <button onclick="createTail()">尾插法建表</button>
+                <button onclick="createHead()">头插法建表</button>
+                <button onclick="resetLink()">重置链表</button>
+            </div>
+            <div class="oper-row">
+                <input type="number" id="searchVal" placeholder="查找数值">
+                <button onclick="animSearch()">查找结点动画</button>
+            </div>
+            <div class="oper-row">
+                <input type="number" id="oldV" placeholder="原数值">
+                <input type="number" id="newV" placeholder="替换值">
+                <button onclick="animReplace()">替换结点</button>
+            </div>
+            <div class="oper-row">
+                <input type="number" id="delVal" placeholder="删除数值">
+                <button onclick="animDel()">按值删除</button>
+            </div>
+            <div class="oper-row">
+                <input type="number" id="refV" placeholder="在该值后插入">
+                <input type="number" id="insV" placeholder="新数值">
+                <button onclick="animInsert()">后方插入</button>
+            <div class="speed-bar">
+                <span>动画速度：</span>
+                <input type="range" id="speedSlider" min="200" max="1200" value="400">
+            </div>
+        </div>
+        <div class="card">
+            <h3>C语言控制台运行日志</h3>
+            <div id="logBox"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 全局变量
+let linkList = [];
+const canvas = document.getElementById("linkCanvas");
+const logBox = document.getElementById("logBox");
+const speedSlider = document.getElementById("speedSlider");
+const NODE_WIDTH = 80;
+const NODE_GAP = 100;
+const START_X = 10;
+const NODE_Y = 100;
+
+function getDelay(){
+    return Number(speedSlider.value);
+}
+function log(msg){
+    const t = new Date();
+    logBox.innerHTML += `[${t.getHours()}:${t.getMinutes()}] ${msg}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+}
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+// 绘制箭头
+function drawArrow(x1, y1, x2, y2){
+    const line = document.createElement("div");
+    line.className = "arrow-line";
+    line.style.left = x1 + "px";
+    line.style.top = y1 + "px";
+    line.style.width = (x2 - x1 - 8) + "px";
+    canvas.appendChild(line);
+    const tip = document.createElement("div");
+    tip.className = "arrow-tip";
+    tip.style.left = (x2 - 8) + "px";
+    tip.style.top = (y1 - 6) + "px";
+    canvas.appendChild(tip);
+}
+// 渲染链表
+function renderLink(activeIdx = -1){
+    canvas.innerHTML = "";
+    // 头结点
+    const headWrap = document.createElement("div");
+    headWrap.className = "node";
+    headWrap.style.left = START_X + "px";
+    headWrap.style.top = NODE_Y + "px";
+    const headBox = document.createElement("div");
+    headBox.className = "head-node";
+    headBox.innerText = "头";
+    const headPtr = document.createElement("div");
+    headPtr.className = "pointer-box";
+    headWrap.appendChild(headBox);
+    headWrap.appendChild(headPtr);
+    canvas.appendChild(headWrap);
+    // 数据节点
+    for(let i = 0; i < linkList.length; i++){
+        const val = linkList[i];
+        const wrap = document.createElement("div");
+        wrap.className = "node";
+        if(i === activeIdx) wrap.classList.add("active");
+        const curX = START_X + (i + 1) * NODE_GAP;
+        wrap.style.left = curX + "px";
+        wrap.style.top = NODE_Y + "px";
+        const dataDiv = document.createElement("div");
+        dataDiv.className = "data-box";
+        dataDiv.innerText = val;
+        const ptrDiv = document.createElement("div");
+        ptrDiv.className = "pointer-box";
+        wrap.appendChild(dataDiv);
+        wrap.appendChild(ptrDiv);
+        canvas.appendChild(wrap);
+        const prevEndX = START_X + i * NODE_GAP + NODE_WIDTH;
+        drawArrow(prevEndX, NODE_Y + 22, curX, NODE_Y + 22);
+    }
+}
+// 解析输入数字
+function parseNums(){
+    const raw = document.getElementById("initNums").value.trim();
+    if(!raw){
+        log("输入不能为空，请输入示例 1,2,3,4");
+        return null;
+    }
+    const cleanStr = raw.replace(/\s/g, "");
+    const arr = cleanStr.split(",");
+    let nums = [];
+    for(let s of arr){
+        let n = parseInt(s);
+        if(!isNaN(n)) nums.push(n);
+    }
+    if(nums.length === 0){
+        log("请使用英文逗号分隔数字");
+        return null;
+    }
+    return nums;
+}
+// 尾插建表
+async function createTail(){
+    const nums = parseNums();
+    if(!nums) return;
+    linkList = [];
+    renderLink();
+    log("===== 尾插法创建链表 =====");
+    for(let num of nums){
+        await sleep(getDelay());
+        linkList.push(num);
+        renderLink(linkList.length - 1);
+        log("尾插入：" + num);
+    }
+    log("链表完整数据：" + linkList.join(" "));
+}
+// 头插建表
+async function createHead(){
+    const nums = parseNums();
+    if(!nums) return;
+    linkList = [];
+    renderLink();
+    log("===== 头插法创建链表 =====");
+    for(let num of nums){
+        await sleep(getDelay());
+        linkList.unshift(num);
+        renderLink(0);
+        log("头插入：" + num);
+    }
+    log("链表完整数据：" + linkList.join(" "));
+}
+// 重置
+function resetLink(){
+    linkList = [];
+    canvas.innerHTML = "";
+    logBox.innerHTML = "";
+    document.getElementById("initNums").value = "";
+    log("链表已全部重置");
+}
+// 查找
+async function animSearch(){
+    const inputStr = document.getElementById("searchVal").value.trim();
+    const target = parseInt(inputStr);
+    if(inputStr === "" || isNaN(target)){
+        log("请输入合法数字");
+        return;
+    }
+    log(`开始遍历查找数值${target}`);
+    renderLink(-1);
+    await sleep(300);
+    let findIndex = -1;
+    for(let i = 0; i < linkList.length; i++){
+        renderLink(i);
+        await sleep(getDelay());
+        if(linkList[i] === target){
+            findIndex = i;
+            break;
+        }
+    }
+    if(findIndex !== -1){
+        log("找到");
+        renderLink(findIndex);
+    }else{
+        log("链表中没有");
+        renderLink(-1);
+    }
+}
+// 替换
+async function animReplace(){
+    const oldStr = document.getElementById("oldV").value.trim();
+    const newStr = document.getElementById("newV").value.trim();
+    const old = parseInt(oldStr);
+    const newV = parseInt(newStr);
+    if(oldStr === "" || newStr === "" || isNaN(old) || isNaN(newV)){
+        log("请输入合法数字");
+        return;
+    }
+    log(`开始查找待替换数值${old}`);
+    renderLink(-1);
+    await sleep(300);
+    let findIndex = -1;
+    for(let i = 0; i < linkList.length; i++){
+        renderLink(i);
+        await sleep(getDelay()/2);
+        if(linkList[i] === old){
+            findIndex = i;
+            break;
+        }
+    }
+    if(findIndex === -1){
+        log(`链表中没有，无法替换`);
+        renderLink(-1);
+        return;
+    }
+    linkList[findIndex] = newV;
+    renderLink(findIndex);
+    await sleep(getDelay());
+    renderLink(-1);
+    log(`替换完成 ${old} → ${newV}`);
+}
+// 【修复完成的按值删除函数】
+async function animDel(){
+    const delStr = document.getElementById("delVal").value.trim();
+    const delNum = parseInt(delStr);
+    if(delStr === "" || isNaN(delNum)){
+        log("请输入合法数字");
+        return;
+    }
+    log(`开始查找待删除数值${delNum}`);
+    renderLink(-1);
+    await sleep(300);
+    let findIndex = -1;
+    // 遍历查找高亮
+    for(let i = 0; i < linkList.length; i++){
+        renderLink(i);
+        await sleep(getDelay()/2);
+        if(linkList[i] === delNum){
+            findIndex = i;
+            break;
+        }
+    }
+    if(findIndex === -1){
+        log("链表中没有，无法删除");
+        renderLink(-1);
+        return;
+    }
+    // 停留高亮画面
+    renderLink(findIndex);
+    await sleep(getDelay());
+    // 单独获取目标节点，添加上浮消失动画
+    const allNodes = canvas.querySelectorAll(".node");
+    const targetNode = allNodes[findIndex + 1];
+    if(targetNode){
+        targetNode.classList.add("del");
+    }
+    // 等待动画播放完毕再重绘
+    await sleep(600);
+    // 删除数组元素
+    linkList.splice(findIndex, 1);
+    // 重绘新链表，自动生成长箭头
+    renderLink(-1);
+    if(findIndex === linkList.length){
+        log(`删除${delNum}完成，该结点为末尾结点，已清除尾部箭头`);
+    }else{
+        log(`删除${delNum}完成，前后结点已生成长箭头直接连接`);
+    }
+}
+// 后方插入
+async function animInsert(){
+    const refStr = document.getElementById("refV").value.trim();
+    const insStr = document.getElementById("insV").value.trim();
+    const ref = parseInt(refStr);
+    const insNum = parseInt(insStr);
+    if(refStr === "" || insStr === "" || isNaN(ref) || isNaN(insNum)){
+        log("请输入合法数字");
+        return;
+    }
+    log(`查找参考数值${ref}`);
+    renderLink(-1);
+    await sleep(300);
+    let findIndex = -1;
+    for(let i = 0; i < linkList.length; i++){
+        renderLink(i);
+        await sleep(getDelay()/2);
+        if(linkList[i] === ref){
+            findIndex = i;
+            break;
+        }
+    }
+    if(findIndex === -1){
+        log(`链表中没有${ref}，无法插入`);
+        renderLink(-1);
+        return;
+    }
+    const pos = findIndex + 1;
+    linkList.splice(pos, 0, insNum);
+    renderLink(pos);
+    await sleep(getDelay());
+    renderLink(-1);
+    log(`在${ref}后方插入${insNum}完成`);
+}
+window.onload = function(){
+    renderLink();
+}
+</script>
+
+  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+</body>
+</html>

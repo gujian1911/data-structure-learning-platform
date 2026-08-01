@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>三元组稀疏矩阵转置可视化</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft Yahei", monospace;
+        }
+        body {
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 20px;
+        }
+        .row-wrap {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 420px;
+        }
+        .card h3 {
+            margin-bottom: 12px;
+            color: #333;
+            border-left: 4px solid #2563eb;
+            padding-left: 8px;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            height: 320px;
+            resize: none;
+            background: #1e1e1e;
+            color: #fff;
+        }
+        .btn-group {
+            margin: 12px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #runBtn {
+            background: #2563eb;
+            color: white;
+        }
+        #resetBtn {
+            background: #666;
+            color: white;
+        }
+        #speedSlow {
+            background: #059669;
+            color: white;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+        td, th {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: center;
+        }
+        th {
+            background: #eef2ff;
+        }
+        .zero-cell {
+            color: #aaa;
+            background: #f9f9f9;
+        }
+        .nonzero-cell {
+            background: #dbeafe;
+            font-weight: bold;
+        }
+        .active-cell {
+            background: #fef08a !important;
+        }
+        .step-tip {
+            margin: 10px 0;
+            padding: 10px;
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 4px;
+            min-height: 60px;
+        }
+        .matrix-box {
+            flex: 1;
+            min-width: 400px;
+        }
+    </style>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+<div class="container">
+    <h1>三元组稀疏矩阵转置可视化（C语言算法模拟）</h1>
+    <div class="row-wrap">
+        <!-- 左侧：C语言源码 -->
+        <div class="card" style="flex: 1.2">
+            <h3>完整C语言源码（文档原版）</h3>
+            <textarea readonly id="codeBox">
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAXSIZE 100
+
+// 三元组结构体：单个非零元素
+typedef struct {
+    int row;    // 行号
+    int col;    // 列号
+    int val;    // 元素值
+} Triple;
+
+// 稀疏矩阵结构体
+typedef struct {
+    Triple data[MAXSIZE];
+    int rows;
+    int cols;
+    int count;
+} TSMatrix;
+
+void CreateMatrix(TSMatrix *M);
+void PrintMatrix(TSMatrix M);
+void TransMatrix(TSMatrix M, TSMatrix *T);
+
+int main() {
+    TSMatrix M, T;
+    printf("===== 创建稀疏矩阵 =====\n");
+    CreateMatrix(&M);
+    printf("\n===== 原稀疏矩阵 =====\n");
+    PrintMatrix(M);
+    TransMatrix(M, &T);
+    printf("\n===== 转置后稀疏矩阵 =====\n");
+    PrintMatrix(T);
+    return 0;
+}
+
+// 创建稀疏矩阵
+void CreateMatrix(TSMatrix *M) {
+    printf("请输入矩阵的 行数、列数、非零元素个数：");
+    scanf("%d%d%d", &M->rows, &M->cols, &M->count);
+    if (M->count < 0 || M->count > MAXSIZE) {
+        printf("非零元素个数非法！\n");
+        exit(1);
+    }
+    printf("请输入 %d 个非零元素的 行号、列号、值：\n", M->count);
+    for (int i = 0; i < M->count; i++) {
+        scanf("%d%d%d", &M->data[i].row, &M->data[i].col, &M->data[i].val);
+    }
+}
+
+// 打印三元组
+void PrintMatrix(TSMatrix M) {
+    printf("矩阵：%d行×%d列，非零元素：%d个\n", M.rows, M.cols, M.count);
+    printf("行号\t列号\t值\n");
+    for (int i = 0; i < M.count; i++) {
+        printf("%d\t%d\t%d\n", M.data[i].row, M.data[i].col, M.data[i].val);
+    }
+}
+
+// 核心转置算法
+void TransMatrix(TSMatrix M, TSMatrix *T) {
+    T->rows = M.cols;
+    T->cols = M.rows;
+    T->count = M.count;
+    if (T->count == 0) {
+        printf("矩阵无元素，无需转置！\n");
+        return;
+    }
+    int k = 0;
+    // 外层循环：遍历原矩阵每一列 c
+    for (int c = 1; c <= M.cols; c++) {
+        // 内层循环：遍历所有三元组
+        for (int i = 0; i < M.count; i++) {
+            if (M.data[i].col == c) {
+                T->data[k].row = M.data[i].col;
+                T->data[k].col = M.data[i].row;
+                T->data[k].val = M.data[i].val;
+                k++;
+            }
+        }
+    }
+}
+            </textarea>
+        </div>
+        <!-- 右侧：输入控制面板 -->
+        <div class="card">
+            <h3>矩阵输入面板</h3>
+            <p>格式：第一行 行数 列数 非零个数<br>后续每行：行 列 值（行号列号从1开始）</p>
+            <textarea id="inputArea" rows="8" placeholder="示例：
+4 5 5
+1 2 7
+1 4 5
+2 1 14
+3 5 32
+4 2 26">4 5 5
+1 2 7
+1 4 5
+2 1 14
+3 5 32
+4 2 26</textarea>
+            <div class="btn-group">
+                <button id="runBtn">开始慢速动画转置</button>
+                <button id="resetBtn">重置清空</button>
+                <button id="speedSlow">超慢速(1.5s/步)</button>
+            </div>
+            <div class="step-tip" id="stepTip">点击【开始慢速动画转置】，观察转置分步执行过程</div>
+        </div>
+    </div>
+
+    <!-- 可视化区域 -->
+    <div class="row-wrap">
+        <!-- 原矩阵可视化 -->
+        <div class="card matrix-box">
+            <h3>原矩阵完整二维数组 + 三元组表</h3>
+            <div id="originMatrixBox"></div>
+            <h4 style="margin-top:12px">原矩阵三元组列表</h4>
+            <table id="originTripleTable">
+                <tr><th>行row</th><th>列col</th><th>值val</th></tr>
+            </table>
+        </div>
+        <!-- 转置过程+结果 -->
+        <div class="card matrix-box">
+            <h3>转置后矩阵 + 生成中的三元组</h3>
+            <div id="transMatrixBox"></div>
+            <h4 style="margin-top:12px">转置矩阵三元组（动态生成）</h4>
+            <table id="transTripleTable">
+                <tr><th>行row</th><th>列col</th><th>值val</th></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 全局变量
+    let delay = 1500; // 默认慢速1.5秒一步
+    let originMatrix = { rows:0, cols:0, count:0, data:[] };
+    let transMatrix = { rows:0, cols:0, count:0, data:[] };
+    let animRunning = false;
+
+    // DOM元素
+    const inputArea = document.getElementById('inputArea');
+    const runBtn = document.getElementById('runBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const speedSlow = document.getElementById('speedSlow');
+    const stepTip = document.getElementById('stepTip');
+    const originMatrixBox = document.getElementById('originMatrixBox');
+    const transMatrixBox = document.getElementById('transMatrixBox');
+    const originTripleTable = document.getElementById('originTripleTable');
+    const transTripleTable = document.getElementById('transTripleTable');
+
+    // 重置页面
+    resetBtn.onclick = () => {
+        location.reload();
+    }
+    // 切换超慢速
+    speedSlow.onclick = () => {
+        delay = 1500;
+        stepTip.innerText = "已切换为超慢速，每步等待1.5秒，方便看懂";
+    }
+
+    // 解析输入文本为三元组矩阵
+    function parseInput() {
+        const lines = inputArea.value.trim().split('\n').filter(l=>l.trim()!='');
+        const firstLine = lines[0].split(/\s+/).map(Number);
+        const rows = firstLine[0], cols = firstLine[1], cnt = firstLine[2];
+        const data = [];
+        for(let i=1;i<=cnt;i++){
+            const arr = lines[i].split(/\s+/).map(Number);
+            data.push({row:arr[0], col:arr[1], val:arr[2]});
+        }
+        originMatrix = {rows, cols, count:cnt, data};
+        // 初始化转置矩阵基础信息
+        transMatrix = {
+            rows: cols,
+            cols: rows,
+            count: cnt,
+            data: []
+        };
+    }
+
+    // 渲染二维矩阵表格
+    function renderMatrixBox(boxDom, mat, activePos=null){
+        boxDom.innerHTML = '';
+        const table = document.createElement('table');
+        for(let r=1;r<=mat.rows;r++){
+            const tr = document.createElement('tr');
+            for(let c=1;c<=mat.cols;c++){
+                const td = document.createElement('td');
+                // 查找是否是非零元素
+                const item = mat.data.find(d=>d.row===r && d.col===c);
+                if(item){
+                    td.innerText = item.val;
+                    td.className = 'nonzero-cell';
+                    // 高亮当前遍历位置
+                    if(activePos && activePos.r === r && activePos.c === c){
+                        td.classList.add('active-cell');
+                    }
+                }else{
+                    td.innerText = '0';
+                    td.className = 'zero-cell';
+                }
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        }
+        boxDom.appendChild(table);
+    }
+
+    // 渲染三元组表格
+    function renderTripleTable(tableDom, data, activeIdx=-1){
+        // 清空原有数据行，保留表头
+        while(tableDom.rows.length > 1){
+            tableDom.deleteRow(1);
+        }
+        data.forEach((item, idx)=>{
+            const tr = document.createElement('tr');
+            if(idx === activeIdx) tr.style.background = '#fef08a';
+            tr.innerHTML = `<td>${item.row}</td><td>${item.col}</td><td>${item.val}</td>`;
+            tableDom.appendChild(tr);
+        })
+    }
+
+    // 延时函数
+    function sleep(ms){
+        return new Promise(res=>setTimeout(res, ms));
+    }
+
+    // 动画主流程：模拟TransMatrix函数双层循环
+    async function runTransAnim(){
+        if(animRunning) return;
+        animRunning = true;
+        runBtn.disabled = true;
+        parseInput();
+        // 初始渲染
+        renderMatrixBox(originMatrixBox, originMatrix);
+        renderMatrixBox(transMatrixBox, transMatrix);
+        renderTripleTable(originTripleTable, originMatrix.data);
+        renderTripleTable(transTripleTable, transMatrix.data);
+        stepTip.innerText = `初始化完成：原矩阵${originMatrix.rows}行${originMatrix.cols}列，转置矩阵${transMatrix.rows}行${transMatrix.cols}列，非零元素共${originMatrix.count}个`;
+        await sleep(delay);
+
+        let k = 0; // 转置三元组下标
+        // 外层循环 c：原矩阵每一列（1~M.cols）
+        for(let c=1; c<=originMatrix.cols; c++){
+            stepTip.innerText = `外层循环：当前遍历原矩阵第 ${c} 列，寻找所有col=${c}的三元组`;
+            renderMatrixBox(originMatrixBox, originMatrix, {r:null, c});
+            await sleep(delay);
+
+            // 内层循环 i：遍历所有原三元组
+            for(let i=0; i<originMatrix.count; i++){
+                const curTri = originMatrix.data[i];
+                renderTripleTable(originTripleTable, originMatrix.data, i);
+                stepTip.innerText = `内层循环：检查第${i}个三元组 [row:${curTri.row}, col:${curTri.col}, val:${curTri.val}]`;
+                await sleep(delay);
+
+                if(curTri.col === c){
+                    // 匹配到当前列，交换行列存入转置三元组
+                    const newTri = {
+                        row: curTri.col,
+                        col: curTri.row,
+                        val: curTri.val
+                    };
+                    transMatrix.data[k] = newTri;
+                    stepTip.innerText = `匹配成功！交换行列：原(${curTri.row},${curTri.col}) → 转置(${newTri.row},${newTri.col})，存入转置三元组第${k}位`;
+                    k++;
+                    // 更新渲染
+                    renderTripleTable(transTripleTable, transMatrix.data, k-1);
+                    renderMatrixBox(transMatrixBox, transMatrix, {r:newTri.row, c:newTri.col});
+                    await sleep(delay);
+                }else{
+                    stepTip.innerText = `不匹配：当前三元组col=${curTri.col} ≠ 外层循环c=${c}，跳过`;
+                    await sleep(delay/2);
+                }
+            }
+        }
+        stepTip.innerText = `转置完成！全部${transMatrix.count}个三元组已按行有序生成`;
+        animRunning = false;
+        runBtn.disabled = false;
+    }
+
+    runBtn.onclick = runTransAnim;
+</script>
+
+  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+</body>
+</html>

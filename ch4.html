@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第4章 串、数组和广义表 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .ppt-player { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .ppt-stage { position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; min-height: 480px; background: #0d0d1a; }
+    .ppt-stage img { max-width: 100%; max-height: 520px; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: opacity 0.3s ease; }
+    .ppt-stage img.loading { opacity: 0.3; }
+    .ppt-nav { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 16px 24px; background: #16213e; border-top: 1px solid rgba(255,255,255,0.05); }
+    .ppt-nav button { background: #0f3460; border: none; color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .ppt-nav button:hover:not(:disabled) { background: #1a56db; transform: scale(1.1); }
+    .ppt-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .ppt-nav .page-input { width: 56px; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid #0f3460; background: #0d0d1a; color: #fff; font-size: 0.95rem; }
+    .ppt-nav .page-total { color: #8892b0; font-size: 0.9rem; }
+    .ppt-thumbs { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; padding: 12px 16px; background: #16213e; max-height: 140px; overflow-y: auto; }
+    .ppt-thumbs img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; cursor: pointer; opacity: 0.5; transition: all 0.2s; border: 2px solid transparent; }
+    .ppt-thumbs img:hover { opacity: 0.85; transform: scale(1.05); }
+    .ppt-thumbs img.active { opacity: 1; border-color: #1a56db; box-shadow: 0 0 8px rgba(26,86,219,0.5); }
+    @media (max-width: 768px) { .ppt-thumbs { grid-template-columns: repeat(6, 1fr); } .ppt-stage { min-height: 280px; padding: 16px; } .ppt-stage img { max-height: 300px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch4.html" class="active">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📑 章节目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="ch1.html" data-chapter="1">第一章 绪论</a></li>
+            <li><a href="ch2.html" data-chapter="2">第二章 线性表</a></li>
+            <li><a href="ch3.html" data-chapter="3">第三章 栈和队列</a></li>
+            <li><a href="ch4.html" data-chapter="4">第四章 串、数组和广义表</a></li>
+            <li><a href="ch5.html" data-chapter="5">第五章 树</a></li>
+            <li><a href="ch6.html" data-chapter="6">第六章 图</a></li>
+            <li><a href="ch7.html" data-chapter="7">第七章 查找</a></li>
+            <li><a href="ch8.html" data-chapter="8">第八章 排序</a></li>
+          </ul>
+        </div>
+      </aside>
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第4章</span>
+          </div>
+          <h1>串、数组和广义表</h1>
+          <p>串的基本概念与模式匹配；数组的存储压缩、特殊矩阵；广义表的存储与操作</p>
+        </div>
+        <div class="ppt-viewer" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h2 style="margin: 0;">📊 PPT课件</h2>
+          </div>
+          <div class="ppt-player">
+            <div class="ppt-stage">
+              <img id="slide-img" src="slides/ch4/slide_001.png" alt="课件幻灯片">
+            </div>
+            <div class="ppt-nav">
+              <button id="btn-first" onclick="showSlide(1)" title="首页">⏮</button>
+              <button id="btn-prev" onclick="goSlide(-1)" title="上一页">◀</button>
+              <input type="number" id="page-input" class="page-input" value="1" min="1" max="90" onchange="jumpToPage(this.value)">
+              <span class="page-total">/ 90</span>
+              <button id="btn-next" onclick="goSlide(1)" title="下一页">▶</button>
+              <button id="btn-last" onclick="showSlide(33)" title="末页">⏭</button>
+            </div>
+            <div class="ppt-thumbs" id="slide-thumbs"></div>
+          </div>
+        </div>
+
+        <div class="knowledge-section" style="margin-top: 32px;">
+          <h3>📝 本章核心知识点</h3>
+          <div style="color: var(--text-light); line-height: 2; margin-top: 16px;">
+            <h4 style="color: var(--primary); margin: 16px 0 8px;">一、串（String）</h4>
+            <ul style="margin-left: 20px;">
+              <li><strong>定义</strong>：由零个或多个字符组成的有限序列，数据元素是字符</li>
+              <li><strong>基本概念</strong>：串长、空串（长度为0）、空格串（只含空格）、子串、主串、模式匹配</li>
+              <li><strong>存储方式</strong>：定长顺序存储、堆分配存储、块链存储</li>
+              <li><strong>BF算法</strong>：暴力匹配，最坏时间复杂度O(m×n)</li>
+              <li><strong>KMP算法</strong>：利用next数组避免回溯，时间复杂度O(m+n)</li>
+              <li><strong>next数组</strong>：next[j]表示模式串中T[0..j-1]的最长相等前后缀长度</li>
+            </ul>
+            <h4 style="color: var(--primary); margin: 16px 0 8px;">二、数组</h4>
+            <ul style="margin-left: 20px;">
+              <li><strong>定义</strong>：由类型相同的数据元素构成的有限序列，是线性表的推广</li>
+              <li><strong>存储方式</strong>：行优先（C/C++、Java）、列优先（Fortran）</li>
+              <li><strong>地址计算（行优先）</strong>：Loc(i,j) = Loc(0,0) + (i×n + j)×L</li>
+              <li><strong>特殊矩阵压缩</strong>：对称矩阵、三角矩阵、对角矩阵只需存储部分元素</li>
+              <li><strong>稀疏矩阵</strong>：非零元素远少于零元素，用三元组(i,j,value)或十字链表存储</li>
+            </ul>
+            <h4 style="color: var(--primary); margin: 16px 0 8px;">三、广义表</h4>
+            <ul style="margin-left: 20px;">
+              <li><strong>定义</strong>：n（n≥0）个表元素组成的有限序列，元素可以是原子或子表</li>
+              <li><strong>表头Head</strong>：广义表的第一个元素（可以是原子或子表）</li>
+              <li><strong>表尾Tail</strong>：除第一个元素外其余元素组成的子表（一定是表）</li>
+              <li><strong>深度</strong>：广义表中括号的最大嵌套层数</li>
+              <li><strong>长度</strong>：最外层元素的个数</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" style="margin-top: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div class="card-title">📝 本章测试</div>
+            <p class="card-text">完成学习后，通过测试检验掌握程度</p>
+          </div>
+          <a href="quiz-ch4.html" class="btn btn-primary">开始测试</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><p>数据结构课程学习网站 | 辽东学院信息技术学院</p></footer>
+  <script src="js/main.js"></script>
+  <script>
+    highlightSidebar('4');
+    var totalSlides = 90;
+    var currentSlide = 1;
+    var thumbsContainer = document.getElementById('slide-thumbs');
+    var slideImg = document.getElementById('slide-img');
+    var pageInput = document.getElementById('page-input');
+    function preload(n) { if (n >= 1 && n <= totalSlides) { var img = new Image(); img.src = 'slides/ch4/slide_' + String(n).padStart(3, '0') + '.png'; } }
+    for (var i = 1; i <= totalSlides; i++) {
+      var thumb = document.createElement('img');
+      thumb.src = 'slides/ch4/slide_' + String(i).padStart(3, '0') + '.png';
+      thumb.alt = '第' + i + '页'; thumb.title = '第' + i + '页'; thumb.dataset.page = i;
+      thumb.onclick = function() { showSlide(parseInt(this.dataset.page)); };
+      if (i === 1) thumb.classList.add('active');
+      thumbsContainer.appendChild(thumb);
+    }
+    function showSlide(n) {
+      n = parseInt(n); if (isNaN(n) || n < 1) n = 1; if (n > totalSlides) n = totalSlides; if (n === currentSlide) return;
+      currentSlide = n; slideImg.classList.add('loading');
+      var newSrc = 'slides/ch4/slide_' + String(n).padStart(3, '0') + '.png';
+      var tempImg = new Image();
+      tempImg.onload = function() { slideImg.src = newSrc; slideImg.classList.remove('loading'); };
+      tempImg.onerror = function() { slideImg.classList.remove('loading'); alert('第 ' + n + ' 页加载失败'); };
+      tempImg.src = newSrc;
+      pageInput.value = n;
+      document.getElementById('btn-prev').disabled = (n === 1);
+      document.getElementById('btn-first').disabled = (n === 1);
+      document.getElementById('btn-next').disabled = (n === totalSlides);
+      document.getElementById('btn-last').disabled = (n === totalSlides);
+      var thumbs = thumbsContainer.querySelectorAll('img');
+      for (var j = 0; j < thumbs.length; j++) { thumbs[j].classList.toggle('active', j + 1 === n); }
+      preload(n - 1); preload(n + 1);
+    }
+    function goSlide(dir) { showSlide(currentSlide + dir); }
+    function jumpToPage(val) { showSlide(parseInt(val)); }
+    document.addEventListener('keydown', function(e) {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goSlide(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); goSlide(1); }
+      if (e.key === 'Home') { e.preventDefault(); showSlide(1); }
+      if (e.key === 'End') { e.preventDefault(); showSlide(totalSlides); }
+    });
+    showSlide(1);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交流讨论 - 数据结构课程学习平台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html" class="active">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container" style="padding-top: 32px;">
+      <div class="page-header">
+        <h1>💬 交流讨论区</h1>
+        <p>在这里可以讨论问题、分享心得、发布资源。支持文字、图片和文件附件。</p>
+      </div>
+
+      <!-- 发帖区 -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-title">✍️ 发布新帖</div>
+        <div class="discuss-post-form">
+          <div class="form-row">
+            <input type="text" id="post-author" class="discuss-input" placeholder="你的昵称（选填）" maxlength="20">
+            <select id="post-category" class="discuss-input" style="max-width: 140px;">
+              <option value="讨论">💬 讨论</option>
+              <option value="求助">🆘 求助</option>
+              <option value="分享">📤 分享</option>
+              <option value="公告">📢 公告</option>
+            </select>
+          </div>
+          <input type="text" id="post-title" class="discuss-input" placeholder="帖子标题" maxlength="100">
+          <textarea id="post-content" class="discuss-textarea" rows="4" placeholder="写下你想说的内容..."></textarea>
+
+          <div class="form-row" style="flex-wrap: wrap; gap: 8px;">
+            <label class="discuss-upload-btn">
+              📷 上传图片
+              <input type="file" id="post-images" accept="image/*" multiple style="display:none;" onchange="handleImageUpload(this)">
+            </label>
+            <label class="discuss-upload-btn">
+              📎 上传文件
+              <input type="file" id="post-files" multiple style="display:none;" onchange="handleFileUpload(this)">
+            </label>
+            <button class="btn btn-primary" onclick="submitPost()">发布帖子</button>
+          </div>
+
+          <!-- 图片预览区 -->
+          <div id="image-preview" class="discuss-preview-list"></div>
+          <!-- 文件列表 -->
+          <div id="file-list" class="discuss-file-list"></div>
+        </div>
+        <div id="post-hint" style="color:#dc2626;font-size:0.9rem;margin-top:8px;display:none;"></div>
+      </div>
+
+      <!-- 筛选区 -->
+      <div class="discuss-filter-bar">
+        <div class="discuss-filter-tabs">
+          <button class="discuss-tab active" data-filter="all" onclick="filterPosts('all')">全部</button>
+          <button class="discuss-tab" data-filter="讨论" onclick="filterPosts('讨论')">💬 讨论</button>
+          <button class="discuss-tab" data-filter="求助" onclick="filterPosts('求助')">🆘 求助</button>
+          <button class="discuss-tab" data-filter="分享" onclick="filterPosts('分享')">📤 分享</button>
+          <button class="discuss-tab" data-filter="公告" onclick="filterPosts('公告')">📢 公告</button>
+        </div>
+        <button class="btn btn-secondary discuss-clear-btn" onclick="clearAllPosts()">🗑️ 清空所有帖子</button>
+      </div>
+
+      <!-- 帖子列表 -->
+      <div id="posts-container" class="discuss-posts-container">
+        <!-- 由JS动态生成 -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script>
+    let pendingImages = [];
+    let pendingFiles = [];
+    let currentFilter = 'all';
+
+    // ========== 数据持久化 ==========
+    function loadPosts() {
+      try {
+        return JSON.parse(localStorage.getItem('discuss_posts') || '[]');
+      } catch(e) { return []; }
+    }
+
+    function savePosts(posts) {
+      localStorage.setItem('discuss_posts', JSON.stringify(posts));
+    }
+
+    // ========== 文件处理 ==========
+    function handleImageUpload(input) {
+      const files = Array.from(input.files);
+      files.forEach(file => {
+        if (file.size > 2 * 1024 * 1024) {
+          alert(`图片「${file.name}」超过2MB，已跳过`);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          pendingImages.push({ name: file.name, data: e.target.result });
+          renderImagePreview();
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
+    }
+
+    function handleFileUpload(input) {
+      const files = Array.from(input.files);
+      files.forEach(file => {
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`文件「${file.name}」超过5MB，已跳过`);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          pendingFiles.push({ name: file.name, data: e.target.result, size: file.size });
+          renderFileList();
+        };
+        reader.readAsDataURL(file);
+      });
+      input.value = '';
+    }
+
+    function renderImagePreview() {
+      const container = document.getElementById('image-preview');
+      container.innerHTML = pendingImages.map((img, i) => `
+        <div class="discuss-preview-item">
+          <img src="${img.data}" alt="${img.name}">
+          <button class="discuss-remove-btn" onclick="removeImage(${i})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function renderFileList() {
+      const container = document.getElementById('file-list');
+      container.innerHTML = pendingFiles.map((f, i) => `
+        <div class="discuss-file-item">
+          <span class="discuss-file-icon">📎</span>
+          <span class="discuss-file-name">${f.name}</span>
+          <span class="discuss-file-size">${formatSize(f.size)}</span>
+          <button class="discuss-remove-btn" onclick="removeFile(${i})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function removeImage(idx) {
+      pendingImages.splice(idx, 1);
+      renderImagePreview();
+    }
+
+    function removeFile(idx) {
+      pendingFiles.splice(idx, 1);
+      renderFileList();
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + 'B';
+      if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + 'KB';
+      return (bytes/1024/1024).toFixed(1) + 'MB';
+    }
+
+    // ========== 发帖 ==========
+    function submitPost() {
+      const author = document.getElementById('post-author').value.trim() || '匿名用户';
+      const category = document.getElementById('post-category').value;
+      const title = document.getElementById('post-title').value.trim();
+      const content = document.getElementById('post-content').value.trim();
+      const hint = document.getElementById('post-hint');
+
+      if (!title) {
+        hint.textContent = '请填写帖子标题';
+        hint.style.display = 'block';
+        return;
+      }
+      if (!content && pendingImages.length === 0 && pendingFiles.length === 0) {
+        hint.textContent = '请填写内容或上传图片/文件';
+        hint.style.display = 'block';
+        return;
+      }
+      hint.style.display = 'none';
+
+      const post = {
+        id: Date.now(),
+        author, category, title, content,
+        images: [...pendingImages],
+        files: [...pendingFiles],
+        replies: [],
+        timestamp: new Date().toISOString()
+      };
+
+      const posts = loadPosts();
+      posts.unshift(post);
+      savePosts(posts);
+
+      // 清空表单
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-content').value = '';
+      document.getElementById('post-author').value = '';
+      pendingImages = [];
+      pendingFiles = [];
+      renderImagePreview();
+      renderFileList();
+
+      renderPosts();
+    }
+
+    // ========== 渲染帖子列表 ==========
+    function renderPosts() {
+      const container = document.getElementById('posts-container');
+      let posts = loadPosts();
+
+      if (currentFilter !== 'all') {
+        posts = posts.filter(p => p.category === currentFilter);
+      }
+
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align:center; padding:48px;">
+            <p style="font-size:1.1rem;color:var(--text-light);">暂无帖子，快来发布第一条吧！</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => renderPostCard(post)).join('');
+    }
+
+    function renderPostCard(post) {
+      const catColors = { '讨论': '#3b82f6', '求助': '#ef4444', '分享': '#10b981', '公告': '#f59e0b' };
+      const catColor = catColors[post.category] || '#6b7280';
+      const time = formatTime(post.timestamp);
+
+      let imagesHtml = '';
+      if (post.images && post.images.length > 0) {
+        imagesHtml = `<div class="discuss-post-images">${post.images.map(img => `
+          <img src="${img.data}" alt="${img.name}" onclick="viewImage('${img.data}')" class="discuss-post-img">
+        `).join('')}</div>`;
+      }
+
+      let filesHtml = '';
+      if (post.files && post.files.length > 0) {
+        filesHtml = `<div class="discuss-post-files">${post.files.map((f, i) => `
+          <a href="${f.data}" download="${f.name}" class="discuss-post-file">
+            <span>📎</span> ${f.name} <span class="discuss-file-size">${formatSize(f.size)}</span>
+          </a>
+        `).join('')}</div>`;
+      }
+
+      let repliesHtml = '';
+      if (post.replies && post.replies.length > 0) {
+        repliesHtml = `<div class="discuss-replies">${post.replies.map(r => `
+          <div class="discuss-reply">
+            <div class="discuss-reply-header">
+              <strong>${r.author}</strong>
+              <span class="discuss-reply-time">${formatTime(r.timestamp)}</span>
+            </div>
+            <div class="discuss-reply-content">${escapeHtml(r.content)}</div>
+          </div>
+        `).join('')}</div>`;
+      }
+
+      return `
+        <div class="card discuss-post-card" id="post-${post.id}">
+          <div class="discuss-post-header">
+            <span class="discuss-post-cat" style="background:${catColor};">${post.category}</span>
+            <h3 class="discuss-post-title">${escapeHtml(post.title)}</h3>
+            <button class="discuss-delete-btn" onclick="deletePost(${post.id})" title="删除">🗑️</button>
+          </div>
+          <div class="discuss-post-meta">
+            <span>👤 ${escapeHtml(post.author)}</span>
+            <span>🕒 ${time}</span>
+            <span>💬 ${post.replies.length} 回复</span>
+          </div>
+          ${post.content ? `<div class="discuss-post-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>` : ''}
+          ${imagesHtml}
+          ${filesHtml}
+          ${repliesHtml}
+          <div class="discuss-reply-form">
+            <input type="text" id="reply-author-${post.id}" class="discuss-input" placeholder="昵称（选填）" style="max-width:150px;margin-right:8px;">
+            <input type="text" id="reply-content-${post.id}" class="discuss-input" placeholder="写回复..." style="flex:1;">
+            <button class="btn btn-primary" onclick="submitReply(${post.id})" style="padding:8px 20px;">回复</button>
+          </div>
+        </div>`;
+    }
+
+    // ========== 回复 ==========
+    function submitReply(postId) {
+      const author = document.getElementById(`reply-author-${postId}`).value.trim() || '匿名用户';
+      const content = document.getElementById(`reply-content-${postId}`).value.trim();
+      if (!content) return;
+
+      const posts = loadPosts();
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      post.replies.push({ author, content, timestamp: new Date().toISOString() });
+      savePosts(posts);
+      renderPosts();
+    }
+
+    // ========== 删除帖子 ==========
+    function deletePost(postId) {
+      if (!confirm('确定删除这个帖子吗？')) return;
+      let posts = loadPosts();
+      posts = posts.filter(p => p.id !== postId);
+      savePosts(posts);
+      renderPosts();
+    }
+
+    // ========== 筛选 ==========
+    function filterPosts(category) {
+      currentFilter = category;
+      document.querySelectorAll('.discuss-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === category);
+      });
+      renderPosts();
+    }
+
+    // ========== 清空所有 ==========
+    function clearAllPosts() {
+      if (!confirm('确定清空所有帖子吗？此操作不可恢复！')) return;
+      localStorage.removeItem('discuss_posts');
+      renderPosts();
+    }
+
+    // ========== 图片查看 ==========
+    function viewImage(src) {
+      const overlay = document.createElement('div');
+      overlay.className = 'discuss-image-overlay';
+      overlay.innerHTML = `<img src="${src}" onclick="this.parentElement.remove()">`;
+      overlay.onclick = function() { this.remove(); };
+      document.body.appendChild(overlay);
+    }
+
+    // ========== 工具函数 ==========
+    function formatTime(iso) {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = (now - d) / 1000;
+      if (diff < 60) return '刚刚';
+      if (diff < 3600) return Math.floor(diff/60) + '分钟前';
+      if (diff < 86400) return Math.floor(diff/3600) + '小时前';
+      if (diff < 604800) return Math.floor(diff/86400) + '天前';
+      return `${d.getMonth()+1}月${d.getDate()}日 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // 初始化
+    renderPosts();
+  </script>
+</body>
+</html>

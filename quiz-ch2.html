@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第2章测试 - 线性表 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch2.html">课程学习</a></li>
+      <li><a href="quiz-ch2.html" class="active">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📝 测试目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="quiz-ch1.html">第一章 绪论</a></li>
+            <li><a href="quiz-ch2.html">第二章 线性表</a></li>
+            <li><a href="quiz-ch3.html">第三章 栈和队列</a></li>
+            <li><a href="quiz-ch4.html">第四章 串、数组和广义表</a></li>
+            <li><a href="quiz-ch5.html">第五章 树</a></li>
+            <li><a href="quiz-ch6.html">第六章 图</a></li>
+            <li><a href="quiz-ch7.html">第七章 查找</a></li>
+            <li><a href="quiz-ch8.html">第八章 排序</a></li>
+            <li><a href="quiz-mock.html">模拟试题</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第2章</span>
+            <span class="tag tag-orange">测试</span>
+          </div>
+          <h1>线性表 - 在线测试</h1>
+          <p>选择题与判断题共9题，答完后点击提交查看得分</p>
+        </div>
+
+        <form id="quiz-form" class="quiz-container">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📝 选择题（共4题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、线性表的顺序存储结构是一种的存储结构，线性表的链式存储结构是一种的存储结构。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q0" value="A"> A. 随机存取</label>
+              <label><input type="radio" name="q0" value="B"> B. 顺序存取</label>
+              <label><input type="radio" name="q0" value="C"> C. 索引存取</label>
+              <label><input type="radio" name="q0" value="D"> D. 散列存取</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、对于一个线性，既要求能够进行较快的插入和删除，又要求存储结构能够反映数据元素之间的逻辑关系，则应该选择。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="A"> A. 顺序存储方式</label>
+              <label><input type="radio" name="q1" value="B"> B. 链式存储方式</label>
+              <label><input type="radio" name="q1" value="C"> C. 散列存储方式</label>
+              <label><input type="radio" name="q1" value="D"> D. 索引存储方式</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、单链表中各结点之间的地址。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="A"> A. 必须连续</label>
+              <label><input type="radio" name="q2" value="B"> B. 部分地址必须连续</label>
+              <label><input type="radio" name="q2" value="C"> C. 不一定连续</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、在一个长度为n的顺序表中向第i个元素（0&lt;i&lt;=n+1）之前插入一个新元素时，需向后移动个元素。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="A"> A. n-i</label>
+              <label><input type="radio" name="q3" value="B"> B. n-i+1</label>
+              <label><input type="radio" name="q3" value="C"> C. n-i-1</label>
+              <label><input type="radio" name="q3" value="D"> D. i</label>
+            </div>
+          </div>
+
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、顺序表可以随机存取任意位置的元素。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="A"> A. 正确</label>
+              <label><input type="radio" name="q4" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、单链表只能顺序访问，不能随机访问。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="A"> A. 正确</label>
+              <label><input type="radio" name="q5" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、在顺序表中插入一个元素需要移动平均n/2个元素。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="A"> A. 正确</label>
+              <label><input type="radio" name="q6" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、循环链表中最后一个结点的指针域为空。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="A"> A. 正确</label>
+              <label><input type="radio" name="q7" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>9、双向链表比单链表占用更多的存储空间。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q8" value="A"> A. 正确</label>
+              <label><input type="radio" name="q8" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          <div id="quiz-result" style="display: none; padding: 16px; background: var(--primary-light); border-radius: 8px; margin-bottom: 16px; color: var(--primary);"></div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary" onclick="scoreQuiz('quiz-form', ['A','A','A','A','A','A','A','B','A'])">提交答案</button>
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('quiz-result').style.display='none'; document.querySelectorAll('.quiz-options label').forEach(l=>l.style.background=''); document.querySelectorAll('.quiz-options input').forEach(i=>i.disabled=false);">重新答题</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

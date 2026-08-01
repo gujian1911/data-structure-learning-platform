@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第4章测试 - 串、数组和广义表 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch4.html">课程学习</a></li>
+      <li><a href="quiz-ch4.html" class="active">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📝 测试目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="quiz-ch1.html">第一章 绪论</a></li>
+            <li><a href="quiz-ch2.html">第二章 线性表</a></li>
+            <li><a href="quiz-ch3.html">第三章 栈和队列</a></li>
+            <li><a href="quiz-ch4.html">第四章 串、数组和广义表</a></li>
+            <li><a href="quiz-ch5.html">第五章 树</a></li>
+            <li><a href="quiz-ch6.html">第六章 图</a></li>
+            <li><a href="quiz-ch7.html">第七章 查找</a></li>
+            <li><a href="quiz-ch8.html">第八章 排序</a></li>
+            <li><a href="quiz-mock.html">模拟试题</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第4章</span>
+            <span class="tag tag-orange">测试</span>
+          </div>
+          <h1>串、数组和广义表 - 在线测试</h1>
+          <p>选择题与判断题共20题，答完后点击提交查看得分</p>
+        </div>
+<form id="quiz-form" class="quiz-container">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📝 第一部分：串 - 选择题（共4题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、空串与空格串是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q0" value="A"> A. 相同</label>
+              <label><input type="radio" name="q0" value="B"> B. 不相同　　 Ｃ、不能确定</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、串是一种特殊的线性表，其特殊性体现在。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="A"> A. 可以顺序存储</label>
+              <label><input type="radio" name="q1" value="B"> B. 数据元素是一个字符</label>
+              <label><input type="radio" name="q1" value="C"> C. 可以链式存储</label>
+              <label><input type="radio" name="q1" value="D"> D. 数据元素可以是多个字符</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、设有两个串p和q，求q在p中首次出现的位置的操作是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="A"> A. 连接</label>
+              <label><input type="radio" name="q2" value="B"> B. 模式匹配</label>
+              <label><input type="radio" name="q2" value="C"> C. 求子串</label>
+              <label><input type="radio" name="q2" value="D"> D. 求串长</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、若串s=“software”，其子串个数是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="A"> A. 8</label>
+              <label><input type="radio" name="q3" value="B"> B. 37</label>
+              <label><input type="radio" name="q3" value="C"> C. 36</label>
+              <label><input type="radio" name="q3" value="D"> D. 9</label>
+            </div>
+          </div>
+
+          
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 第一部分：串 - 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、串是一种特殊的线性表，其数据元素只能是字符。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="A"> A. 正确</label>
+              <label><input type="radio" name="q4" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、空串和空格串是相同的概念。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="A"> A. 正确</label>
+              <label><input type="radio" name="q5" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、模式匹配是在主串中查找子串的过程。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="A"> A. 正确</label>
+              <label><input type="radio" name="q6" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、KMP算法的时间复杂度是O(m×n)。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="A"> A. 正确</label>
+              <label><input type="radio" name="q7" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>9、串的链式存储比顺序存储更节省空间。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q8" value="A"> A. 正确</label>
+              <label><input type="radio" name="q8" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">📝 第二部分：数组和广义表 - 选择题（共6题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、一维数组和线性表的区别是。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q9" value="A"> A. 前者长度固定，后者长度可变</label>
+              <label><input type="radio" name="q9" value="B"> B. 后者长度固定，前者长度可变</label>
+              <label><input type="radio" name="q9" value="C"> C. 两者长度均固定</label>
+              <label><input type="radio" name="q9" value="D"> D. 两者长度均可变</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、在稀疏矩阵的行逻辑链式存储中，每个行单链表中的结点都具有相同的。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q10" value="A"> A. 行号</label>
+              <label><input type="radio" name="q10" value="B"> B. 列号 Ｃ、元素值</label>
+              <label><input type="radio" name="q10" value="C"> C. 地址</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、二维数组M的元素是6个字符（每个字符占一个存储单元）组成的串，行下标i的范围从0到8，列下标j的范围从0到9，M按行序存储时元素M[8][5]的起始地址与M按列序存储时的元素的起始地址相同。 A 、M[2][4]</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q11" value="A"> A. M[2][4]</label>
+              <label><input type="radio" name="q11" value="B"> B. M[5][8]</label>
+              <label><input type="radio" name="q11" value="C"> C. M[8][5]</label>
+              <label><input type="radio" name="q11" value="D"> D. M[4][9]</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、稀疏矩阵一般的压缩存储方法有两种，即。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q12" value="A"> A. 二维数组和三维数组</label>
+              <label><input type="radio" name="q12" value="B"> B. 三元组和散列</label>
+              <label><input type="radio" name="q12" value="C"> C. 三元组和十字链表</label>
+              <label><input type="radio" name="q12" value="D"> D. 散列和十字链表</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、已知广义表S满足Head(Tail([H(S),Head(Tail(S)))]))=[a]，则S为</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q13" value="A"> A. [[a,b],b,a]</label>
+              <label><input type="radio" name="q13" value="B"> B. [[b,a],[a],[b]]</label>
+              <label><input type="radio" name="q13" value="C"> C. [[a],[a,b],[b]]</label>
+              <label><input type="radio" name="q13" value="D"> D. [[b],[b,a],[a]]</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、对于元素是整数（占2个字节）的对称矩阵A，采用以行序位主的压缩存储方式存储（下三角），若A[0][0]的地址是400，则元素A[8][5]的存储地址是</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q14" value="A"> A. 480</label>
+              <label><input type="radio" name="q14" value="B"> B. 482</label>
+              <label><input type="radio" name="q14" value="C"> C. 484</label>
+              <label><input type="radio" name="q14" value="D"> D. 488</label>
+            </div>
+          </div>
+
+          
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 第二部分：数组和广义表 - 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、数组是一种线性结构。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q15" value="A"> A. 正确</label>
+              <label><input type="radio" name="q15" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、对称矩阵只需要存储下三角或上三角部分即可。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q16" value="A"> A. 正确</label>
+              <label><input type="radio" name="q16" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>9、稀疏矩阵中非零元素的个数远少于零元素个数。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q17" value="A"> A. 正确</label>
+              <label><input type="radio" name="q17" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>10、广义表的表头和表尾都是原子。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q18" value="A"> A. 正确</label>
+              <label><input type="radio" name="q18" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>11、三元组法是稀疏矩阵的一种压缩存储方法。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q19" value="A"> A. 正确</label>
+              <label><input type="radio" name="q19" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          
+        <div id="quiz-result" style="display: none; padding: 16px; background: var(--primary-light); border-radius: 8px; margin-bottom: 16px; color: var(--primary);"></div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary" onclick="scoreQuiz('quiz-form', ['A', 'A', 'A', 'A', 'A', 'B', 'A', 'B', 'B', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'B', 'A'])">提交答案</button>
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('quiz-result').style.display='none'; document.querySelectorAll('.quiz-options label').forEach(l=>l.style.background=''); document.querySelectorAll('.quiz-options input').forEach(i=>i.disabled=false);">重新答题</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

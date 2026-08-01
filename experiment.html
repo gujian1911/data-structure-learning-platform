@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验中心 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .lab-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .lab-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+    }
+    .lab-banner {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+    }
+    .lab-banner span { filter: grayscale(1) brightness(2); }
+    .lab-body { padding: 20px 24px 24px; }
+    .lab-body h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--dark); }
+    .lab-body p { margin: 0; color: var(--text-light); font-size: 0.92rem; line-height: 1.6; }
+    .lab-tags { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .lab-tag {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      background: #eff6ff;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container" style="padding-top: 32px;">
+      <div class="page-header">
+        <h1>🧪 实验中心</h1>
+        <p>动手实践，可视化理解数据结构与算法</p>
+      </div>
+
+      <div class="lab-grid">
+        <a href="shiyan1-shunxubiao.html" class="lab-card">
+          <div class="lab-banner"><span>📊</span></div>
+          <div class="lab-body">
+            <h3>实验一 顺序表的基本运算</h3>
+            <p>掌握顺序表的初始化、插入、删除、查找等基本操作，通过可视化动画直观理解顺序存储结构。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">顺序表</span>
+              <span class="lab-tag">线性表</span>
+              <span class="lab-tag">可视化</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan2-danlianbiao.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><span>🔗</span></div>
+          <div class="lab-body">
+            <h3>实验二 单链表的建立</h3>
+            <p>实现头插法和尾插法创建单链表，支持查找、替换、按值删除、指定位置插入等操作。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">单链表</span>
+              <span class="lab-tag">链式存储</span>
+              <span class="lab-tag">可视化</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan3-shunxuzhan.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><span>📚</span></div>
+          <div class="lab-body">
+            <h3>实验三 顺序栈与链栈</h3>
+            <p>对比学习顺序栈和链栈的入栈、出栈操作，理解栈的LIFO特性及两种存储方式的差异。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">栈</span>
+              <span class="lab-tag">顺序栈</span>
+              <span class="lab-tag">链栈</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan4-duilie.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"><span>🚶</span></div>
+          <div class="lab-body">
+            <h3>实验四 循环队列与链队列</h3>
+            <p>实现循环队列和链队列的入队、出队操作，理解队列的FIFO特性及队空队满的判断条件。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">队列</span>
+              <span class="lab-tag">循环队列</span>
+              <span class="lab-tag">链队列</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan5-zhuanzhi.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);"><span>🔄</span></div>
+          <div class="lab-body">
+            <h3>实验五 三元组稀疏矩阵转置</h3>
+            <p>通过三元组表实现稀疏矩阵的转置运算，理解稀疏矩阵的压缩存储及快速转置算法。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">稀疏矩阵</span>
+              <span class="lab-tag">三元组</span>
+              <span class="lab-tag">转置</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan6-erchashu.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);"><span>🌳</span></div>
+          <div class="lab-body">
+            <h3>实验六 二叉树</h3>
+            <p>实现二叉树的创建、遍历（先序、中序、后序）、查找等基本操作，理解二叉树的递归特性。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">二叉树</span>
+              <span class="lab-tag">遍历</span>
+              <span class="lab-tag">递归</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan7-erfenfind.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);"><span>🔍</span></div>
+          <div class="lab-body">
+            <h3>实验七 二分法查找</h3>
+            <p>通过动画模拟二分查找过程，理解折半查找的原理、前提条件及时间复杂度 O(log n)。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">查找</span>
+              <span class="lab-tag">二分法</span>
+              <span class="lab-tag">动画模拟</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan8-maopao.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"><span>🫧</span></div>
+          <div class="lab-body">
+            <h3>实验八 冒泡排序</h3>
+            <p>通过动画模拟冒泡排序过程，直观展示相邻元素比较与交换，理解稳定排序特性。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">排序</span>
+              <span class="lab-tag">冒泡排序</span>
+              <span class="lab-tag">动画模拟</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="shiyan9-xuanze.html" class="lab-card">
+          <div class="lab-banner" style="background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);"><span>📋</span></div>
+          <div class="lab-body">
+            <h3>实验九 选择排序</h3>
+            <p>通过动画模拟选择排序过程，展示每趟选取最小值并交换的过程，对比与冒泡排序的差异。</p>
+            <div class="lab-tags">
+              <span class="lab-tag">排序</span>
+              <span class="lab-tag">选择排序</span>
+              <span class="lab-tag">动画模拟</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+</body>
+</html>

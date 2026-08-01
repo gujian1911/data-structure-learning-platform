@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第3章测试 - 栈和队列 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch3.html">课程学习</a></li>
+      <li><a href="quiz-ch3.html" class="active">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container two-col" style="padding-top: 32px;">
+      <aside class="sidebar">
+        <div class="card">
+          <div class="card-title">📝 测试目录</div>
+          <ul class="sidebar-menu">
+            <li><a href="quiz-ch1.html">第一章 绪论</a></li>
+            <li><a href="quiz-ch2.html">第二章 线性表</a></li>
+            <li><a href="quiz-ch3.html">第三章 栈和队列</a></li>
+            <li><a href="quiz-ch4.html">第四章 串、数组和广义表</a></li>
+            <li><a href="quiz-ch5.html">第五章 树</a></li>
+            <li><a href="quiz-ch6.html">第六章 图</a></li>
+            <li><a href="quiz-ch7.html">第七章 查找</a></li>
+            <li><a href="quiz-ch8.html">第八章 排序</a></li>
+            <li><a href="quiz-mock.html">模拟试题</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div>
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+            <span class="tag tag-blue">第3章</span>
+            <span class="tag tag-orange">测试</span>
+          </div>
+          <h1>栈和队列 - 在线测试</h1>
+          <p>选择题与判断题共8题，答完后点击提交查看得分</p>
+        </div>
+
+        <form id="quiz-form" class="quiz-container">
+          <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">📝 选择题（共3题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>1、栈的插入和删除操作在进行。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q0" value="A"> A. 栈顶</label>
+              <label><input type="radio" name="q0" value="B"> B. 栈底</label>
+              <label><input type="radio" name="q0" value="C"> C. 任意位置</label>
+              <label><input type="radio" name="q0" value="D"> D. 指定位置</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>2、利用大小为N的数组顺序存储一个队列时，该队列最大长度为。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q1" value="A"> A. N－2</label>
+              <label><input type="radio" name="q1" value="B"> B. N－1</label>
+              <label><input type="radio" name="q1" value="C"> C. N</label>
+              <label><input type="radio" name="q1" value="D"> D. N＋1</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>3、假设以I和O分别表示入栈和出栈操作，栈的初态和终态均为空，入栈和出栈的操作序列可表示为仅由I和O组成的序列。下列序列是合法的。 Ａ、IOIIOIOO　　 Ｂ、IOOIOIIO</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q2" value="A"> A. IIIOIOIO</label>
+              <label><input type="radio" name="q2" value="B"> B. OIIOIOIO</label>
+            </div>
+          </div>
+
+          <div class="card" style="margin: 24px 0 20px;">
+            <div class="card-title">✅ 判断题（共5题）</div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>4、栈是一种后进先出（LIFO）的线性表。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q3" value="A"> A. 正确</label>
+              <label><input type="radio" name="q3" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>5、队列是一种先进先出（FIFO）的线性表。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q4" value="A"> A. 正确</label>
+              <label><input type="radio" name="q4" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>6、栈和队列都是操作受限的线性表。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q5" value="A"> A. 正确</label>
+              <label><input type="radio" name="q5" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>7、循环队列可以解决顺序队列的假溢出问题。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q6" value="A"> A. 正确</label>
+              <label><input type="radio" name="q6" value="B"> B. 错误</label>
+            </div>
+          </div>
+          <div class="quiz-question">
+            <p><strong>8、栈和队列都可以用数组和链表两种方式实现。</strong></p>
+            <div class="quiz-options">
+              <label><input type="radio" name="q7" value="A"> A. 正确</label>
+              <label><input type="radio" name="q7" value="B"> B. 错误</label>
+            </div>
+          </div>
+
+          <div id="quiz-result" style="display: none; padding: 16px; background: var(--primary-light); border-radius: 8px; margin-bottom: 16px; color: var(--primary);"></div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary" onclick="scoreQuiz('quiz-form', ['A','A','A','A','A','A','A','A'])">提交答案</button>
+            <button type="reset" class="btn btn-secondary" onclick="document.getElementById('quiz-result').style.display='none'; document.querySelectorAll('.quiz-options label').forEach(l=>l.style.background=''); document.querySelectorAll('.quiz-options input').forEach(i=>i.disabled=false);">重新答题</button>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

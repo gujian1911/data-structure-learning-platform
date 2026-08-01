@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自测答题 - 数据结构课程学习平台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 导航栏（与平台保持一致） -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html" class="active">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="container" style="padding-top: 32px;">
+      <!-- 顶部信息栏 -->
+      <div class="quiz-progress" id="progress-bar">
+        <span class="progress-text" id="progress-text">0 / 0</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="timer-text" style="min-width:60px;">00:00</span>
+      </div>
+
+      <!-- 答题区 -->
+      <div id="quiz-area">
+        <!-- 由JS动态生成 -->
+      </div>
+
+      <!-- 提交按钮区 -->
+      <div id="submit-area" style="display: flex; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-primary" onclick="submitQuiz()">📝 提交答案</button>
+        <button class="btn btn-secondary" onclick="resetQuiz()">🔄 重新答题</button>
+        <a href="selftest.html" class="btn btn-secondary">↩ 返回选题</a>
+      </div>
+
+      <!-- 结果区 -->
+      <div id="result-area" style="display: none; margin-top: 24px;">
+        <div class="card result-card">
+          <h2>📊 测试结果</h2>
+          <div class="result-score" id="result-score">0/0</div>
+          <div class="result-detail">
+            <div class="result-item">
+              <div class="num num-correct" id="result-correct">0</div>
+              <div class="label">正确</div>
+            </div>
+            <div class="result-item">
+              <div class="num num-wrong" id="result-wrong">0</div>
+              <div class="label">错误</div>
+            </div>
+            <div class="result-item">
+              <div class="num num-empty" id="result-empty">0</div>
+              <div class="label">未答</div>
+            </div>
+            <div class="result-item">
+              <div class="num" style="color: var(--primary);" id="result-rate">0%</div>
+              <div class="label">正确率</div>
+            </div>
+            <div class="result-item" id="result-app-item" style="display:none;">
+              <div class="num" style="color: #8b5cf6;" id="result-app">0</div>
+              <div class="label">应用题自评</div>
+            </div>
+          </div>
+          <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="toggleExplanations()">📖 查看解析</button>
+            <button class="btn btn-secondary" onclick="resetQuiz()">🔄 重新答题</button>
+            <a href="selftest.html" class="btn btn-secondary">↩ 重新选题</a>
+            <a href="index.html" class="btn btn-secondary">🏠 返回首页</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+  <script src="js/selftest-data.js?v=3"></script>
+  <script>
+    const chapters = {
+      1: '绪论', 2: '线性表', 3: '栈和队列', 4: '串、数组和广义表',
+      5: '树', 6: '图', 7: '查找', 8: '排序'
+    };
+
+    let quizQuestions = [];
+    let timerInterval = null;
+    let startTime = null;
+    let submitted = false;
+
+    // 解析URL参数
+    function getParams() {
+      const params = new URLSearchParams(location.search);
+      return {
+        chapters: params.get('ch') ? params.get('ch').split(',').map(Number) : [],
+        types: params.get('type') ? params.get('type').split(',') : [],
+        count: parseInt(params.get('count')) || 10,
+        mode: params.get('mode') || 'random'
+      };
+    }
+
+    // 收集题目
+    function collectQuestions(params) {
+      let all = [];
+      params.chapters.forEach(chId => {
+        const chKey = 'ch' + chId;
+        const data = selftestData[chKey];
+        if (!data) return;
+
+        params.types.forEach(type => {
+          const questions = data[type] || [];
+          questions.forEach(q => {
+            all.push({ ...q, chapter: chId, chapterName: chapters[chId], type: type });
+          });
+        });
+      });
+
+      if (params.mode === 'random') {
+        all = shuffleArray(all);
+      }
+
+      if (params.count > 0 && all.length > params.count) {
+        all = all.slice(0, params.count);
+      }
+
+      return all;
+    }
+
+    // 洗牌
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // 渲染题目
+    function renderQuiz() {
+      const area = document.getElementById('quiz-area');
+      let html = '';
+      let qIdx = 0;
+
+      const judges = quizQuestions.filter(q => q.type === 'judge');
+      const choices = quizQuestions.filter(q => q.type === 'choice');
+      const fills = quizQuestions.filter(q => q.type === 'fill');
+
+      if (judges.length > 0) {
+        html += `<div class="card" style="margin-bottom:20px;"><div class="card-title">✅ 判断题（共${judges.length}题）</div></div>`;
+        judges.forEach(q => {
+          html += renderJudgeQuestion(q, qIdx);
+          qIdx++;
+        });
+      }
+
+      if (choices.length > 0) {
+        html += `<div class="card" style="margin:24px 0 20px;"><div class="card-title">🔘 选择题（共${choices.length}题）</div></div>`;
+        choices.forEach(q => {
+          html += renderChoiceQuestion(q, qIdx);
+          qIdx++;
+        });
+      }
+
+      if (fills.length > 0) {
+        html += `<div class="card" style="margin:24px 0 20px;"><div class="card-title">✏️ 填空题（共${fills.length}题）</div></div>`;
+        fills.forEach(q => {
+          html += renderFillQuestion(q, qIdx);
+          qIdx++;
+        });
+      }
+
+      const applications = quizQuestions.filter(q => q.type === 'application');
+      if (applications.length > 0) {
+        html += `<div class="card" style="margin:24px 0 20px;"><div class="card-title">📝 应用题（共${applications.length}题，提交后查看参考答案自评）</div></div>`;
+        applications.forEach(q => {
+          html += renderApplicationQuestion(q, qIdx);
+          qIdx++;
+        });
+      }
+
+      if (html === '') {
+        html = `<div class="card" style="text-align:center; padding:48px;">
+          <p style="font-size:1.2rem; margin-bottom:16px;">所选章节和题型没有匹配的题目</p>
+          <a href="selftest.html" class="btn btn-primary">返回重新选择</a>
+        </div>`;
+      }
+
+      area.innerHTML = html;
+      updateProgress();
+    }
+
+    // 渲染判断题
+    function renderJudgeQuestion(q, idx) {
+      const chTag = `<span class="tag tag-blue" style="margin-right:6px;">第${q.chapter}章</span>`;
+      return `
+        <div class="quiz-question" id="q-${idx}">
+          <p><strong>${idx + 1}、${chTag}${q.question}</strong></p>
+          <div class="quiz-options">
+            <label><input type="radio" name="q${idx}" value="true" onchange="updateProgress()"> ✓ 正确</label>
+            <label><input type="radio" name="q${idx}" value="false" onchange="updateProgress()"> ✗ 错误</label>
+          </div>
+          <div class="explanation" id="exp-${idx}">正确答案：${q.answer ? '✓ 正确' : '✗ 错误'}。${q.explanation || ''}</div>
+        </div>`;
+    }
+
+    // 渲染选择题
+    function renderChoiceQuestion(q, idx) {
+      const chTag = `<span class="tag tag-blue" style="margin-right:6px;">第${q.chapter}章</span>`;
+      const optionsHtml = (q.options || []).map((opt, i) => {
+        const letter = String.fromCharCode(65 + i);
+        return `<label><input type="radio" name="q${idx}" value="${letter}" onchange="updateProgress()"> ${letter}. ${opt}</label>`;
+      }).join('');
+
+      return `
+        <div class="quiz-question" id="q-${idx}">
+          <p><strong>${idx + 1}、${chTag}${q.question}</strong></p>
+          <div class="quiz-options">
+            ${optionsHtml}
+          </div>
+          <div class="explanation" id="exp-${idx}">正确答案：${q.answer}。${q.explanation || ''}</div>
+        </div>`;
+    }
+
+    // 渲染填空题
+    function renderFillQuestion(q, idx) {
+      const chTag = `<span class="tag tag-blue" style="margin-right:6px;">第${q.chapter}章</span>`;
+      let questionText = q.question;
+      const blankCount = (questionText.match(/_{3,}/g) || []).length;
+
+      if (blankCount > 0) {
+        let blankIdx = 0;
+        questionText = questionText.replace(/_{3,}/g, () => {
+          const input = `<input type="text" class="fill-input" id="fill-${idx}-${blankIdx}" data-idx="${blankIdx}" oninput="updateProgress()" placeholder="填写答案">`;
+          blankIdx++;
+          return input;
+        });
+      }
+
+      const answerText = Array.isArray(q.answer) ? q.answer.join('；') : q.answer;
+      return `
+        <div class="quiz-question" id="q-${idx}">
+          <p><strong>${idx + 1}、${chTag}${questionText}</strong></p>
+          <div class="explanation" id="exp-${idx}">正确答案：${answerText}。${q.explanation || ''}</div>
+        </div>`;
+    }
+
+    // 渲染应用题
+    function renderApplicationQuestion(q, idx) {
+      const chTag = `<span class="tag tag-blue" style="margin-right:6px;">第${q.chapter}章</span>`;
+      // 将换行和代码块渲染为HTML
+      let questionHtml = q.question
+        .replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>')
+        .replace(/\n/g, '<br>');
+      return `
+        <div class="quiz-question application-question" id="q-${idx}">
+          <p><strong>${idx + 1}、${chTag}${questionHtml}</strong></p>
+          <textarea class="app-textarea" id="app-${idx}" rows="8" placeholder="请在此输入你的答案..." oninput="updateProgress()"></textarea>
+          <div class="app-answer" id="app-answer-${idx}" style="display:none;">
+            <div class="app-ref-title">📋 参考答案：</div>
+            <div class="app-ref-body">${(q.answer || '').replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>').replace(/\n/g, '<br>')}</div>
+            ${q.analysis ? `<div class="app-analysis"><strong>解析：</strong>${q.analysis}</div>` : ''}
+            <div class="app-selfeval">
+              <span>自评打分：</span>
+              <button class="btn btn-secondary app-eval-btn" onclick="selfEval(${idx}, 'correct')" style="padding:4px 16px;">✓ 掌握</button>
+              <button class="btn btn-secondary app-eval-btn" onclick="selfEval(${idx}, 'partial')" style="padding:4px 16px;">△ 部分掌握</button>
+              <button class="btn btn-secondary app-eval-btn" onclick="selfEval(${idx}, 'wrong')" style="padding:4px 16px;">✗ 未掌握</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // 更新进度
+    function updateProgress() {
+      const total = quizQuestions.length;
+      let answered = 0;
+
+      quizQuestions.forEach((q, idx) => {
+        if (q.type === 'fill') {
+          const blankCount = (q.question.match(/_{3,}/g) || []).length;
+          let hasAnswer = false;
+          for (let i = 0; i < blankCount; i++) {
+            const input = document.getElementById(`fill-${idx}-${i}`);
+            if (input && input.value.trim()) hasAnswer = true;
+          }
+          if (hasAnswer) answered++;
+        } else if (q.type === 'application') {
+          const textarea = document.getElementById(`app-${idx}`);
+          if (textarea && textarea.value.trim()) answered++;
+        } else {
+          const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+          if (selected) answered++;
+        }
+      });
+
+      document.getElementById('progress-text').textContent = `${answered} / ${total}`;
+      const pct = total > 0 ? Math.round(answered / total * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+    }
+
+    // 应用题自评记录
+    let appSelfEval = {};
+
+    // 提交答案
+    function submitQuiz() {
+      if (submitted) return;
+      submitted = true;
+      stopTimer();
+
+      let correct = 0, wrong = 0, empty = 0, appTotal = 0;
+      appSelfEval = {};
+
+      quizQuestions.forEach((q, idx) => {
+        const expEl = document.getElementById(`exp-${idx}`);
+
+        if (q.type === 'judge') {
+          const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+          const labels = document.querySelectorAll(`input[name="q${idx}"]`);
+          labels.forEach(inp => {
+            const label = inp.closest('label');
+            inp.disabled = true;
+            if (inp.value === String(q.answer)) {
+              label.style.background = '#d1fae5';
+              label.style.borderColor = '#059669';
+            }
+            if (inp === selected && inp.value !== String(q.answer)) {
+              label.style.background = '#fee2e2';
+              label.style.borderColor = '#dc2626';
+            }
+          });
+          if (!selected) { empty++; }
+          else if (selected.value === String(q.answer)) { correct++; }
+          else { wrong++; }
+          expEl.classList.add('show');
+        }
+        else if (q.type === 'choice') {
+          const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+          const labels = document.querySelectorAll(`input[name="q${idx}"]`);
+          labels.forEach(inp => {
+            const label = inp.closest('label');
+            inp.disabled = true;
+            if (inp.value === q.answer) {
+              label.style.background = '#d1fae5';
+              label.style.borderColor = '#059669';
+            }
+            if (inp === selected && inp.value !== q.answer) {
+              label.style.background = '#fee2e2';
+              label.style.borderColor = '#dc2626';
+            }
+          });
+          if (!selected) { empty++; }
+          else if (selected.value === q.answer) { correct++; }
+          else { wrong++; }
+          expEl.classList.add('show');
+        }
+        else if (q.type === 'fill') {
+          const blankCount = (q.question.match(/_{3,}/g) || []).length;
+          const answers = Array.isArray(q.answer) ? q.answer : [q.answer];
+          let allCorrect = true;
+          let hasEmpty = false;
+
+          for (let i = 0; i < blankCount; i++) {
+            const input = document.getElementById(`fill-${idx}-${i}`);
+            if (!input) continue;
+            input.disabled = true;
+            const userVal = input.value.trim();
+            if (!userVal) {
+              hasEmpty = true;
+              allCorrect = false;
+              input.style.background = '#fee2e2';
+              input.style.borderColor = '#dc2626';
+            } else if (i < answers.length && normalizeAnswer(userVal) === normalizeAnswer(answers[i])) {
+              input.style.background = '#d1fae5';
+              input.style.borderColor = '#059669';
+            } else {
+              allCorrect = false;
+              input.style.background = '#fee2e2';
+              input.style.borderColor = '#dc2626';
+            }
+          }
+
+          if (hasEmpty) { empty++; }
+          else if (allCorrect) { correct++; }
+          else { wrong++; }
+          expEl.classList.add('show');
+        }
+        else if (q.type === 'application') {
+          const textarea = document.getElementById(`app-${idx}`);
+          if (textarea) textarea.disabled = true;
+          const answerDiv = document.getElementById(`app-answer-${idx}`);
+          if (answerDiv) answerDiv.style.display = 'block';
+          appTotal++;
+        }
+      });
+
+      const total = quizQuestions.length;
+      const objectiveTotal = total - appTotal;
+      document.getElementById('result-score').textContent = appTotal > 0 ? `${correct}/${objectiveTotal}（客观题）+ ${appTotal}应用题` : `${correct}/${total}`;
+      document.getElementById('result-correct').textContent = correct;
+      document.getElementById('result-wrong').textContent = wrong;
+      document.getElementById('result-empty').textContent = empty;
+      document.getElementById('result-rate').textContent = objectiveTotal > 0 ? Math.round(correct / objectiveTotal * 100) + '%' : '0%';
+      if (appTotal > 0) {
+        document.getElementById('result-app-item').style.display = 'flex';
+        document.getElementById('result-app').textContent = `0/${appTotal}`;
+      }
+      document.getElementById('result-area').style.display = 'block';
+      document.getElementById('submit-area').style.display = 'none';
+      document.getElementById('progress-fill').style.width = '100%';
+    }
+
+    // 应用题自评
+    function selfEval(idx, result) {
+      appSelfEval[idx] = result;
+      // 更新按钮样式
+      const buttons = document.querySelectorAll(`#app-answer-${idx} .app-eval-btn`);
+      buttons.forEach(btn => { btn.style.background = ''; btn.style.color = ''; });
+      const colors = { correct: '#d1fae5', partial: '#fef3c7', wrong: '#fee2e2' };
+      const label = event.target;
+      label.style.background = colors[result];
+
+      // 更新结果统计
+      let appCount = Object.keys(appSelfEval).length;
+      let appCorrect = Object.values(appSelfEval).filter(v => v === 'correct').length;
+      let appTotal = quizQuestions.filter(q => q.type === 'application').length;
+      document.getElementById('result-app').textContent = `${appCorrect}/${appTotal}`;
+    }
+
+    // 答案标准化（忽略空格和大小写差异）
+    function normalizeAnswer(s) {
+      return String(s).trim().replace(/\s+/g, '').replace(/[；;]/g, ',').toLowerCase();
+    }
+
+    // 重新答题
+    function resetQuiz() {
+      submitted = false;
+      document.getElementById('result-area').style.display = 'none';
+      document.getElementById('submit-area').style.display = 'flex';
+      const params = getParams();
+      quizQuestions = collectQuestions(params);
+      renderQuiz();
+      startTimer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 显示/隐藏解析
+    function toggleExplanations() {
+      const exps = document.querySelectorAll('.explanation');
+      const anyHidden = [...exps].some(e => !e.classList.contains('show'));
+      exps.forEach(e => e.classList.toggle('show', anyHidden));
+      // 同时切换应用题参考答案
+      const appAnswers = document.querySelectorAll('.app-answer');
+      appAnswers.forEach(e => e.style.display = anyHidden ? 'block' : 'none');
+    }
+
+    // 计时器
+    function startTimer() {
+      startTime = Date.now();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('timer-text').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    // 初始化
+    const params = getParams();
+    if (params.chapters.length === 0 || params.types.length === 0) {
+      document.getElementById('quiz-area').innerHTML = `
+        <div class="card" style="text-align:center; padding:48px;">
+          <p style="font-size:1.2rem; margin-bottom:16px;">未选择章节或题型</p>
+          <a href="selftest.html" class="btn btn-primary">返回选择</a>
+        </div>`;
+    } else {
+      quizQuestions = collectQuestions(params);
+      renderQuiz();
+      if (quizQuestions.length > 0) startTimer();
+    }
+
+    // 键盘快捷键：Ctrl+Enter 提交
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.ctrlKey && !submitted) {
+        submitQuiz();
+      }
+    });
+  </script>
+</body>
+</html>

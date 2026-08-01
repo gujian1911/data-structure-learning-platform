@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>实验三 顺序栈与链栈</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
+body{background:#f4f7fc;padding:24px;}
+.wrap{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:460 1fr;gap:24px;}
+.left-box{background:#fff;border-radius:12px;padding:20;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
+.right-box{display:flex;flex-direction:column;gap:20px;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
+h2{color:#1d3557;margin-bottom:16px;border-left:6px #2563eb solid;padding-left:10px;font-size:20px;}
+h3{margin:14px 0 8px;color:#222;font-size:16px;}
+.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:-20 -20 16 -20;border-radius:12 12 0 0;}
+pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow:auto;max-height:360px;font-size:13px;line-height:1.5;}
+.tip-text{color:#555;font-size:14px;line-height:1.6;margin-bottom:10px;}
+/* 通用画布 */
+.canvas-box{width:100%;height:240px;border:1px #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;margin-bottom:10px;}
+/* 顺序栈方块 */
+.stack-item{position:absolute;width:70px;height:46px;background:#3b82f6;color:#fff;text-align:center;line-height:46px;border-radius:6px;transition:0.3s;}
+.stack-top{box-shadow:0 0 14px #f97316;transform:scale(1.05);}
+/* 链栈节点 */
+.link-node{position:absolute;display:flex;}
+.link-data{width:50px;height:44px;background:#10b981;color:#fff;text-align:center;line-height:44px;border-radius:6px 0 0 6px;}
+.link-ptr{width:30px;height:44px;background:#ecf0f1;border:1px #999;border-left:none;border-radius:0 6px 6px 0;}
+.arrow{position:absolute;height:2px;background:#222;z:1;}
+.arrow-tip{width:0;height:0;border-top:6px transparent;border-bottom:6px transparent;border-left:8px #222;position:absolute;}
+.del-animate{opacity:0;transform:translateY(-30px);transition:0.4s;}
+/* 操作行 */
+.oper-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;}
+input{padding:8px 10px;border:1px #ccd6e0;border-radius:6px;width:190px;font-size:14px;}
+button{padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;font-size:14px;}
+button:hover{background:#3b82f6;}
+#logArea{height:140px;border:1px #dde2eb;padding:12px;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+.split-line{height:2px #ddd;margin:24px 0;}
+</style>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+<div class="wrap">
+<!-- 左侧：两份C源码 -->
+<div class="left-box">
+    <h2>实验三 栈</h2>
+    <h3>一、顺序存储栈</h3>
+    <p class="tip-text">【实验要求】顺序存储实现栈入栈、出栈<br>【算法思想】栈空top=-1，入栈top+1，出栈top-1，数组存储元素</p>
+    <div class="code-header">顺序栈C调试代码</div>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+//入栈函数，返回最终栈顶下标
+int push(char s[],int n)
+{
+    char c;
+    int top=-1; //栈初始为空
+    while(n>0)
+    {
+        top++;
+        scanf("%c",&c);
+        getchar();//吸收回车换行
+        s[top]=c;
+        n--;
+    }
+    return top;
+}
+//批量出栈打印
+void pop(char s[],int n)
+{
+    char e;
+    int top=n;
+    while(top!=-1)
+    {
+        e=s[top];
+        top--;
+        printf("%4c", e);
+    }
+}
+void main()
+{
+    char a[20];
+    int k,i;
+    scanf("%d",&k);
+    getchar();
+    i=push(a,k);
+    pop(a,i);
+}
+</pre>
+<div class="split-line"></div>
+    <h3>二、链式存储链栈</h3>
+    <p class="tip-text">【实验要求】链式栈入栈出栈<br>【算法思想】仅在链表头部插入删除（头插法模拟栈）</p>
+    <div class="code-header">链栈C调试代码</div>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+struct stack
+{
+    char data;
+    struct stack *next;
+};
+//批量建栈（头插入栈）
+struct stack * push(int n)
+{
+    struct stack *p,*top;
+    int i;
+    top=(struct stack *)malloc(sizeof(struct stack));
+    printf("输入第一个字符\n");
+    getchar();
+    scanf("%c",&top->data);
+    top->next=NULL;
+    getchar();
+    printf("输入其余字符\n");
+    for(i=1;i&lt;n;i++)
+    {
+        p=(struct stack *)malloc(sizeof(struct stack));
+        scanf("%c",&p->data);
+        getchar();
+        p->next=top;
+        top=p;
+    }
+    return top;
+}
+//全部出栈释放结点
+void pop(struct stack *top,int n)
+{
+    struct stack *p;
+    if(top!=NULL)
+    {
+        while(top!=NULL)
+        {
+            printf("%4c",top->data);
+            p=top;
+            top=top->next;
+            free(p);
+        }
+    }
+    else
+        printf("the stack is empty");
+    printf("\n");
+}
+void main()
+{
+    int k;
+    struct stack *top;
+    printf("输入结点个数：");
+    scanf("%d");
+    top=push(k);
+    pop(top,k);
+}
+</pre>
+</div>
+<!-- 右侧动画区 -->
+<div class="right-box">
+    <!-- 模块1：顺序栈 -->
+    <div class="card">
+        <h2>顺序栈动画模拟（数组存储 top=-1初始）</h2>
+        <div class="canvas-box" id="seqCanvas"></div>
+        <div class="oper-row">
+            <input id="seqInput" placeholder="批量入栈，英文逗号分隔，如a,b,c">
+            <button onclick="seqInit()">初始化顺序栈</button>
+            <button onclick="seqPushSingle()">单个入栈</button>
+            <button onclick="seqPop()">出栈</button>
+            <button onclick="seqReset()">重置顺序栈</button>
+        </div>
+        <div class="tip-text">规则：初始top=-1；入栈top+1；出栈top-1；栈顶橙色高亮</div>
+    </div>
+    <!-- 模块2：链栈 -->
+    <div class="card">
+        <h2>链栈动画模拟（仅头部入/出）</h2>
+        <div class="canvas-box" id="linkCanvas"></div>
+        <div class="oper-row">
+            <input id="linkInput" placeholder="批量入栈，英文逗号分隔，如x,y,z">
+            <button onclick="linkInit()">初始化链栈</button>
+            <button onclick="linkPush()">入栈（头插）</button>
+            <button onclick="linkPop()">出栈（删头）</button>
+            <button onclick="linkReset()">重置链栈</button>
+        </div>
+        <div class="tip-text">规则：链栈等价单链表头插，入出只操作栈顶头部结点</div>
+    </div>
+    <!-- 日志 -->
+    <div class="card">
+        <h3>程序运行日志</h3>
+        <div id="logArea"></div>
+    </div>
+</div>
+</div>
+
+<script>
+// 全局公用
+const logBox = document.getElementById("logArea");
+function log(text){
+    const d=new Date();
+    logBox.innerHTML += `[${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}] ${text}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+}
+function sleep(ms){return r=>setTimeout(r,ms);}
+
+// ====================== 顺序栈逻辑 ======================
+const seqCanvas = document.getElementById("seqCanvas");
+let seqArr = [];
+const MAX_SEQ = 20;
+const ITEM_W =70, ITEM_H=46, GAP=12, START_Y=160;
+function renderSeq(){
+    seqCanvas.innerHTML="";
+    const topIdx = seqArr.length-1;
+    for(let i=0;i<seqArr.length;i++){
+        const div=document.createElement("div");
+        div.className="stack-item";
+        if(i===topIdx) div.classList.add("stack-top");
+        div.innerText = seqArr[i];
+        // 从下往上堆叠
+        const y = START_Y - i*(ITEM_H+GAP);
+        div.style.left = "30px";
+        div.style.top = y + "px";
+        seqCanvas.appendChild(div);
+    }
+}
+// 解析批量字符
+function parseChars(id){
+    const s = document.getElementById(id).value.trim().replace(/\s/g,"");
+    if(!s){log("输入不能为空，使用英文逗号分隔字符");return null;}
+    return s.split(",").filter(v=>v.length===1);
+}
+// 初始化顺序栈批量入栈
+async function seqInit(){
+    const chars = parseChars("seqInput");
+    if(!chars) return;
+    seqArr=[];
+    renderSeq();
+    log("===== 顺序栈初始化，初始top=-1 =====");
+    for(let c of chars){
+        await sleep(400);
+        seqArr.push(c);
+        renderSeq();
+        log(`入栈元素${c}，top = ${seqArr.length-1}`);
+    }
+    log(`批量入栈完成，当前栈顶top=${seqArr.length-1}`);
+}
+// 单个入栈
+async function seqPushSingle(){
+    const c = document.getElementById("seqInput").value.trim();
+    if(c.length!==1){log("请输入单个字符入栈");return;}
+    if(seqArr.length>=MAX_SEQ){log("栈已满，无法入栈");return;}
+    seqArr.push(c);
+    renderSeq();
+    log(`单个入栈${c}，top=${seqArr.length-1}`);
+}
+// 出栈
+async function seqPop(){
+    if(seqArr.length===0){log("栈空top=-1，无法出栈");return;}
+    const out = seqArr.pop();
+    renderSeq();
+    log(`出栈元素${out}，新top=${seqArr.length-1}`);
+}
+function seqReset(){
+    seqArr=[];
+    seqCanvas.innerHTML="";
+    document.getElementById("seqInput").value="";
+    log("顺序栈已重置，top=-1");
+}
+
+// ====================== 链栈逻辑 ======================
+const linkCanvas = document.getElementById("linkCanvas");
+let linkStack = [];
+const NODE_W=80, NODE_GAP=90, L_START_X=20, L_Y=100;
+// 绘制箭头
+function drawLine(x1,y1,x2,y2){
+    const line=document.createElement("div");
+    line.className="arrow";
+    line.style.left=x1+"px";
+    line.style.top=y1+"px";
+    line.style.width=(x2-x1-8)+"px";
+    linkCanvas.appendChild(line);
+    const tip=document.createElement("div");
+    tip.className="arrow-tip";
+    tip.style.left=(x2-8)+"px";
+    tip.style.top=(y1-6)+"px";
+    linkCanvas.appendChild(tip);
+}
+// 渲染链栈（栈顶在最左侧）
+function renderLink(){
+    linkCanvas.innerHTML="";
+    for(let i=0;i<linkStack.length;i++){
+        const wrap=document.createElement("div");
+        wrap.className="link-node";
+        const curX = L_START_X + i*NODE_GAP;
+        wrap.style.left=curX+"px";
+        wrap.style.top=L_Y+"px";
+        const data=document.createElement("div");
+        data.className="link-data";
+        data.innerText=linkStack[i];
+        const ptr=document.createElement("div");
+        ptr.className="link-ptr";
+        wrap.appendChild(data);
+        wrap.appendChild(ptr);
+        linkCanvas.appendChild(wrap);
+        if(i<linkStack.length-1){
+            drawLine(curX+NODE_W, L_Y+22, L_START_X+(i+1)*NODE_GAP, L_Y+22);
+        }
+    }
+}
+// 批量初始化链栈（头插）
+async function linkInit(){
+    const chars = parseChars("linkInput");
+    if(!chars) return;
+    linkStack=[];
+    renderLink();
+    log("===== 链栈初始化（头插入栈） =====");
+    for(let c of chars){
+        await sleep(400);
+        linkStack.unshift(c);
+        renderLink();
+        log(`链栈入栈${c}（栈顶头部）`);
+    }
+    log("链栈批量入栈完成");
+}
+// 单个入栈
+async function linkPush(){
+    const c = document.getElementById("linkInput").value.trim();
+    if(c.length!==1){log("请输入单个字符");return;}
+    linkStack.unshift(c);
+    renderLink();
+    log(`链栈入栈${c}，新栈顶`);
+}
+// 出栈（删除头部）
+async function linkPop(){
+    if(linkStack.length===0){log("链栈为空，无法出栈");return;}
+    const nodes = linkCanvas.querySelectorAll(".link-node");
+    nodes[0].classList.add("del-animate");
+    await sleep(400);
+    const out = linkStack.shift();
+    renderLink();
+    log(`链栈出栈栈顶${out}`);
+}
+function linkReset(){
+    linkStack=[];
+    linkCanvas.innerHTML="";
+    document.getElementById("linkInput").value="";
+    log("链栈已全部重置");
+}
+window.onload=()=>{renderSeq();renderLink();}
+</script>
+
+  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+</body>
+</html>

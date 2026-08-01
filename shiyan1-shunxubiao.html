@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>实验-顺序表的基本运算</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f4f7fc;
+            padding: 24px;
+        }
+        .wrap {
+            max-width: 1500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+        }
+        .left-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            height: calc(100vh - 48px);
+            overflow-y: auto;
+        }
+        .right-box {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        h2 {
+            color: #1d3557;
+            margin-bottom: 16px;
+            border-left: 5px solid #457b9d;
+            padding-left: 10px;
+            font-size: 20px;
+        }
+        h3 {
+            margin: 14px 0 8px;
+            color: #222;
+            font-size: 16px;
+        }
+        .code-header {
+            background: #457b9d;
+            color: #fff;
+            padding: 8px 14px;
+            margin: -20px -20px 16px -20px;
+            border-radius: 12px 12px 0 0;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 420px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .tip-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        /* 顺序表画布 */
+        #canvasBox {
+            width: 100%;
+            height: 240px;
+            border: 1px solid #dde2eb;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            background: #fafbfd;
+        }
+        .node-item {
+            position: absolute;
+            width: 72px;
+            height: 44px;
+            background: #457b9d;
+            color: #fff;
+            text-align: center;
+            line-height: 44px;
+            border-radius: 6px;
+            transition: all 0.4s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .node-item .arrow {
+            position: absolute;
+            right: -20px;
+            top: 20px;
+            width: 22px;
+            height: 2px;
+            background: #fff;
+        }
+        .node-item .arrow::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: -5px;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 9px solid #fff;
+        }
+        .node-item.active {
+            background: #f77f00;
+            transform: scale(1.12);
+            z-index: 10;
+        }
+        .node-item.del-animate {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+        /* 操作按钮区域 */
+        .oper-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            align-items: center;
+        }
+        input[type="number"], input[type="text"] {
+            padding: 8px 10px;
+            border: 1px solid #ccd6e0;
+            border-radius: 6px;
+            width: 220px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #457b9d;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #5c8fb3;
+        }
+        #logPanel {
+            height: 150px;
+            border: 1px solid #dde2eb;
+            padding: 12px;
+            overflow-y: auto;
+            background: #fafbfd;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .speed-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+    </style>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+<div class="wrap">
+    <!-- 左侧：实验文档 + C语言数组实现顺序表源码 -->
+    <div class="left-box">
+        <h2>实验一 顺序表的基本运算</h2>
+        <h3>实验说明</h3>
+        <p class="tip-text">
+            本实验采用C语言静态数组实现顺序表，包含6种基础操作：元素查找、元素替换、按位置插入、按值删除、按值插入、按位置删除。
+            右侧网页提供可视化动画模拟每一步操作流程，运行日志同步还原C语言控制台printf输出效果。
+        </p>
+        <h3>C语言完整实验代码</h3>
+        <div class="code-header"></div>
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#define MAXSIZE 100  // 数组最大容量
+
+int flag = 0;
+// 使用数组存储顺序表数据
+int seqArr[MAXSIZE];
+int length = 4;  // 当前顺序表有效元素长度
+
+// 1. 查找元素，返回下标，未找到返回-1
+int searchX(int x) {
+    flag = 0;
+    for (int i = 0; i < length; i++) {
+        if (x == seqArr[i]) {
+            flag = 1;
+            printf("查找成功：%d的位置是%d\n", x, i);
+            return i;
+        }
+    }
+    if (flag == 0) {
+        printf("未找到数值：%d\n", x);
+        return -1;
+    }
+    return -1;
+}
+
+// 2. 替换指定数值元素
+void replaceX(int x, int y) {
+    int loc = searchX(x);
+    if (loc == -1) {
+        printf("没有可替换的数值：%d\n", x);
+    } else {
+        seqArr[loc] = y;
+    }
+    printf("替换后列表：");
+    for (int i = 0; i < length; i++) printf("%d ", seqArr[i]);
+    printf("\n");
+}
+
+// 3. 按位置插入元素
+void insertByIndex(int loc, int x) {
+    if (loc > length) loc = length;
+    // 数组元素后移腾出插入位置
+    for (int j = length - 1; j >= loc; j--) {
+        seqArr[j + 1] = seqArr[j];
+    }
+    seqArr[loc] = x;
+    length++;
+    printf("按位置插入后列表：");
+    for (int i = 0; i < length; i++) printf("%d ", seqArr[i]);
+    printf("\n");
+}
+
+// 4. 按数值删除元素
+void delByValue(int x) {
+    int loc = searchX(x);
+    if (loc == -1) {
+        printf("没有要删除的数值：%d\n", x);
+    } else {
+        // 数组元素前移覆盖待删除值
+        for (int i = loc; i < length - 1; i++) {
+            seqArr[i] = seqArr[i + 1];
+        }
+        length--;
+    }
+    printf("按值删除后列表：");
+    for (int i = 0; i < length; i++) printf("%d ", seqArr[i]);
+    printf("\n");
+}
+
+// 5. 按参考数值插入（前/后）
+void insertByValue(int target_val, int new_val, char position[]) {
+    int loc = searchX(target_val);
+    if (loc == -1) {
+        printf("参考数值%d不存在，按值插入失败！\n", target_val);
+        return;
+    }
+    int insert_loc;
+    if (strcmp(position, "after") == 0) {
+        insert_loc = loc + 1;
+    } else {
+        insert_loc = loc;
+    }
+    insertByIndex(insert_loc, new_val);
+}
+
+// 6. 按下标位置删除元素
+void delByIndex(int loc) {
+    if (loc < 0 || loc >= length) {
+        printf("索引%d超出列表范围（列表长度：%d），按位置删除失败！\n", loc, length);
+        return;
+    }
+    for (int i = loc; i < length - 1; i++) {
+        seqArr[i] = seqArr[i + 1];
+    }
+    length--;
+    printf("按位置删除后列表：");
+    for (int i = 0; i < length; i++) printf("%d ", seqArr[i]);
+    printf("\n");
+}
+
+// 打印分隔线
+void printLine() {
+    printf("------------------------------\n");
+}
+
+// 主程序：数组初始化 + 菜单循环
+int main() {
+    // 数组初始化顺序表初始数据 [1,2,3,4]
+    seqArr[0] = 1;
+    seqArr[1] = 2;
+    seqArr[2] = 3;
+    seqArr[3] = 4;
+    length = 4;
+
+    int choice;
+    int x, y, loc, target, newv;
+    char pos[10];
+
+    printf("===== 顺序表操作工具 =====\n");
+    printf("初始列表：1 2 3 4\n");
+    printf("提示：输入 0 可退出程序\n\n");
+
+    while (1) {
+        printf("请输入你的选项：\n");
+        printf("1 按位置插入  2 按值删除  3 替换  4 查找  5 按值插入  6 按位置删除  0 退出\n");
+        scanf("%d", &choice);
+
+        if (choice == 0) {
+            printf("程序已退出，感谢使用！\n");
+            break;
+        }
+        if (choice == 1) {
+            printf("请输入插入的数值：");
+            scanf("%d", &x);
+            printf("请输入插入的位置：");
+            scanf("%d", &loc);
+            insertByIndex(loc, x);
+        } else if (choice == 2) {
+            printf("请输入删除的数值：");
+            scanf("%d", &x);
+            delByValue(x);
+        } else if (choice == 3) {
+            printf("请输入被替换的数值：");
+            scanf("%d", &x);
+            printf("请输入要替换的数值：");
+            scanf("%d", &y);
+            replaceX(x, y);
+        } else if (choice == 4) {
+            printf("请输入要查找的数值：");
+            scanf("%d", &x);
+            searchX(x);
+        } else if (choice == 5) {
+            printf("请输入参考数值（要在哪个数旁边插入）：");
+            scanf("%d", &target);
+            printf("请输入要插入的新数值：");
+            scanf("%d", &newv);
+            printf("请输入插入位置（after/before）：");
+            scanf("%s", pos);
+            insertByValue(target, newv, pos);
+        } else if (choice == 6) {
+            printf("请输入要删除的元素位置：");
+            scanf("%d", &loc);
+            delByIndex(loc);
+        } else {
+            printf("输入的选项无效！请输入 0-6 之间的数字！\n");
+        }
+        printLine();
+    }
+    return 0;
+}
+</pre>
+    </div>
+
+    <!-- 右侧顺序表动画演示区域 -->
+    <div class="right-box">
+        <div class="card">
+            <h2>顺序表动画模拟演示区</h2>
+            <div id="canvasBox"></div>
+
+            <div class="oper-row">
+                <!-- 已添加清晰提示文字：使用英文逗号分隔，示例3,4,5,6 -->
+                <input type="text" id="initData" placeholder="多个数字请用英文逗号分隔，示例：3,4,5,6">
+                <button onclick="initSeqTable()">初始化顺序表</button>
+                <button onclick="重置全部()">重置全部</button>
+            </div>
+
+            <div class="oper-row">
+                <input type="number" id="insNum" placeholder="插入数值">
+                <input type="number" id="insPos" placeholder="插入下标">
+                <button onclick="animInsertByIndex()">按位置插入动画</button>
+            </div>
+
+            <div class="oper-row">
+                <input type="number" id="searchNum" placeholder="查找数值">
+                <button onclick="animSearch()">遍历查找高亮</button>
+            </div>
+
+            <div class="oper-row">
+                <input type="number" id="oldNum" placeholder="被替换值">
+                <input type="number" id="newNum" placeholder="新替换值">
+                <button onclick="animReplace()">替换元素动画</button>
+            </div>
+
+            <div class="oper-row">
+                <input type="number" id="delValNum" placeholder="删除数值">
+                <button onclick="animDelByVal()">按值删除动画</button>
+                <input type="number" id="delIdxNum" placeholder="删除下标">
+                <button onclick="animDelByIndex()">按位置删除动画</button>
+            </div>
+
+            <div class="oper-row">
+                <input type="number" id="refNum" placeholder="参考数值">
+                <input type="number" id="insAfterNum" placeholder="插入新值">
+                <input type="text" id="insSide" value="after" placeholder="after/before">
+                <button onclick="animInsertByVal()">按值插入</button>
+            </div>
+
+            <div class="speed-box">
+                <span>动画速度：</span>
+                <input type="range" id="speedSlider" min="200" max="1200" value="400">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>C语言控制台运行日志</h3>
+            <div id="logPanel"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 全局顺序表数组
+let seqData = [];
+const canvas = document.getElementById("canvasBox");
+const logBox = document.getElementById("logPanel");
+const speedSlider = document.getElementById("speedSlider");
+
+// 获取动画延时
+function getDelay() {
+    return Number(speedSlider.value);
+}
+
+// 日志输出
+function printLog(msg) {
+    const time = new Date();
+    const t = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
+    logBox.innerHTML += `[${t}] ${msg}\n`;
+    logBox.scrollTop = logBox.scrollHeight;
+}
+
+// 渲染函数：标准for循环遍历，确保所有数字绘制
+function renderSeqTable(activeIndex = -1) {
+    canvas.innerHTML = "";
+    const startX = 20;
+    const nodeGap = 100;
+    console.log("当前解析数组：", seqData);
+    for(let i = 0; i < seqData.length; i++){
+        const val = seqData[i];
+        const node = document.createElement("div");
+        node.className = "node-item";
+        if (i === activeIndex) node.classList.add("active");
+        node.innerText = val;
+        node.style.left = startX + i * nodeGap + "px";
+        node.style.top = "90px";
+        // 箭头连接线
+        const arrow = document.createElement("span");
+        arrow.className = "arrow";
+        node.appendChild(arrow);
+        canvas.appendChild(node);
+    }
+}
+
+// 延时工具
+function sleep(ms) {
+    return new Promise(res => setTimeout(res, ms));
+}
+
+// 初始化顺序表（严格清理空格、仅英文逗号分割）
+function initSeqTable() {
+    const inputRaw = document.getElementById("initData").value.trim();
+    if (!inputRaw) {
+        printLog("错误：输入框不能为空，多个数字请用英文逗号分隔，示例3,4,5,6");
+        return;
+    }
+    // 全部空格清除
+    let noSpaceStr = inputRaw.replace(/ /g, "");
+    // 仅英文逗号分割
+    let strArr = noSpaceStr.split(",");
+    seqData = [];
+    for(let s of strArr){
+        if(s === "") continue;
+        let num = parseInt(s);
+        if(!isNaN(num)){
+            seqData.push(num);
+        }
+    }
+    if(seqData.length === 0){
+        printLog("错误：未识别有效数字，请使用英文逗号分隔数字，不要使用中文逗号");
+        return;
+    }
+    renderSeqTable();
+    printLog(`初始化成功，顺序表数据：${seqData.join(" ")}`);
+}
+
+// 重置全部
+function 重置全部() {
+    seqData = [];
+    canvas.innerHTML = "";
+    logBox.innerHTML = "";
+    document.getElementById("initData").value = "";
+    printLog("已重置所有数据，请输入数字（英文逗号分隔）初始化");
+}
+
+// 查找动画
+async function animSearch() {
+    const target = parseInt(document.getElementById("searchNum").value);
+    if (isNaN(target)) {
+        printLog("输入错误，请输入数字");
+        return;
+    }
+    let findIdx = -1;
+    for (let i = 0; i < seqData.length; i++) {
+        renderSeqTable(i);
+        await sleep(getDelay());
+        if (seqData[i] === target) {
+            findIdx = i;
+            break;
+        }
+    }
+    if (findIdx !== -1) {
+        printLog(`查找成功：${target} 下标${findIdx}`);
+        renderSeqTable(findIdx);
+    } else {
+        printLog(`未找到数值 ${target}`);
+        renderSeqTable();
+    }
+}
+
+// 按位置插入
+async function animInsertByIndex() {
+    const num = parseInt(document.getElementById("insNum").value);
+    let pos = parseInt(document.getElementById("insPos").value);
+    if (isNaN(num) || isNaN(pos)) {
+        printLog("数值/位置必须是整数");
+        return;
+    }
+    if (pos > seqData.length) pos = seqData.length;
+    seqData.splice(pos, 0, num);
+    renderSeqTable(pos);
+    await sleep(getDelay() * 1.2);
+    renderSeqTable();
+    printLog(`插入完成，列表：${seqData.join(" ")}`);
+}
+
+// 替换元素
+async function animReplace() {
+    const oldV = parseInt(document.getElementById("oldNum").value);
+    const newV = parseInt(document.getElementById("newNum").value);
+    if (isNaN(oldV) || isNaN(newV)) {
+        printLog("原值、新值必须为数字");
+        return;
+    }
+    let findIdx = -1;
+    for (let i = 0; i < seqData.length; i++) {
+        renderSeqTable(i);
+        await sleep(getDelay() / 2);
+        if (seqData[i] === oldV) {
+            findIdx = i;
+            break;
+        }
+    }
+    if (findIdx === -1) {
+        printLog(`无数值 ${oldV} 可替换`);
+        renderSeqTable();
+        return;
+    }
+    seqData[findIdx] = newV;
+    renderSeqTable(findIdx);
+    await sleep(getDelay());
+    renderSeqTable();
+    printLog(`替换 ${oldV}→${newV}，列表：${seqData.join(" ")}`);
+}
+
+// 按值删除
+async function animDelByVal() {
+    const delV = parseInt(document.getElementById("delValNum").value);
+    if (isNaN(delV)) {
+        printLog("请输入要删除的数字");
+        return;
+    }
+    let delIdx = -1;
+    for (let i = 0; i < seqData.length; i++) {
+        renderSeqTable(i);
+        await sleep(getDelay() / 2);
+        if (seqData[i] === delV) {
+            delIdx = i;
+            break;
+        }
+    }
+    if (delIdx === -1) {
+        printLog(`不存在数值 ${delV}`);
+        renderSeqTable();
+        return;
+    }
+    const nodes = canvas.querySelectorAll(".node-item");
+    nodes[delIdx].classList.add("del-animate");
+    await sleep(getDelay());
+    seqData.splice(delIdx, 1);
+    renderSeqTable();
+    printLog(`删除${delV}完成，列表：${seqData.join(" ")}`);
+}
+
+// 按下标删除
+async function animDelByIndex() {
+    const idx = parseInt(document.getElementById("delIdxNum").value);
+    if (isNaN(idx) || idx < 0 || idx >= seqData.length) {
+        printLog(`下标${idx}越界，当前长度${seqData.length}`);
+        return;
+    }
+    const nodes = canvas.querySelectorAll(".node-item");
+    nodes[idx].classList.add("del-animate");
+    await sleep(getDelay());
+    seqData.splice(idx, 1);
+    renderSeqTable();
+    printLog(`按下标${idx}删除完成，列表：${seqData.join(" ")}`);
+}
+
+// 按值插入
+async function animInsertByVal() {
+    const ref = parseInt(document.getElementById("refNum").value);
+    const newVal = parseInt(document.getElementById("insAfterNum").value);
+    const side = document.getElementById("insSide").value.trim() || "after";
+    if (isNaN(ref) || isNaN(newVal)) {
+        printLog("参考值、新数值必须为整数");
+        return;
+    }
+    let refIdx = -1;
+    for (let i = 0; i < seqData.length; i++) {
+        renderSeqTable(i);
+        await sleep(getDelay() / 2);
+        if (seqData[i] === ref) {
+            refIdx = i;
+            break;
+        }
+    }
+    if (refIdx === -1) {
+        printLog(`参考数值${ref}不存在`);
+        renderSeqTable();
+        return;
+    }
+    const insertPos = side === "after" ? refIdx + 1 : refIdx;
+    seqData.splice(insertPos, 0, newVal);
+    renderSeqTable(insertPos);
+    await sleep(getDelay() * 1.2);
+    renderSeqTable();
+    printLog(`在${ref}${side=="after"?"后":"前"}插入${newVal}，列表：${seqData.join(" ")}`);
+}
+
+// 页面加载清空画布
+window.onload = function () {
+    seqData = [];
+    canvas.innerHTML = "";
+}
+</script>
+
+  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
+    <p>数据结构课程学习网站 | 辽东学院信息技术学院</p>
+  </footer>
+
+</body>
+</html>
