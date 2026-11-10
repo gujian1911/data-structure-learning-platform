@@ -1870,7 +1870,7 @@ html {
   border-radius: 28px;
   border: 1px solid rgba(139,92,246,0.15);
   overflow: hidden;
-  min-height: 520px;
+  min-height: 560px;
 }
 .mindmap::before {
   content: '';
@@ -1939,15 +1939,24 @@ html {
 .mm-text { font-size: 0.95rem; }
 
 /* 一级节点（6个分支） */
-.mm-branches { position: relative; width: 100%; height: 520px; }
-.mm-branch { position: absolute; }
+.mm-branches { position: relative; width: 100%; height: 540px; }
+.mm-branch {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+/* 左侧分支：二级节点向外（左）展开，避免连线穿过节点 */
+.mm-branch-top-left,
+.mm-branch-bottom-left,
+.mm-branch-mid-left { flex-direction: row-reverse; }
 
-.mm-branch-top-left     { top: 12px;    left: 6%;    }
-.mm-branch-top-right    { top: 12px;    right: 6%;   }
-.mm-branch-bottom-left  { bottom: 24px; left: 6%;    }
-.mm-branch-bottom-right { bottom: 24px; right: 6%;   }
-.mm-branch-mid-left     { top: 46%;     left: 0;     transform: translateY(-50%); }
-.mm-branch-mid-right    { top: 46%;     right: 0;    transform: translateY(-50%); }
+.mm-branch-top-left     { top: 8px;    left: 3%;    }
+.mm-branch-top-right    { top: 8px;    right: 3%;   }
+.mm-branch-bottom-left  { bottom: 8px; left: 3%;    }
+.mm-branch-bottom-right { bottom: 8px; right: 3%;   }
+.mm-branch-mid-left     { top: 50%;     left: 0;     transform: translateY(-50%); }
+.mm-branch-mid-right    { top: 50%;     right: 0;    transform: translateY(-50%); }
 
 .mm-lv1 {
   padding: 12px 22px;
@@ -1970,17 +1979,22 @@ html {
 .mm-c5:hover { box-shadow: 0 14px 32px rgba(6,182,212,0.4); }
 .mm-c6:hover { box-shadow: 0 14px 32px rgba(236,72,153,0.4); }
 
-/* 二级节点（子节点） */
+/* 二级节点（子节点）：与一级节点横向排列 */
 .mm-sub {
-  margin-top: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-/* 左右两侧二级节点向中间对齐 */
+/* 右侧分支子节点贴近一级节点左对齐 */
 .mm-branch-top-right .mm-sub,
 .mm-branch-bottom-right .mm-sub,
 .mm-branch-mid-right .mm-sub {
+  align-items: flex-start;
+}
+/* 左侧分支子节点贴近一级节点右对齐 */
+.mm-branch-top-left .mm-sub,
+.mm-branch-bottom-left .mm-sub,
+.mm-branch-mid-left .mm-sub {
   align-items: flex-end;
 }
 
@@ -2002,12 +2016,12 @@ html {
 
 .mm-lv2:hover {
   color: #fff !important;
-  transform: translateX(6px) scale(1.04);
+  transform: translateX(-6px) scale(1.04);
 }
 .mm-branch-top-right .mm-lv2:hover,
 .mm-branch-bottom-right .mm-lv2:hover,
 .mm-branch-mid-right .mm-lv2:hover {
-  transform: translateX(-6px) scale(1.04);
+  transform: translateX(6px) scale(1.04);
 }
 .mm-c1 + .mm-sub .mm-lv2:hover { background: linear-gradient(135deg, #3b82f6, #6366f1); border-color: transparent; }
 .mm-c2 + .mm-sub .mm-lv2:hover { background: linear-gradient(135deg, #10b981, #06b6d4); border-color: transparent; }
@@ -2028,18 +2042,19 @@ html {
   }
   .mm-branch {
     position: static;
+    display: block;
     transform: none !important;
     background: #fff;
     border-radius: 18px;
     padding: 16px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.06);
   }
-  .mm-sub { align-items: flex-start !important; }
+  .mm-sub { margin-top: 14px; align-items: flex-start !important; }
   .mm-lv2:hover { transform: translateX(6px) scale(1.04) !important; }
   .mm-lines { display: none; }
 }
 
-/* ========== 思维导图曲线连接 ========== */
+/* ========== 思维导图连线（分支树状，单线不叠加） ========== */
 .mm-lines {
   position: absolute;
   inset: 0;
@@ -2048,37 +2063,79 @@ html {
   z-index: 1;
   pointer-events: none;
 }
-.mm-line {
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  animation: drawLine 1.2s ease forwards;
+.mm-line { opacity: 0.8; }
+.mm-line-sub { opacity: 0.55; }
+
+/* ========== 首页思维导图入口 ========== */
+.map-entry {
+  max-width: 1080px;
+  margin: 0 auto 56px;
+  padding: 26px 30px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: linear-gradient(120deg, #eef2ff 0%, #faf5ff 100%);
+  border: 1px solid rgba(139,92,246,0.18);
+  border-radius: 22px;
+  box-shadow: 0 14px 36px rgba(15,23,42,0.06);
 }
-.mm-line-sub {
-  stroke-dasharray: 400;
-  stroke-dashoffset: 400;
-  animation: drawLine 1s ease 0.4s forwards;
+.map-entry-icon { font-size: 2.4rem; line-height: 1; }
+.map-entry-body { flex: 1; }
+.map-entry-title { font-size: 1.25rem; color: #1e293b; margin-bottom: 6px; }
+.map-entry-desc { color: #64748b; font-size: 0.95rem; }
+.map-entry-btn {
+  flex: none;
+  padding: 11px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1a56db, #7c3aed);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 24px rgba(88,58,237,0.28);
+  transition: all 0.25s ease;
 }
-@keyframes drawLine {
-  to { stroke-dashoffset: 0; }
+.map-entry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(88,58,237,0.38);
 }
-/* 流动光点 */
-.mm-dot {
-  filter: drop-shadow(0 0 4px currentColor);
-  opacity: 0;
-  animation: dotFade 0.5s ease 1.3s forwards;
+@media (max-width: 768px) {
+  .map-entry {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding: 24px 20px;
+  }
 }
-@keyframes dotFade {
-  to { opacity: 0.9; }
+
+/* ===== 课件右侧本节目录 ===== */
+.ppt-layout { display: flex; gap: 20px; align-items: flex-start; }
+.ppt-layout .ppt-player { flex: 1; min-width: 0; }
+.ppt-toc {
+  width: 230px; flex: none;
+  background: #fff;
+  border: 1px solid rgba(102,126,234,0.15);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+  padding: 16px 12px;
+  position: sticky; top: 90px;
 }
-/* 关联虚线流动 */
-.mm-line-assoc {
-  stroke-dasharray: 5 5;
-  opacity: 0;
-  animation: dashFlow 1.2s linear infinite, fadeInLine 0.8s ease 1.6s forwards;
+.ppt-toc-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; padding: 0 6px; }
+.ppt-toc ul { list-style: none; margin: 0; padding: 0; }
+.ppt-toc li { margin-bottom: 2px; }
+.ppt-toc button {
+  width: 100%; border: none; background: none; cursor: pointer;
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 0.85rem; color: #475569;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  line-height: 1.5; text-align: left;
+  transition: all 0.2s ease;
 }
-@keyframes dashFlow {
-  to { stroke-dashoffset: -20; }
-}
-@keyframes fadeInLine {
-  to { opacity: 0.55; }
+.ppt-toc button .toc-page { flex: none; font-size: 0.72rem; color: #94a3b8; }
+.ppt-toc button:hover { background: #eef2ff; color: #1a56db; }
+.ppt-toc button.active { background: linear-gradient(135deg, #1a56db, #7c3aed); color: #fff; font-weight: 600; }
+.ppt-toc button.active .toc-page { color: rgba(255,255,255,0.85); }
+@media (max-width: 1100px) {
+  .ppt-layout { flex-direction: column; }
+  .ppt-toc { width: 100%; position: static; }
 }
