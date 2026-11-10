@@ -28,6 +28,7 @@
             gap: 20px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            align-items: flex-start;
         }
         .card {
             background: #fff;
@@ -36,6 +37,8 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.1);
             flex: 1;
             min-width: 420px;
+            display: flex;
+            flex-direction: column;
         }
         .card h3 {
             margin-bottom: 12px;
@@ -50,11 +53,70 @@
             border-radius: 4px;
             font-size: 14px;
         }
+        :root {
+            --panel-h: 340px;   /* 代码窗口与矩阵输入面板统一高度 */
+        }
         textarea {
-            height: 320px;
+            height: var(--panel-h);
             resize: none;
             background: #1e1e1e;
             color: #fff;
+        }
+        /* 矩阵输入面板：原来的一半再加 15px（约 185px） */
+        #inputArea {
+            height: calc(var(--panel-h) / 2 + 15px);
+        }
+        /* 代码框自动撑满左栏，底边与右侧输入面板对齐 */
+        #codeBox {
+            display: none;
+        }
+        /* 逐行高亮的代码视图 */
+        #codeView {
+            background: #1e1e1e;
+            color: #ddd;
+            border-radius: 4px;
+            padding: 8px 8px 8px 0;
+            flex: 0 0 auto;
+            height: calc(var(--panel-h) * 1.25);   /* 原高度 + 1/4 = 425px */
+            min-height: 0;
+            overflow: auto;
+            position: relative;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.55;
+            counter-reset: codeline;
+        }
+        .code-line {
+            display: block;
+            position: relative;
+            padding: 1px 10px 1px 38px;
+            border-left: 3px solid transparent;
+            white-space: pre;
+            transition: background 0.2s ease;
+        }
+        .code-line::before {
+            counter-increment: codeline;
+            content: counter(codeline);
+            position: absolute;
+            left: 6px;
+            width: 24px;
+            text-align: right;
+            color: #5c6370;
+        }
+        .code-line.visited {
+            background: rgba(41, 128, 185, 0.16);
+        }
+        .code-line.visited::before {
+            color: #7fa8c4;
+        }
+        .code-line.active-line {
+            background: rgba(243, 156, 18, 0.28);
+            border-left-color: #f39c12;
+            color: #fff;
+        }
+        .code-line.active-line::before {
+            color: #ffb066;
+            font-weight: bold;
         }
         .btn-group {
             margin: 12px 0;
@@ -79,6 +141,10 @@
         }
         #speedSlow {
             background: #059669;
+            color: white;
+        }
+        #clearBtn {
+            background: #b91c1c;
             color: white;
         }
         table {
@@ -121,12 +187,13 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
 <nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -224,6 +291,7 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
     }
 }
             </textarea>
+            <pre id="codeView"></pre>
         </div>
         <!-- 右侧：输入控制面板 -->
         <div class="card">
@@ -244,6 +312,7 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
             <div class="btn-group">
                 <button id="runBtn">开始慢速动画转置</button>
                 <button id="resetBtn">重置清空</button>
+                <button id="clearBtn">清空输入</button>
                 <button id="speedSlow">超慢速(1.5s/步)</button>
             </div>
             <div class="step-tip" id="stepTip">点击【开始慢速动画转置】，观察转置分步执行过程</div>
@@ -279,21 +348,72 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
     let originMatrix = { rows:0, cols:0, count:0, data:[] };
     let transMatrix = { rows:0, cols:0, count:0, data:[] };
     let animRunning = false;
+    let runVer = 0;   // 动画版本号：清空后让未跑完的动画自动停止
 
     // DOM元素
     const inputArea = document.getElementById('inputArea');
     const runBtn = document.getElementById('runBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const clearBtn = document.getElementById('clearBtn');
     const speedSlow = document.getElementById('speedSlow');
     const stepTip = document.getElementById('stepTip');
     const originMatrixBox = document.getElementById('originMatrixBox');
     const transMatrixBox = document.getElementById('transMatrixBox');
     const originTripleTable = document.getElementById('originTripleTable');
     const transTripleTable = document.getElementById('transTripleTable');
+    const codeSrc = document.getElementById('codeBox');
+    const codeView = document.getElementById('codeView');
+
+    // 把源码 textarea 拆成逐行元素，便于高亮当前执行行
+    let codeLines = [];
+    function buildCodeLines(){
+        codeView.innerHTML = '';
+        codeLines = [];
+        codeSrc.value.replace(/\r/g,'').split('\n').forEach(text=>{
+            const div = document.createElement('div');
+            div.className = 'code-line';
+            div.textContent = text.length ? text : ' ';
+            codeView.appendChild(div);
+            codeLines.push(div);
+        });
+    }
+    // 高亮第 n 行（1 起），之前的行标记为已执行
+    function markCode(n){
+        codeLines.forEach((el, i)=>{
+            el.classList.toggle('active-line', i+1 === n);
+            el.classList.toggle('visited', i+1 < n);
+        });
+        const target = codeLines[n-1];
+        if(target){
+            const top = target.offsetTop - codeView.clientHeight/2 + target.offsetHeight/2;
+            codeView.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
+        }
+    }
+    // 清除所有行高亮
+    function clearCodeMarks(){
+        codeLines.forEach(el=>el.classList.remove('active-line','visited'));
+    }
+    buildCodeLines();
 
     // 重置页面
     resetBtn.onclick = () => {
         location.reload();
+    }
+    // 清空输入面板：输入框、矩阵、三元组表、提示一起清空，并中止正在跑的动画
+    clearBtn.onclick = () => {
+        ++runVer;
+        animRunning = false;
+        runBtn.disabled = false;
+        inputArea.value = "";
+        originMatrix = { rows:0, cols:0, count:0, data:[] };
+        transMatrix = { rows:0, cols:0, count:0, data:[] };
+        originMatrixBox.innerHTML = "";
+        transMatrixBox.innerHTML = "";
+        renderTripleTable(originTripleTable, []);
+        renderTripleTable(transTripleTable, []);
+        clearCodeMarks();
+        stepTip.innerText = "输入面板已清空，请填写新的矩阵数据后重新开始";
+        inputArea.focus();
     }
     // 切换超慢速
     speedSlow.onclick = () => {
@@ -303,12 +423,13 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
 
     // 解析输入文本为三元组矩阵
     function parseInput() {
-        const lines = inputArea.value.trim().split('\n').filter(l=>l.trim()!='');
-        const firstLine = lines[0].split(/\s+/).map(Number);
+        // 按行切分，忽略空行；数字之间支持空格、制表符、中英文逗号
+        const lines = inputArea.value.replace(/\r/g,'').split('\n').map(l=>l.trim()).filter(l=>l!=='');
+        const firstLine = lines[0].split(/[\s,，]+/).filter(v=>v!=='').map(Number);
         const rows = firstLine[0], cols = firstLine[1], cnt = firstLine[2];
         const data = [];
-        for(let i=1;i<=cnt;i++){
-            const arr = lines[i].split(/\s+/).map(Number);
+        for(let i=1;i<lines.length && data.length<cnt;i++){
+            const arr = lines[i].split(/[\s,，]+/).filter(v=>v!=='').map(Number);
             data.push({row:arr[0], col:arr[1], val:arr[2]});
         }
         originMatrix = {rows, cols, count:cnt, data};
@@ -319,6 +440,7 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
             count: cnt,
             data: []
         };
+        return { cnt, got: data.length };
     }
 
     // 渲染二维矩阵表格
@@ -351,15 +473,17 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
 
     // 渲染三元组表格
     function renderTripleTable(tableDom, data, activeIdx=-1){
+        // 统一放到 tbody 里，保留表头行
+        const tbody = tableDom.tBodies[0] || tableDom;
         // 清空原有数据行，保留表头
-        while(tableDom.rows.length > 1){
-            tableDom.deleteRow(1);
+        while(tbody.rows.length > 1){
+            tbody.deleteRow(1);
         }
         data.forEach((item, idx)=>{
             const tr = document.createElement('tr');
             if(idx === activeIdx) tr.style.background = '#fef08a';
             tr.innerHTML = `<td>${item.row}</td><td>${item.col}</td><td>${item.val}</td>`;
-            tableDom.appendChild(tr);
+            tbody.appendChild(tr);
         })
     }
 
@@ -371,30 +495,67 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
     // 动画主流程：模拟TransMatrix函数双层循环
     async function runTransAnim(){
         if(animRunning) return;
+        if(!inputArea.value.trim()){
+            stepTip.innerText = "输入面板为空，请先填写矩阵数据";
+            inputArea.focus();
+            return;
+        }
         animRunning = true;
+        const ver = ++runVer;
         runBtn.disabled = true;
-        parseInput();
-        // 初始渲染
-        renderMatrixBox(originMatrixBox, originMatrix);
-        renderMatrixBox(transMatrixBox, transMatrix);
+        const info = parseInput();
+        // 三元组个数与输入行数不一致时给出提示（例如少了一行数据）
+        const countTip = info.got < info.cnt
+            ? `（注意：首行声明 ${info.cnt} 个非零元素，实际只读到 ${info.got} 组，请检查输入）`
+            : '';
+        clearCodeMarks();
+        // 单步：高亮第 n 行 + 更新提示 + 等待，返回 false 表示动画已被打断
+        const step = async (n, tip, ms) => {
+            markCode(n);
+            if(tip) stepTip.innerText = tip;
+            await sleep(ms === undefined ? delay/2 : ms);
+            return ver === runVer;
+        };
+
+        // ① main 调用 CreateMatrix，读入三元组数据
+        if(!(await step(25, "main：定义原矩阵 M 和转置矩阵 T"))) return;
+        if(!(await step(28, "main：调用 CreateMatrix(&M) 创建稀疏矩阵"))) return;
+        if(!(await step(39, "CreateMatrix：提示输入 行数、列数、非零元素个数", delay/3))) return;
+        if(!(await step(40, `scanf 读入：${originMatrix.rows} 行 ${originMatrix.cols} 列，非零元素 ${originMatrix.count} 个${countTip}`, delay/3))) return;
+        if(!(await step(46, "for 循环：逐个读入非零元素", delay/3))) return;
+        if(!(await step(47, "scanf 读入每个元素的 行号、列号、值", delay/3))) return;
         renderTripleTable(originTripleTable, originMatrix.data);
-        renderTripleTable(transTripleTable, transMatrix.data);
+        renderMatrixBox(originMatrixBox, originMatrix);
+        if(!(await step(48, "CreateMatrix 结束，返回 main", delay/3))) return;
+
+        // ② main 调用 PrintMatrix，打印原矩阵
+        if(!(await step(30, "main：调用 PrintMatrix(M) 打印原矩阵三元组", delay/3))) return;
+        if(!(await step(53, `打印矩阵信息：${originMatrix.rows}行×${originMatrix.cols}列，共${originMatrix.count}个非零元素`, delay/3))) return;
+        if(!(await step(56, "循环打印每个三元组的 行、列、值", delay/3))) return;
+
+        // ③ main 调用 TransMatrix，初始化转置矩阵
+        if(!(await step(31, "main：调用 TransMatrix(M, &T) 开始转置"))) return;
+        if(!(await step(61, "进入 TransMatrix 函数"))) return;
+        if(!(await step(62, `T->rows = M.cols = ${transMatrix.rows}`, delay/3))) return;
+        if(!(await step(63, `T->cols = M.rows = ${transMatrix.cols}`, delay/3))) return;
+        renderMatrixBox(transMatrixBox, transMatrix);
+        if(!(await step(64, `T->count = M.count = ${transMatrix.count}`, delay/3))) return;
+        if(!(await step(65, "if 判断 T->count == 0：矩阵是否为空", delay/3))) return;
+        if(!(await step(69, "k = 0：转置三元组下标从 0 开始", delay/3))) return;
         stepTip.innerText = `初始化完成：原矩阵${originMatrix.rows}行${originMatrix.cols}列，转置矩阵${transMatrix.rows}行${transMatrix.cols}列，非零元素共${originMatrix.count}个`;
-        await sleep(delay);
 
         let k = 0; // 转置三元组下标
         // 外层循环 c：原矩阵每一列（1~M.cols）
         for(let c=1; c<=originMatrix.cols; c++){
-            stepTip.innerText = `外层循环：当前遍历原矩阵第 ${c} 列，寻找所有col=${c}的三元组`;
+            if(!(await step(71, `外层 for：c = ${c}，遍历原矩阵第 ${c} 列`))) return;
             renderMatrixBox(originMatrixBox, originMatrix, {r:null, c});
-            await sleep(delay);
 
             // 内层循环 i：遍历所有原三元组
-            for(let i=0; i<originMatrix.count; i++){
+            for(let i=0; i<originMatrix.data.length; i++){
                 const curTri = originMatrix.data[i];
                 renderTripleTable(originTripleTable, originMatrix.data, i);
-                stepTip.innerText = `内层循环：检查第${i}个三元组 [row:${curTri.row}, col:${curTri.col}, val:${curTri.val}]`;
-                await sleep(delay);
+                if(!(await step(73, `内层 for：i = ${i}，检查三元组 [${curTri.row}, ${curTri.col}, ${curTri.val}]`, delay/3))) return;
+                if(!(await step(74, `if 判断：col ${curTri.col} 是否等于 c ${c}`, delay/3))) return;
 
                 if(curTri.col === c){
                     // 匹配到当前列，交换行列存入转置三元组
@@ -403,30 +564,40 @@ void TransMatrix(TSMatrix M, TSMatrix *T) {
                         col: curTri.row,
                         val: curTri.val
                     };
+                    if(!(await step(75, `匹配成功：T->data[${k}].row = ${newTri.row}`, delay/4))) return;
+                    if(!(await step(76, `T->data[${k}].col = ${newTri.col}`, delay/4))) return;
+                    if(!(await step(77, `T->data[${k}].val = ${newTri.val}`, delay/4))) return;
                     transMatrix.data[k] = newTri;
-                    stepTip.innerText = `匹配成功！交换行列：原(${curTri.row},${curTri.col}) → 转置(${newTri.row},${newTri.col})，存入转置三元组第${k}位`;
+                    if(!(await step(78, `k++，已生成第 ${k+1} 个转置三元组`, delay/4))) return;
                     k++;
                     // 更新渲染
                     renderTripleTable(transTripleTable, transMatrix.data, k-1);
                     renderMatrixBox(transMatrixBox, transMatrix, {r:newTri.row, c:newTri.col});
-                    await sleep(delay);
+                    if(!(await step(79, "if 分支结束", delay/4))) return;
                 }else{
                     stepTip.innerText = `不匹配：当前三元组col=${curTri.col} ≠ 外层循环c=${c}，跳过`;
-                    await sleep(delay/2);
+                    if(!(await step(80, "if 不成立，内层循环继续", delay/4))) return;
                 }
             }
+            if(!(await step(81, `第 ${c} 列处理完毕，外层循环继续`, delay/4))) return;
         }
-        stepTip.innerText = `转置完成！全部${transMatrix.count}个三元组已按行有序生成`;
+        if(!(await step(82, "TransMatrix 结束，返回 main", delay/3))) return;
+        if(!(await step(32, "main：调用 PrintMatrix(T) 打印转置结果", delay/3))) return;
+        renderMatrixBox(transMatrixBox, transMatrix);
+        renderTripleTable(transTripleTable, transMatrix.data);
+        if(!(await step(33, `转置后矩阵：${transMatrix.rows}行×${transMatrix.cols}列`, delay/3))) return;
+        // 收尾：完整重绘两张三元组表，确保所有数据行都在
+        renderTripleTable(originTripleTable, originMatrix.data);
+        renderTripleTable(transTripleTable, transMatrix.data);
+        renderMatrixBox(originMatrixBox, originMatrix);
+        renderMatrixBox(transMatrixBox, transMatrix);
+        stepTip.innerText = `转置完成！共 ${originMatrix.data.length} 个原三元组，生成 ${transMatrix.data.length} 个转置三元组`;
         animRunning = false;
         runBtn.disabled = false;
     }
 
     runBtn.onclick = runTransAnim;
 </script>
-
-  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
-    <p>数据结构课程学习网站</p>
-  </footer>
 
 </body>
 </html>
