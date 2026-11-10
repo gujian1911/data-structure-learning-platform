@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>第3章 栈和队列 - 数据结构课程</title>
+  <title>第三章 栈和队列 - 数据结构课程</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .ppt-player { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
@@ -24,12 +24,12 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
-      <li><a href="ch3.html" class="active">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="ch1.html" class="active">课程学习</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html">实验中心</a></li>
@@ -47,7 +47,7 @@
             <li><a href="ch2.html" data-chapter="2">第二章 线性表</a></li>
             <li><a href="ch3.html" data-chapter="3">第三章 栈和队列</a></li>
             <li><a href="ch4.html" data-chapter="4">第四章 串、数组和广义表</a></li>
-            <li><a href="ch5.html" data-chapter="5">第五章 树</a></li>
+            <li><a href="ch5.html" data-chapter="5">第五章 树与二叉树</a></li>
             <li><a href="ch6.html" data-chapter="6">第六章 图</a></li>
             <li><a href="ch7.html" data-chapter="7">第七章 查找</a></li>
             <li><a href="ch8.html" data-chapter="8">第八章 排序</a></li>
@@ -57,7 +57,7 @@
       <div>
         <div class="page-header">
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-            <span class="tag tag-blue">第3章</span>
+            <span class="tag tag-blue">第三章</span>
           </div>
           <h1>栈和队列</h1>
           <p>栈与队列的定义、存储实现、递归与表达式求值应用</p>
@@ -66,6 +66,7 @@
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
             <h2 style="margin: 0;">📊 PPT课件</h2>
           </div>
+          <div class="ppt-layout">
           <div class="ppt-player">
             <div class="ppt-stage">
               <img id="slide-img" src="slides/ch3/slide_001.png" alt="课件幻灯片">
@@ -73,12 +74,17 @@
             <div class="ppt-nav">
               <button id="btn-first" onclick="showSlide(1)" title="首页">⏮</button>
               <button id="btn-prev" onclick="goSlide(-1)" title="上一页">◀</button>
-              <input type="number" id="page-input" class="page-input" value="1" min="1" max="49" onchange="jumpToPage(this.value)">
-              <span class="page-total">/ 49</span>
+              <input type="number" id="page-input" class="page-input" value="1" min="1" max="48" onchange="jumpToPage(this.value)">
+              <span class="page-total">/ 48</span>
               <button id="btn-next" onclick="goSlide(1)" title="下一页">▶</button>
-              <button id="btn-last" onclick="showSlide(49)" title="末页">⏭</button>
+              <button id="btn-last" onclick="showSlide(48)" title="末页">⏭</button>
             </div>
             <div class="ppt-thumbs" id="slide-thumbs"></div>
+          </div>
+          <aside class="ppt-toc">
+            <div class="ppt-toc-title">📑 本节目录</div>
+            <ul id="pptTocList"></ul>
+          </aside>
           </div>
         </div>
 
@@ -131,10 +137,10 @@
         </div>
         <div class="card" style="margin-top: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
           <div>
-            <div class="card-title">📝 本章测试</div>
+            <div class="card-title">📝 本章练习</div>
             <p class="card-text">完成学习后，通过测试检验掌握程度</p>
           </div>
-          <a href="quiz-ch3.html" class="btn btn-primary">开始测试</a>
+          <a href="quiz-ch3.html" class="btn btn-primary">开始练习</a>
         </div>
       </div>
     </div>
@@ -143,7 +149,7 @@
   <script src="js/main.js"></script>
   <script>
     highlightSidebar('3');
-    var totalSlides = 49;
+    var totalSlides = 48;
     var currentSlide = 1;
     var thumbsContainer = document.getElementById('slide-thumbs');
     var slideImg = document.getElementById('slide-img');
@@ -184,6 +190,45 @@
       if (e.key === 'End') { e.preventDefault(); showSlide(totalSlides); }
     });
     showSlide(1);
+  </script>
+
+  <script>
+    // 本节目录：点击跳转到对应课件页
+    var TOC_ITEMS = [
+      { page: 3, title: '3.1 栈' },
+      { page: 26, title: '3.2 栈的应用举例' },
+      { page: 30, title: '3.3 队列的定义及基本运算' },
+      { page: 33, title: '队列的存储实现' }
+    ];
+    (function () {
+      var list = document.getElementById('pptTocList');
+      TOC_ITEMS.forEach(function (item) {
+        var li = document.createElement('li');
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.page = item.page;
+        btn.innerHTML = '<span class="toc-text">' + item.title + '</span><span class="toc-page">P' + item.page + '</span>';
+        btn.addEventListener('click', function () {
+          showSlide(item.page);
+          document.querySelector('.ppt-player').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+      function syncToc() {
+        var activePage = TOC_ITEMS[0].page;
+        for (var i = 0; i < TOC_ITEMS.length; i++) {
+          if (currentSlide >= TOC_ITEMS[i].page) activePage = TOC_ITEMS[i].page;
+        }
+        var btns = list.querySelectorAll('button');
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].classList.toggle('active', parseInt(btns[j].dataset.page) === activePage);
+        }
+      }
+      var origShowSlide = showSlide;
+      showSlide = function (n) { origShowSlide(n); syncToc(); };
+      syncToc();
+    })();
   </script>
 </body>
 </html>
