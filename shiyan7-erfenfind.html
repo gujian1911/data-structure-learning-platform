@@ -6,26 +6,61 @@
   <title>实验七 二分法查找 - 数据结构课程</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .lab-container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
-    .lab-section { background:#fff; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .lab-container { max-width: 1600px; margin: 0 auto; padding: 32px 20px; }
+    .lab-section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
     .lab-section h2 { margin-top:0; }
-    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow-x:auto; }
+    /* 左边代码窗口，右边动画与输入，两栏等高 */
+    .row { display:grid; grid-template-columns:480px minmax(0,1fr); gap:24px; align-items:stretch; margin-bottom:24px; }
+    .col { display:flex; flex-direction:column; gap:24px; min-width:0; }
+    .code-card { display:flex; flex-direction:column; min-height:0; }
+    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px 16px 8px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow:auto; white-space:normal; flex:1 1 0; height:0; min-height:420px; }
     .algo-code .kw { color:#c084fc; }
     .algo-code .fn { color:#60a5fa; }
     .algo-code .cm { color:#64748b; }
     .algo-code .num { color:#fbbf24; }
+    /* 代码行号与高亮跟踪 */
+    #codeView { counter-reset:codeline; position:relative; }
+    .code-line { position:relative; display:block; padding:1px 8px 1px 34px; border-left:3px solid transparent; border-radius:3px; white-space:pre; transition:background .2s ease,color .2s ease; }
+    .code-line::before { counter-increment:codeline; content:counter(codeline); position:absolute; left:6px; width:20px; text-align:right; color:#64748b; font-size:11px; }
+    .code-line.visited { background:rgba(37,99,235,0.22); }
+    .code-line.visited::before { color:#93c5fd; }
+    .code-line.active-line { background:rgba(245,158,11,0.28); border-left-color:#f59e0b; color:#fff; box-shadow:inset 0 0 0 1px rgba(245,158,11,0.45); }
+    .code-line.active-line::before { color:#fbbf24; font-weight:700; }
+    /* 代码区竖向滑动条 */
+    .algo-code::-webkit-scrollbar { width:12px; height:12px; }
+    .algo-code::-webkit-scrollbar-track { background:#0f172a; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb { background:#475569; border:2px solid #1e293b; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb:hover { background:#64748b; }
 
     .viz-area { background:#f8fafc; border-radius:12px; padding:32px 20px; text-align:center; }
-    .bars-container { display:flex; justify-content:center; align-items:flex-end; gap:8px; min-height:200px; margin-bottom:24px; flex-wrap:wrap; }
-    .bar { width:52px; border-radius:6px 6px 0 0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transition:all 0.3s ease; position:relative; }
-    .bar .bar-val { font-size:1.1rem; font-weight:700; color:#fff; padding:8px 0; }
-    .bar .bar-idx { font-size:0.75rem; color:#64748b; margin-top:4px; }
-    .bar-default { background:#6366f1; }
-    .bar-low { background:#94a3b8; opacity:0.5; }
-    .bar-high { background:#94a3b8; opacity:0.5; }
-    .bar-mid { background:#f59e0b; transform:scale(1.1); box-shadow:0 0 16px rgba(245,158,11,0.6); }
-    .bar-found { background:#10b981; transform:scale(1.2); box-shadow:0 0 20px rgba(16,185,129,0.7); }
-    .bar-eliminated { background:#e2e8f0; opacity:0.3; }
+    .array-container { position:relative; padding:24px 0 44px; margin-bottom:24px; }
+    .array-track { display:flex; justify-content:center; align-items:center; gap:10px; min-height:80px; flex-wrap:wrap; }
+    /* 数组元素：矩形格子 */
+    .cell { width:66px; height:66px; border-radius:8px; background:#eef2ff; border:2px solid #c7d2fe; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:all .35s cubic-bezier(0.4,0,0.2,1); }
+    .cell .cell-val { font-size:1.15rem; font-weight:700; color:#1e293b; }
+    .cell .cell-idx { font-size:0.7rem; color:#64748b; margin-top:2px; }
+    .cell-comparing { background:#fef3c7; border-color:#f59e0b; transform:translateY(-6px); box-shadow:0 6px 14px rgba(245,158,11,0.35); }
+    .cell-swapping { background:#fee2e2; border-color:#ef4444; transform:translateY(-6px); box-shadow:0 6px 14px rgba(239,68,68,0.35); }
+    .cell-sorted { background:#dcfce7; border-color:#10b981; }
+    .cell-sorted .cell-val { color:#047857; }
+    /* 二分查找状态：low / high / mid / found / eliminated */
+    .cell-low { background:#eff6ff; border-color:#93c5fd; }
+    .cell-low .cell-val { color:#1d4ed8; }
+    .cell-high { background:#f5f3ff; border-color:#c4b5fd; }
+    .cell-high .cell-val { color:#6d28d9; }
+    .cell-mid { background:#fef3c7; border-color:#f59e0b; transform:translateY(-6px); box-shadow:0 6px 14px rgba(245,158,11,0.35); }
+    .cell-mid .cell-val { color:#b45309; }
+    .cell-found { background:#dcfce7; border-color:#10b981; transform:translateY(-6px); box-shadow:0 6px 14px rgba(16,185,129,0.35); }
+    .cell-found .cell-val { color:#047857; }
+    .cell-eliminated { background:#f1f5f9; border-color:#e2e8f0; opacity:0.4; }
+    .cell-eliminated .cell-val { color:#94a3b8; }
+    /* low / mid / high 指针，跟随格子平滑移动 */
+    .ptr { position:absolute; bottom:6px; transform:translateX(-50%); font-size:12px; font-weight:700; color:#fff; padding:2px 10px; border-radius:10px; white-space:nowrap; opacity:0; pointer-events:none; transition:left .35s ease, bottom .35s ease, opacity .2s ease; z-index:2; }
+    .ptr.show { opacity:1; }
+    .ptr::before { content:''; position:absolute; top:-6px; left:50%; margin-left:-5px; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:6px solid var(--pc); }
+    .ptr-low { background:#3b82f6; --pc:#3b82f6; }
+    .ptr-mid { background:#f59e0b; --pc:#f59e0b; box-shadow:0 0 10px rgba(245,158,11,0.6); }
+    .ptr-high { background:#8b5cf6; --pc:#8b5cf6; }
 
     .range-labels { display:flex; justify-content:center; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
     .range-label { padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:600; }
@@ -34,6 +69,13 @@
     .controls input[type="number"] { width:80px; padding:8px 12px; border:2px solid #e5e7eb; border-radius:8px; font-size:1rem; text-align:center; }
     .controls input[type="number"]:focus { outline:none; border-color:var(--primary); }
 
+    /* 动画速度 */
+    .speed-bar { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:16px; flex-wrap:wrap; font-size:13px; color:#475569; }
+    .speed-btn { padding:5px 14px; font-size:13px; border:none; border-radius:6px; background:#e2e8f0; color:#334155; cursor:pointer; transition:background .2s; }
+    .speed-btn:hover { background:#cbd5e1; }
+    .speed-btn.active { background:#2563eb; color:#fff; }
+    .speed-tip { font-size:13px; color:#64748b; }
+
     .step-info { background:#eff6ff; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin:16px 0; font-size:0.95rem; min-height:48px; }
     .step-info strong { color:var(--primary); }
 
@@ -41,15 +83,30 @@
     .stat-box { text-align:center; }
     .stat-box .stat-val { font-size:1.6rem; font-weight:700; color:var(--primary); }
     .stat-box .stat-lbl { font-size:0.85rem; color:var(--text-light); }
+
+    /* 运行日志 */
+    .log-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .log-head h2 { margin:0; font-size:1.15rem; }
+    #logBox { height:160px; border:1px solid #dde2eb; padding:12px; overflow-y:scroll; overflow-x:auto; background:#fafbfd; font-size:13px; line-height:1.7; font-family:'Consolas','Monaco',monospace; }
+    .log-line { white-space:nowrap; }
+    #logBox::-webkit-scrollbar { width:12px; height:12px; }
+    #logBox::-webkit-scrollbar-track { background:#e2e8f0; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb { background:#64748b; border:2px solid #fafbfd; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb:hover { background:#475569; }
+
+    @media (max-width:1100px){
+      .row { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar">
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -65,61 +122,90 @@
         <p>通过动画模拟理解二分查找（折半查找）的执行过程</p>
       </div>
 
-      <div class="lab-section">
+      <div class="lab-section" style="margin-bottom:24px;">
         <h2>📖 算法原理</h2>
         <p>二分查找（Binary Search）是一种在<strong>有序数组</strong>中查找某一特定元素的搜索算法。搜索过程从数组的中间元素开始，如果中间元素正好是要查找的元素，则搜索过程结束；如果某一特定元素大于或者小于中间元素，则在数组大于或小于中间元素的那一半中查找，而且跟开始一样从中间元素开始比较。如果在某一步骤数组为空，则代表找不到。</p>
         <p><strong>前提条件：</strong>数组必须有序（升序或降序）</p>
         <p><strong>时间复杂度：</strong>O(log₂n)　<strong>空间复杂度：</strong>O(1)</p>
       </div>
 
-      <div class="lab-section">
-        <h2>💻 算法代码</h2>
-<pre class="algo-code"><span class="kw">int</span> <span class="fn">BinarySearch</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n, <span class="kw">int</span> key) {
-  <span class="kw">int</span> low = <span class="num">0</span>, high = n - <span class="num">1</span>, mid;
-  <span class="kw">while</span> (low &lt;= high) {
-    mid = (low + high) / <span class="num">2</span>;        <span class="cm">// 计算中间位置</span>
-    <span class="kw">if</span> (arr[mid] == key)
-      <span class="kw">return</span> mid;              <span class="cm">// 找到，返回下标</span>
-    <span class="kw">else if</span> (arr[mid] &lt; key)
-      low = mid + <span class="num">1</span>;           <span class="cm">// 在右半部分查找</span>
-    <span class="kw">else</span>
-      high = mid - <span class="num">1</span>;          <span class="cm">// 在左半部分查找</span>
-  }
-  <span class="kw">return</span> -<span class="num">1</span>;                  <span class="cm">// 未找到</span>
-}</pre>
-      </div>
+      <div class="row">
+        <!-- 左：算法代码，逐行高亮 -->
+        <div class="lab-section code-card">
+          <h2>💻 算法代码</h2>
+<pre id="codeView" class="algo-code">
+<div class="code-line"><span class="kw">int</span> <span class="fn">BinarySearch</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n, <span class="kw">int</span> key) {</div>
+<div class="code-line">  <span class="kw">int</span> low = <span class="num">0</span>, high = n - <span class="num">1</span>, mid;</div>
+<div class="code-line">  <span class="kw">while</span> (low &lt;= high) {</div>
+<div class="code-line">    mid = (low + high) / <span class="num">2</span>;        <span class="cm">// 计算中间位置</span></div>
+<div class="code-line">    <span class="kw">if</span> (arr[mid] == key)</div>
+<div class="code-line">      <span class="kw">return</span> mid;              <span class="cm">// 找到，返回下标</span></div>
+<div class="code-line">    <span class="kw">else if</span> (arr[mid] &lt; key)</div>
+<div class="code-line">      low = mid + <span class="num">1</span>;           <span class="cm">// 在右半部分查找</span></div>
+<div class="code-line">    <span class="kw">else</span></div>
+<div class="code-line">      high = mid - <span class="num">1</span>;          <span class="cm">// 在左半部分查找</span></div>
+<div class="code-line">  }</div>
+<div class="code-line">  <span class="kw">return</span> -<span class="num">1</span>;                  <span class="cm">// 未找到</span></div>
+<div class="code-line">}</div>
+</pre>
+        </div>
 
-      <div class="lab-section">
-        <h2>🎬 动画模拟</h2>
-        <div class="viz-area">
-          <div class="range-labels">
-            <span class="range-label" id="label-low" style="background:#fef3c7;color:#d97706;display:none;">low</span>
-            <span class="range-label" id="label-mid" style="background:#ffedd5;color:#ea580c;display:none;">mid</span>
-            <span class="range-label" id="label-high" style="background:#fef3c7;color:#d97706;display:none;">high</span>
-          </div>
-          <div class="bars-container" id="bars-container"></div>
+        <!-- 右：动画模拟与输入 -->
+        <div class="col">
+          <div class="lab-section">
+            <h2>🎬 动画模拟</h2>
+            <div class="viz-area">
+              <div class="range-labels">
+                <span class="range-label" id="label-low" style="background:#fef3c7;color:#d97706;display:none;">low</span>
+                <span class="range-label" id="label-mid" style="background:#ffedd5;color:#ea580c;display:none;">mid</span>
+                <span class="range-label" id="label-high" style="background:#fef3c7;color:#d97706;display:none;">high</span>
+              </div>
+              <div class="array-container" id="array-container">
+                <div class="array-track" id="array-track"></div>
+                <div class="ptr ptr-low" id="ptrLow">low</div>
+                <div class="ptr ptr-mid" id="ptrMid">mid</div>
+                <div class="ptr ptr-high" id="ptrHigh">high</div>
+              </div>
 
-          <div class="step-info" id="step-info">
-            点击「开始查找」按钮，观察二分查找的执行过程。
-          </div>
+              <div class="step-info" id="step-info">
+                点击「开始查找」按钮，观察二分查找的执行过程。
+              </div>
 
-          <div class="controls">
-            <label>查找值：</label>
-            <input type="number" id="search-key" value="37" placeholder="输入数字">
-            <button class="btn btn-primary" onclick="startSearch()">▶ 开始查找</button>
-            <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
-            <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
-          </div>
+              <div class="controls">
+                <label>查找值：</label>
+                <input type="number" id="search-key" value="37" placeholder="输入数字">
+                <button class="btn btn-primary" onclick="startSearch()">▶ 开始查找</button>
+                <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
+                <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
+              </div>
 
-          <div class="stats-row">
-            <div class="stat-box">
-              <div class="stat-val" id="stat-compare">0</div>
-              <div class="stat-lbl">比较次数</div>
+              <div class="speed-bar">
+                <span>动画速度：</span>
+                <button class="speed-btn" data-ms="1400" onclick="setSpeed(1400)">慢速</button>
+                <button class="speed-btn active" data-ms="900" onclick="setSpeed(900)">中速</button>
+                <button class="speed-btn" data-ms="450" onclick="setSpeed(450)">快速</button>
+                <span class="speed-tip">0.9 秒/步 · 中速</span>
+              </div>
+
+              <div class="stats-row">
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-compare">0</div>
+                  <div class="stat-lbl">比较次数</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-result">—</div>
+                  <div class="stat-lbl">查找结果</div>
+                </div>
+              </div>
             </div>
-            <div class="stat-box">
-              <div class="stat-val" id="stat-result">—</div>
-              <div class="stat-lbl">查找结果</div>
+          </div>
+
+          <div class="lab-section">
+            <div class="log-head">
+              <h2>📋 程序运行日志</h2>
+              <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
             </div>
+            <div id="logBox"></div>
           </div>
         </div>
       </div>
@@ -137,30 +223,95 @@
     </div>
   </main>
 
-  <footer class="footer">
-    <p>数据结构课程学习网站</p>
-  </footer>
 
   <script>
     let data = [12, 25, 31, 37, 45, 53, 68, 74, 82, 95];
     let isAnimating = false;
 
+    // ============ 代码逐行高亮（与动画同步） ============
+    const codeLines = Array.from(document.querySelectorAll('#codeView .code-line'));
+    const codeView = document.getElementById('codeView');
+
+    function markCode(n) {
+      codeLines.forEach((el, i) => {
+        el.classList.toggle('active-line', i === n - 1);
+        el.classList.toggle('visited', i < n - 1);
+      });
+      const cur = codeLines[n - 1];
+      if (cur) {
+        codeView.scrollTop = Math.max(0, cur.offsetTop - codeView.clientHeight / 2 + cur.clientHeight / 2);
+      }
+    }
+
+    function clearMarks() {
+      codeLines.forEach(el => el.classList.remove('active-line', 'visited'));
+    }
+
+    // ============ 运行日志 ============
+    const logBox = document.getElementById('logBox');
+    function log(msg) {
+      const d = document.createElement('div');
+      d.className = 'log-line';
+      const t = new Date();
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      const ss = String(t.getSeconds()).padStart(2, '0');
+      d.textContent = `[${hh}:${mm}:${ss}] ${msg}`;
+      logBox.appendChild(d);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    function clearLog() { logBox.innerHTML = ''; }
+
     function renderBars(states) {
-      const container = document.getElementById('bars-container');
+      const container = document.getElementById('array-track');
       container.innerHTML = data.map((val, i) => {
-        let cls = 'bar bar-default';
+        let cls = 'cell';
         if (states) {
-          if (states[i] === 'low') cls = 'bar bar-low';
-          else if (states[i] === 'high') cls = 'bar bar-high';
-          else if (states[i] === 'mid') cls = 'bar bar-mid';
-          else if (states[i] === 'found') cls = 'bar bar-found';
-          else if (states[i] === 'eliminated') cls = 'bar bar-eliminated';
+          if (states[i] === 'low') cls += ' cell-low';
+          else if (states[i] === 'high') cls += ' cell-high';
+          else if (states[i] === 'mid') cls += ' cell-mid';
+          else if (states[i] === 'found') cls += ' cell-found';
+          else if (states[i] === 'eliminated') cls += ' cell-eliminated';
         }
-        return `<div class="${cls}"><span class="bar-val">${val}</span><span class="bar-idx">[${i}]</span></div>`;
+        return `<div class="${cls}"><span class="cell-val">${val}</span><span class="cell-idx">[${i}]</span></div>`;
       }).join('');
     }
 
+    // low / mid / high 指针定位：跟随对应下标格子移动，重叠时左右错开
+    const ptrLow = document.getElementById('ptrLow');
+    const ptrMid = document.getElementById('ptrMid');
+    const ptrHigh = document.getElementById('ptrHigh');
+
+    function placePtrs(low, mid, high) {
+      const cells = document.querySelectorAll('#array-track .cell');
+      const layers = {};
+      [[ptrLow, low], [ptrMid, mid], [ptrHigh, high]].forEach(([el, idx]) => {
+        if (idx === null || idx === undefined || idx < 0 || idx >= cells.length) {
+          el.classList.remove('show');
+          return;
+        }
+        const lv = layers[idx] || 0;
+        layers[idx] = lv + 1;
+        const shift = lv === 0 ? 0 : (lv === 1 ? -18 : 18);
+        el.classList.add('show');
+        el.style.left = (cells[idx].offsetLeft + cells[idx].offsetWidth / 2 + shift) + 'px';
+      });
+    }
+
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // 动画速度：中速 900ms 为基准，各步骤按比例缩放
+    let baseDelay = 900;
+    const SPEED_NAMES = { 1400: '慢速', 900: '中速', 450: '快速' };
+    function pause(mult) { return sleep(Math.round(baseDelay * mult)); }
+    function setSpeed(ms) {
+      baseDelay = ms;
+      document.querySelectorAll('.speed-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.dataset.ms) === ms);
+      });
+      const tip = (ms / 1000).toFixed(1) + ' 秒/步 · ' + (SPEED_NAMES[ms] || '');
+      document.querySelectorAll('.speed-tip').forEach(t => { t.textContent = tip; });
+    }
 
     function updateStepInfo(html) {
       document.getElementById('step-info').innerHTML = html;
@@ -177,21 +328,44 @@
 
     async function startSearch() {
       if (isAnimating) return;
-      isAnimating = true;
       const key = parseInt(document.getElementById('search-key').value);
-      if (isNaN(key)) { alert('请输入有效数字'); isAnimating = false; return; }
-
-      let low = 0, high = data.length - 1, compareCount = 0;
-      document.getElementById('stat-result').textContent = '—';
+      if (isNaN(key)) { alert('请输入有效数字'); return; }
+      isAnimating = true;
+      clearMarks();
+      const res = document.getElementById('stat-result');
+      res.textContent = '—';
+      res.style.color = '';
       document.getElementById('stat-compare').textContent = '0';
 
+      let low = 0, high = data.length - 1, compareCount = 0;
+
+      // 第1行：函数入口
+      markCode(1);
+      updateStepInfo(`<strong>调用 BinarySearch：</strong>在长度为 ${data.length} 的有序表中查找 key=${key}（数组下标 0 ~ ${high}）`);
+      log(`调用 BinarySearch(arr, ${data.length}, ${key})`);
+      await pause(1);
+
+      // 第2行：初始化 low / high
+      markCode(2);
+      updateStepInfo(`<strong>初始化：</strong>low = 0，high = n - 1 = ${high}`);
+      log(`初始化：low = 0, high = ${high}`);
+      placePtrs(0, null, high);
+      await pause(1);
+
       while (low <= high) {
-        let mid = Math.floor((low + high) / 2);
+        // 第3行：while 判断
+        markCode(3);
+        updateStepInfo(`<strong>循环判断：</strong>low=${low} &lt;= high=${high} 成立，进入循环体`);
+        log(`while 判断：low = ${low} <= high = ${high}，成立`);
+        await pause(0.9);
+
+        const mid = Math.floor((low + high) / 2);
         compareCount++;
         document.getElementById('stat-compare').textContent = compareCount;
 
-        // 生成状态
-        let states = {};
+        // 第4行：计算 mid，同步刷新数组格子
+        markCode(4);
+        const states = {};
         for (let i = 0; i < data.length; i++) {
           if (i < low || i > high) states[i] = 'eliminated';
         }
@@ -199,48 +373,83 @@
         states[high] = 'high';
         states[mid] = 'mid';
         renderBars(states);
+        placePtrs(low, mid, high);
+        updateStepInfo(`<strong>第${compareCount}次比较：</strong>mid = (low + high) / 2 = ${mid}，取出 arr[${mid}] = ${data[mid]}`);
+        log(`第 ${compareCount} 次比较：mid = (${low} + ${high}) / 2 = ${mid}，arr[${mid}] = ${data[mid]}`);
+        await pause(1.35);
 
-        updateStepInfo(`<strong>第${compareCount}次比较：</strong>low=${low}, high=${high}, mid=${mid}。比较 arr[${mid}]=${data[mid]} 与 key=${key}`);
-        await sleep(1500);
+        // 第5行：比较 arr[mid] 与 key
+        markCode(5);
+        updateStepInfo(`<strong>比较：</strong>arr[${mid}] = ${data[mid]} 与 key = ${key} 是否相等？`);
+        log(`比较：arr[${mid}] = ${data[mid]} 与 key = ${key}`);
+        await pause(1);
 
         if (data[mid] === key) {
+          // 第6行：return mid
+          markCode(6);
           states[mid] = 'found';
           renderBars(states);
-          updateStepInfo(`<strong>✅ 查找成功！</strong>key=${key} 在数组下标 ${mid} 处，共比较 ${compareCount} 次。`);
-          document.getElementById('stat-result').textContent = `位置[${mid}]`;
-          document.getElementById('stat-result').style.color = '#10b981';
+          updateStepInfo(`<strong>✅ 查找成功！</strong>key=${key} 在下标 ${mid} 处，返回 mid，共比较 ${compareCount} 次。`);
+          log(`查找成功：key = ${key} 位于下标 ${mid}，return ${mid}（共比较 ${compareCount} 次）`);
+          res.textContent = `位置[${mid}]`;
+          res.style.color = '#10b981';
           isAnimating = false;
           return;
         } else if (data[mid] < key) {
-          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &lt; ${key}</strong>，key 在右半部分，调整 low = mid + 1 = ${mid + 1}`);
-          await sleep(1200);
+          // 第7行：else if (arr[mid] < key)
+          markCode(7);
+          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &lt; ${key}</strong>，key 在右半部分，执行 low = mid + 1`);
+          await pause(1.1);
+          // 第8行：low = mid + 1
+          markCode(8);
           low = mid + 1;
+          updateStepInfo(`<strong>调整区间：</strong>low = ${mid} + 1 = ${low}，high 仍为 ${high}`);
+          log(`arr[${mid}] = ${data[mid]} < ${key}，在右半部分查找：low = ${mid} + 1 = ${low}`);
+          placePtrs(low, null, high);
+          await pause(1);
         } else {
-          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &gt; ${key}</strong>，key 在左半部分，调整 high = mid - 1 = ${mid - 1}`);
-          await sleep(1200);
+          // 第9行：else
+          markCode(9);
+          updateStepInfo(`<strong>arr[${mid}]=${data[mid]} &gt; ${key}</strong>，key 在左半部分，执行 high = mid - 1`);
+          await pause(1.1);
+          // 第10行：high = mid - 1
+          markCode(10);
           high = mid - 1;
+          updateStepInfo(`<strong>调整区间：</strong>high = ${mid} - 1 = ${high}，low 仍为 ${low}`);
+          log(`arr[${mid}] = ${data[mid]} > ${key}，在左半部分查找：high = ${mid} - 1 = ${high}`);
+          placePtrs(low, null, high);
+          await pause(1);
         }
+
+        // 第11行：循环体结束
+        markCode(11);
+        await pause(0.45);
       }
 
-      // 查找失败
-      renderBars({});
-      for (let i = 0; i < data.length; i++) states = {};
-      let failStates = {};
+      // 第12行：return -1，查找失败
+      markCode(12);
+      const failStates = {};
       for (let i = 0; i < data.length; i++) failStates[i] = 'eliminated';
       renderBars(failStates);
-      updateStepInfo(`<strong>❌ 查找失败！</strong>key=${key} 不在数组中，共比较 ${compareCount} 次。low=${low} > high=${high}，查找范围为空。`);
-      document.getElementById('stat-result').textContent = '未找到';
-      document.getElementById('stat-result').style.color = '#ef4444';
+      placePtrs(null, null, null);
+      updateStepInfo(`<strong>❌ 查找失败！</strong>low=${low} &gt; high=${high}，循环结束；key=${key} 不在数组中，共比较 ${compareCount} 次。`);
+      log(`查找失败：low = ${low} > high = ${high}，循环结束，return -1（共比较 ${compareCount} 次）`);
+      res.textContent = '未找到';
+      res.style.color = '#ef4444';
       isAnimating = false;
     }
 
     function resetViz() {
       if (isAnimating) return;
       renderBars();
+      clearMarks();
+      clearLog();
+      placePtrs(null, null, null);
       updateStepInfo('点击「开始查找」按钮，观察二分查找的执行过程。');
       document.getElementById('stat-compare').textContent = '0';
-      document.getElementById('stat-result').textContent = '—';
-      document.getElementById('stat-result').style.color = '';
+      const res = document.getElementById('stat-result');
+      res.textContent = '—';
+      res.style.color = '';
       updateLabels(null, null, null);
     }
 
@@ -255,6 +464,7 @@
       arr.sort((a, b) => a - b);
       data = arr;
       resetViz();
+      log(`随机生成有序数组：${data.join(', ')}`);
     }
 
     // 初始化
