@@ -8,12 +8,12 @@
 </head>
 <body>
   <!-- 导航栏 -->
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html" class="active">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html">实验中心</a></li>
@@ -61,7 +61,7 @@
           <a href="ch1.html" class="hero-btn hero-btn-primary">
             <span>🚀</span> 开始学习
           </a>
-          <a href="#mindmap" class="hero-btn hero-btn-ghost">
+          <a href="mindmap.html" class="hero-btn hero-btn-ghost">
             <span>🗺️</span> 思维导图
           </a>
           <a href="selftest.html" class="hero-btn hero-btn-ghost">
@@ -88,7 +88,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon">🧪</div>
-        <div class="stat-num" data-count="9" data-suffix="">0</div>
+        <div class="stat-num" data-count="15" data-suffix="">0</div>
         <div class="stat-label">算法动画实验</div>
       </div>
       <div class="stat-card">
@@ -123,7 +123,7 @@
         <a href="experiment.html" class="feature-card fc-amber reveal">
           <div class="fc-icon fc-icon-amber">🧪</div>
           <div class="fc-title">实验中心</div>
-          <div class="fc-desc">9 个算法可视化实验：栈队列、链表、二叉树、二分查找、冒泡/选择排序，动画演示核心过程。</div>
+          <div class="fc-desc">15 个算法可视化实验：顺序表、链表、栈队列、二叉树、二分查找、插入/希尔/快速/堆/二分法排序、哈希表等，动画演示核心过程。</div>
           <div class="fc-link">进入实验 →</div>
         </a>
 
@@ -149,98 +149,15 @@
         </a>
       </div>
 
-      <!-- ============ 知识思维导图 ============ -->
-      <div class="section-header reveal" id="mindmap">
-        <h2 class="section-title">🗺️ 知识思维导图</h2>
-        <p class="section-desc">点击任意节点快速跳转对应章节，系统梳理数据结构知识脉络</p>
-      </div>
-
-      <div class="mindmap reveal">
-        <!-- 曲线连接层 -->
-        <svg class="mm-lines" aria-hidden="true" preserveAspectRatio="none"></svg>
-        <!-- 中心节点 -->
-        <div class="mm-root">
-          <div class="mm-node mm-center">
-            <span class="mm-icon">🌳</span>
-            <span class="mm-text">数据结构</span>
-          </div>
+      <!-- ============ 思维导图入口 ============ -->
+      <section class="map-entry reveal" id="mindmap">
+        <div class="map-entry-icon">🗺️</div>
+        <div class="map-entry-body">
+          <h2 class="map-entry-title">知识思维导图</h2>
+          <p class="map-entry-desc">独立大画布梳理课程知识脉络，并新增「课程思政融入」导图；点击节点可直接跳转对应章节</p>
         </div>
-
-        <!-- 分支层 -->
-        <div class="mm-branches">
-          <!-- 分支1：基础概念 -->
-          <div class="mm-branch mm-branch-top-left">
-            <a href="ch1.html" class="mm-node mm-lv1 mm-c1">
-              <span class="mm-icon">📘</span><span class="mm-text">基础概念</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch1.html" class="mm-node mm-lv2">绪论·复杂度</a>
-              <a href="ch1.html" class="mm-node mm-lv2">逻辑/存储结构</a>
-              <a href="ch1.html" class="mm-node mm-lv2">算法分析</a>
-            </div>
-          </div>
-
-          <!-- 分支2：线性结构 -->
-          <div class="mm-branch mm-branch-top-right">
-            <a href="ch2.html" class="mm-node mm-lv1 mm-c2">
-              <span class="mm-icon">📗</span><span class="mm-text">线性结构</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch2.html" class="mm-node mm-lv2">顺序表 / 链表</a>
-              <a href="ch3.html" class="mm-node mm-lv2">栈 & 队列</a>
-              <a href="ch4.html" class="mm-node mm-lv2">串 / 数组 / 广义表</a>
-            </div>
-          </div>
-
-          <!-- 分支3：树形结构 -->
-          <div class="mm-branch mm-branch-bottom-left">
-            <a href="ch5.html" class="mm-node mm-lv1 mm-c3">
-              <span class="mm-icon">📙</span><span class="mm-text">树形结构</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch5.html" class="mm-node mm-lv2">二叉树·遍历</a>
-              <a href="ch5.html" class="mm-node mm-lv2">线索 / 森林</a>
-              <a href="ch5.html" class="mm-node mm-lv2">哈夫曼树</a>
-            </div>
-          </div>
-
-          <!-- 分支4：图结构 -->
-          <div class="mm-branch mm-branch-bottom-right">
-            <a href="ch6.html" class="mm-node mm-lv1 mm-c4">
-              <span class="mm-icon">📕</span><span class="mm-text">图结构</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch6.html" class="mm-node mm-lv2">存储·遍历</a>
-              <a href="ch6.html" class="mm-node mm-lv2">最小生成树</a>
-              <a href="ch6.html" class="mm-node mm-lv2">最短路·拓扑</a>
-            </div>
-          </div>
-
-          <!-- 分支5：查找算法 -->
-          <div class="mm-branch mm-branch-mid-left">
-            <a href="ch7.html" class="mm-node mm-lv1 mm-c5">
-              <span class="mm-icon">🔍</span><span class="mm-text">查找</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch7.html" class="mm-node mm-lv2">顺序 / 折半</a>
-              <a href="ch7.html" class="mm-node mm-lv2">BST / AVL</a>
-              <a href="ch7.html" class="mm-node mm-lv2">哈希查找</a>
-            </div>
-          </div>
-
-          <!-- 分支6：排序算法 -->
-          <div class="mm-branch mm-branch-mid-right">
-            <a href="ch8.html" class="mm-node mm-lv1 mm-c6">
-              <span class="mm-icon">📊</span><span class="mm-text">排序</span>
-            </a>
-            <div class="mm-sub">
-              <a href="ch8.html" class="mm-node mm-lv2">插入 / 交换</a>
-              <a href="ch8.html" class="mm-node mm-lv2">选择 / 归并</a>
-              <a href="ch8.html" class="mm-node mm-lv2">基数 / 性能</a>
-            </div>
-          </div>
-        </div>
-      </div>
+        <a href="mindmap.html" class="map-entry-btn">进入思维导图 →</a>
+      </section>
 
       <!-- ============ 章节导览 ============ -->
       <div class="section-header reveal">
@@ -291,7 +208,7 @@
 
         <div class="chapter-card ch5 reveal" onclick="location.href='ch5.html'">
           <div class="chapter-num">第五章</div>
-          <div class="chapter-title">树</div>
+          <div class="chapter-title">树与二叉树</div>
           <div class="chapter-desc">二叉树性质与遍历、线索二叉树、树与森林、哈夫曼树</div>
           <div class="chapter-actions">
             <a href="ch5.html" class="btn btn-secondary" onclick="event.stopPropagation()">学习</a>
@@ -489,33 +406,25 @@
         document.addEventListener('DOMContentLoaded', play);
       }
 
-      // ---- 曲线绘制 ----
+      // ---- 分支连线绘制 ----
       const BRANCH_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
       const SVGNS = 'http://www.w3.org/2000/svg';
 
-      function edgePoint(el, containerRect, toward) {
-        // toward: 目标节点中心方向，返回节点边缘最合适的连接点
+      function boxOf(el, containerRect) {
         const r = el.getBoundingClientRect();
-        const cx = r.left - containerRect.left + r.width / 2;
-        const cy = r.top - containerRect.top + r.height / 2;
-        return { x: cx, y: cy, w: r.width, h: r.height };
-      }
-
-      function curvePath(x1, y1, x2, y2) {
-        // 三次贝塞尔，控制点水平偏移，形成柔和 S 曲线
-        const dx = x2 - x1;
-        const cp1x = x1 + dx * 0.5;
-        const cp1y = y1;
-        const cp2x = x2 - dx * 0.5;
-        const cp2y = y2;
-        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+        return {
+          x: r.left - containerRect.left + r.width / 2,
+          y: r.top - containerRect.top + r.height / 2,
+          w: r.width,
+          h: r.height
+        };
       }
 
       function drawMindmapLines() {
         const mindmap = document.querySelector('.mindmap');
         const svg = document.querySelector('.mm-lines');
         if (!mindmap || !svg) return;
-        // 移动端不画曲线（布局为网格）
+        // 移动端为卡片布局，不画连线
         if (window.innerWidth <= 900) { svg.innerHTML = ''; return; }
 
         const rect = mindmap.getBoundingClientRect();
@@ -525,95 +434,65 @@
         svg.innerHTML = '';
 
         const centerEl = mindmap.querySelector('.mm-center');
-        const c = edgePoint(centerEl, rect);
+        if (!centerEl) return;
+        const c = boxOf(centerEl, rect);
 
-        // defs：渐变 + 光点
-        const defs = document.createElementNS(SVGNS, 'defs');
-        BRANCH_COLORS.forEach((col, i) => {
-          const grad = document.createElementNS(SVGNS, 'linearGradient');
-          grad.setAttribute('id', `mmGrad${i}`);
-          grad.setAttribute('x1', '0%'); grad.setAttribute('y1', '0%');
-          grad.setAttribute('x2', '100%'); grad.setAttribute('y2', '100%');
-          grad.innerHTML = `<stop offset="0%" stop-color="#1a56db" stop-opacity="0.7"/><stop offset="100%" stop-color="${col}" stop-opacity="0.85"/>`;
-          defs.appendChild(grad);
-        });
-        svg.appendChild(defs);
-
-        const branches = mindmap.querySelectorAll('.mm-branch');
-        branches.forEach((branch, i) => {
+        mindmap.querySelectorAll('.mm-branch').forEach((branch, i) => {
           const color = BRANCH_COLORS[i % BRANCH_COLORS.length];
           const lv1El = branch.querySelector('.mm-lv1');
           if (!lv1El) return;
-          const b = edgePoint(lv1El, rect);
 
-          // 中心 -> 一级
-          const d1 = curvePath(c.x, c.y, b.x, b.y);
-          addPath(svg, d1, `url(#mmGrad${i})`, 2.4, 'mm-line', 0.85);
-          addDot(svg, d1, color, 3.5, i * 0.3);
+          // 左侧分支的子节点在左，右侧分支的子节点在右
+          const dir = branch.classList.contains('mm-branch-top-left') ||
+                      branch.classList.contains('mm-branch-mid-left') ||
+                      branch.classList.contains('mm-branch-bottom-left') ? -1 : 1;
+          const b = boxOf(lv1El, rect);
 
-          // 一级 -> 二级
-          const subs = branch.querySelectorAll('.mm-lv2');
-          subs.forEach((sub, j) => {
-            const s = edgePoint(sub, rect);
-            const d2 = curvePath(b.x, b.y + b.h / 2, s.x, s.y);
-            addPath(svg, d2, color, 1.8, 'mm-line-sub', 0.5);
-            addDot(svg, d2, color, 2.5, i * 0.3 + j * 0.15 + 0.8);
+          // 中心 → 一级：只连两个节点相向的边缘，互不穿插
+          const startX = dir < 0 ? c.x - c.w / 2 : c.x + c.w / 2;
+          const endX = dir < 0 ? b.x + b.w / 2 : b.x - b.w / 2;
+          const ctrlX = startX + (endX - startX) * 0.5;
+          addPath(svg,
+            `M ${startX.toFixed(1)} ${c.y.toFixed(1)} C ${ctrlX.toFixed(1)} ${c.y.toFixed(1)}, ${ctrlX.toFixed(1)} ${b.y.toFixed(1)}, ${endX.toFixed(1)} ${b.y.toFixed(1)}`,
+            color, 2.6, 'mm-line');
+
+          // 一级 → 二级：横向引出 + 竖向主干 + 横向分支
+          const subBoxes = Array.from(branch.querySelectorAll('.mm-lv2')).map(s => boxOf(s, rect));
+          if (!subBoxes.length) return;
+          const lv1EdgeX = dir < 0 ? b.x - b.w / 2 : b.x + b.w / 2;
+          const subEdgeX = dir < 0
+            ? Math.max.apply(null, subBoxes.map(s => s.x + s.w / 2))
+            : Math.min.apply(null, subBoxes.map(s => s.x - s.w / 2));
+          const spineX = (lv1EdgeX + subEdgeX) / 2;
+          const topY = Math.min.apply(null, subBoxes.map(s => s.y));
+          const bottomY = Math.max.apply(null, subBoxes.map(s => s.y));
+
+          addPath(svg, `M ${lv1EdgeX.toFixed(1)} ${b.y.toFixed(1)} H ${spineX.toFixed(1)}`, color, 2, 'mm-line-sub');
+          addPath(svg, `M ${spineX.toFixed(1)} ${topY.toFixed(1)} V ${bottomY.toFixed(1)}`, color, 2, 'mm-line-sub');
+          subBoxes.forEach(s => {
+            const ax = dir < 0 ? s.x + s.w / 2 : s.x - s.w / 2;
+            addPath(svg, `M ${spineX.toFixed(1)} ${s.y.toFixed(1)} H ${ax.toFixed(1)}`, color, 1.8, 'mm-line-sub');
           });
         });
-
-        // 跨分支关联虚线（知识点关联）
-        drawAssocLines(svg, rect);
       }
 
-      function addPath(svg, d, stroke, w, cls, opacity) {
+      function addPath(svg, d, stroke, w, cls) {
         const p = document.createElementNS(SVGNS, 'path');
         p.setAttribute('d', d);
         p.setAttribute('stroke', stroke);
         p.setAttribute('stroke-width', w);
         p.setAttribute('fill', 'none');
-        p.setAttribute('opacity', opacity);
         p.setAttribute('stroke-linecap', 'round');
+        p.setAttribute('stroke-linejoin', 'round');
         p.classList.add(cls);
         svg.appendChild(p);
-      }
-
-      function addDot(svg, pathD, color, r, delay) {
-        const dot = document.createElementNS(SVGNS, 'circle');
-        dot.setAttribute('r', r);
-        dot.setAttribute('fill', color);
-        dot.classList.add('mm-dot');
-        const motion = document.createElementNS(SVGNS, 'animateMotion');
-        motion.setAttribute('dur', '4s');
-        motion.setAttribute('repeatCount', 'indefinite');
-        motion.setAttribute('begin', `${delay}s`);
-        motion.setAttribute('path', pathD);
-        dot.appendChild(motion);
-        svg.appendChild(dot);
-      }
-
-      function drawAssocLines(svg, rect) {
-        // 关联：树(分支3)二叉树 → 查找(分支5) BST/AVL
-        // 关联：查找(分支5) → 排序(分支6)
-        const assoc = [
-          { from: '.mm-branch-bottom-left .mm-lv2:nth-child(1)', to: '.mm-branch-mid-left .mm-lv2:nth-child(2)' },
-          { from: '.mm-branch-mid-left .mm-lv1', to: '.mm-branch-mid-right .mm-lv1' }
-        ];
-        assoc.forEach(a => {
-          const f = svg.parentNode.querySelector(a.from);
-          const t = svg.parentNode.querySelector(a.to);
-          if (!f || !t) return;
-          const p1 = edgePoint(f, rect);
-          const p2 = edgePoint(t, rect);
-          const d = curvePath(p1.x, p1.y, p2.x, p2.y);
-          const path = document.createElementNS(SVGNS, 'path');
-          path.setAttribute('d', d);
-          path.setAttribute('stroke', '#94a3b8');
-          path.setAttribute('stroke-width', '1.6');
-          path.setAttribute('fill', 'none');
-          path.setAttribute('stroke-dasharray', '5 5');
-          path.setAttribute('opacity', '0.55');
-          path.classList.add('mm-line-assoc');
-          svg.appendChild(path);
+        // 按真实长度做描边动画，避免长线出现断续叠加
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = `${len}`;
+        p.style.strokeDashoffset = `${len}`;
+        requestAnimationFrame(() => {
+          p.style.transition = 'stroke-dashoffset 0.8s ease';
+          p.style.strokeDashoffset = '0';
         });
       }
 
