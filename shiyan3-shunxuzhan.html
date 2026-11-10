@@ -6,44 +6,96 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
 body{background:#f4f7fc;padding:24px;}
-.wrap{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:460 1fr;gap:24px;}
-.left-box{background:#fff;border-radius:12px;padding:20;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
-.right-box{display:flex;flex-direction:column;gap:20px;}
+.wrap{max-width:1600px;margin:0 auto;display:flex;flex-direction:column;gap:24px;}
+/* 每一行：左边代码，右边对应的动画，顶部对齐（不强制等高，避免动画卡片下方留白） */
+.row{display:grid;grid-template-columns:460px minmax(0,1fr);gap:24px;align-items:start;}
 .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
+.code-card{display:flex;flex-direction:column;min-height:0;}
 h2{color:#1d3557;margin-bottom:16px;border-left:6px #2563eb solid;padding-left:10px;font-size:20px;}
 h3{margin:14px 0 8px;color:#222;font-size:16px;}
-.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:-20 -20 16 -20;border-radius:12 12 0 0;}
-pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow:auto;max-height:360px;font-size:13px;line-height:1.5;}
+.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:12px -20px 16px -20px;border-radius:6px;}
+pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow-y:scroll;overflow-x:auto;height:300px;flex:0 0 auto;font-size:13px;line-height:1.5;}
+/* 代码区竖向滑动条样式 */
+pre::-webkit-scrollbar{width:12px;height:12px;}
+pre::-webkit-scrollbar-track{background:#2a2a2a;border-radius:6px;}
+pre::-webkit-scrollbar-thumb{background:#6b7280;border:2px solid #1e1e1e;border-radius:6px;}
+pre::-webkit-scrollbar-thumb:hover{background:#9ca3af;}
 .tip-text{color:#555;font-size:14px;line-height:1.6;margin-bottom:10px;}
 /* 通用画布 */
-.canvas-box{width:100%;height:240px;border:1px #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;margin-bottom:10px;}
-/* 顺序栈方块 */
-.stack-item{position:absolute;width:70px;height:46px;background:#3b82f6;color:#fff;text-align:center;line-height:46px;border-radius:6px;transition:0.3s;}
-.stack-top{box-shadow:0 0 14px #f97316;transform:scale(1.05);}
+.canvas-box{width:100%;height:240px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:auto;background:#fafbfd;margin-bottom:10px;display:flex;align-items:center;justify-content:center;}
+/* 链栈画布高度与左侧代码区一致（300px） */
+#linkCanvas{height:300px;}
+/* 顺序栈画布高度与左侧代码区一致（300px） */
+#seqCanvas{height:300px;}
+/* 顺序栈方块：横向排列的方框，每个方框表示数组的一个存储空间 */
+.arr-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.arr-caption{font-size:13px;color:#64748b;}
+.arr-row{display:flex;align-items:flex-start;}
+.cell-group{display:flex;flex-direction:column;align-items:center;}
+.cell{width:58px;height:52px;border:1px solid #94a3b8;border-right-width:0;background:#3b82f6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;transition:all 0.25s ease;}
+.cell-group:last-of-type .cell{border-right-width:1px;}
+.cell.empty{background:#f1f5f9;}
+.cell.empty::after{content:"空";font-size:12px;color:#cbd5e1;font-weight:400;}
+.cell.top-cell{background:#f77f00;transform:translateY(-6px);box-shadow:0 6px 14px rgba(247,127,0,0.45);position:relative;z-index:2;}
+.cell-idx{font-size:12px;color:#94a3b8;margin-top:6px;line-height:1;}
 /* 链栈节点 */
 .link-node{position:absolute;display:flex;}
 .link-data{width:50px;height:44px;background:#10b981;color:#fff;text-align:center;line-height:44px;border-radius:6px 0 0 6px;}
-.link-ptr{width:30px;height:44px;background:#ecf0f1;border:1px #999;border-left:none;border-radius:0 6px 6px 0;}
-.arrow{position:absolute;height:2px;background:#222;z:1;}
-.arrow-tip{width:0;height:0;border-top:6px transparent;border-bottom:6px transparent;border-left:8px #222;position:absolute;}
+.link-ptr{width:30px;height:44px;background:#ecf0f1;border:1px solid #999;border-left:none;border-radius:0 6px 6px 0;}
+.arrow{position:absolute;height:2px;background:#222;z-index:1;}
+/* 栈顶 top 指针：随栈顶结点移动 */
+.top-pointer{position:absolute;left:60px;top:92px;transform:translateX(-50%);padding:1px 10px;background:#f77f00;color:#fff;font-size:12px;font-weight:600;border-radius:10px;white-space:nowrap;z-index:3;display:none;opacity:0;transition:left .45s ease, opacity .3s ease;}
+.top-pointer::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#f77f00;border-bottom:0;}
+.arrow-tip{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:8px solid #222;position:absolute;}
 .del-animate{opacity:0;transform:translateY(-30px);transition:0.4s;}
+/* 代码行高亮跟踪 */
+#seqCode,#linkCode{counter-reset:codeline;padding-left:8px;position:relative;}
+.code-line{position:relative;display:block;padding:1px 8px 1px 34px;border-left:3px solid transparent;border-radius:3px;white-space:pre;transition:background 0.2s ease,color 0.2s ease;}
+.code-line::before{counter-increment:codeline;content:counter(codeline);position:absolute;left:6px;width:20px;text-align:right;color:#5c6370;font-size:11px;}
+.code-line.visited{background:rgba(41,128,185,0.16);}
+.code-line.visited::before{color:#7fa8c4;}
+.code-line.active-line{background:rgba(243,156,18,0.26);border-left-color:#f39c12;color:#fff;box-shadow:inset 0 0 0 1px rgba(243,156,18,0.45);}
+.code-line.active-line::before{color:#ffb066;font-weight:700;}
+/* 动画速度 */
+.speed-bar{display:flex;align-items:center;gap:8px;margin:2px 0 10px;flex-wrap:wrap;}
+.speed-btn{padding:5px 14px;font-size:13px;background:#e2e8f0;color:#334155;}
+.speed-btn:hover{background:#cbd5e1;}
+.speed-btn.active{background:#2563eb;color:#fff;}
+.speed-tip{font-size:13px;color:#64748b;}
 /* 操作行 */
 .oper-row{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;align-items:center;}
-input{padding:8px 10px;border:1px #ccd6e0;border-radius:6px;width:190px;font-size:14px;}
+input{padding:8px 10px;border:1px solid #ccd6e0;border-radius:6px;width:190px;font-size:14px;}
 button{padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;font-size:14px;}
 button:hover{background:#3b82f6;}
-#logArea{height:140px;border:1px #dde2eb;padding:12px;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
-.split-line{height:2px #ddd;margin:24px 0;}
+/* 运行日志 */
+.log-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.log-head h3{margin:0;}
+.btn-clear{padding:6px 14px;font-size:13px;background:#e2e8f0;color:#334155;}
+.btn-clear:hover{background:#cbd5e1;}
+#logArea{height:160px;border:1px solid #dde2eb;padding:12px;overflow-y:scroll;overflow-x:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+/* 每条日志独占一行，过长时出现横向滑动条 */
+.log-line{white-space:nowrap;}
+/* 让日志窗口的滑动条明显可见 */
+#logArea::-webkit-scrollbar{width:12px;height:12px;}
+#logArea::-webkit-scrollbar-track{background:#e2e8f0;border-radius:6px;}
+#logArea::-webkit-scrollbar-thumb{background:#64748b;border:2px solid #fafbfd;border-radius:6px;}
+#logArea::-webkit-scrollbar-thumb:hover{background:#475569;}
+.split-line{height:2px;background:#ddd;margin:24px 0;}
+/* 窄屏时改为上下排列，避免左右两栏被挤压 */
+@media (max-width:1100px){
+    .row{grid-template-columns:1fr;}
+}
 </style>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
 <nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -52,13 +104,13 @@ button:hover{background:#3b82f6;}
     </ul>
   </nav>
 <div class="wrap">
-<!-- 左侧：两份C源码 -->
-<div class="left-box">
-    <h2>实验三 栈</h2>
-    <h3>一、顺序存储栈</h3>
-    <p class="tip-text">【实验要求】顺序存储实现栈入栈、出栈<br>【算法思想】栈空top=-1，入栈top+1，出栈top-1，数组存储元素</p>
-    <div class="code-header">顺序栈C调试代码</div>
-<pre>
+    <!-- 第一行：顺序栈代码（左） + 顺序栈动画（右） -->
+    <div class="row">
+        <div class="card code-card">
+            <h2>实验三 栈（顺序存储）</h2>
+            <p class="tip-text">【实验要求】顺序存储实现栈入栈、出栈<br>【算法思想】栈空top=-1，入栈top+1，出栈top-1，数组存储元素</p>
+            <div class="code-header">顺序栈C调试代码</div>
+<pre id="seqCode">
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 //入栈函数，返回最终栈顶下标
@@ -98,11 +150,46 @@ void main()
     pop(a,i);
 }
 </pre>
-<div class="split-line"></div>
-    <h3>二、链式存储链栈</h3>
-    <p class="tip-text">【实验要求】链式栈入栈出栈<br>【算法思想】仅在链表头部插入删除（头插法模拟栈）</p>
-    <div class="code-header">链栈C调试代码</div>
-<pre>
+        </div>
+        <div class="card">
+            <h2>顺序栈动画模拟（数组存储 top=-1初始）</h2>
+            <div class="canvas-box" id="seqCanvas"></div>
+            <div class="oper-row">
+                <input id="seqInput" placeholder="字符或ASCII码，逗号分隔，如a,b,c 或 100,97">
+                <button onclick="seqInit()">初始化顺序栈</button>
+                <button onclick="seqPushSingle()">单个入栈</button>
+                <button onclick="seqPop()">出栈</button>
+                <button onclick="seqReset()">重置顺序栈</button>
+            </div>
+            <div class="speed-bar">
+                <span>动画速度：</span>
+                <span class="speed-presets">
+                    <button class="speed-btn" data-ms="1200" onclick="setSpeed(1200)">慢速</button>
+                    <button class="speed-btn active" data-ms="600" onclick="setSpeed(600)">中速</button>
+                    <button class="speed-btn" data-ms="300" onclick="setSpeed(300)">快速</button>
+                </span>
+                <span class="speed-tip">0.6 秒/步 · 中速</span>
+            </div>
+            <div class="tip-text">规则：初始top=-1；入栈top+1；出栈top-1；栈顶橙色高亮<br>输入 1~3 位数字按 ASCII 码转字符（如 100 → d），字母等字符原样入栈</div>
+        </div>
+    </div>
+
+    <!-- 运行日志，放在两个实验中间，方便边动画边看输出 -->
+    <div class="card">
+        <div class="log-head">
+            <h3>程序运行日志</h3>
+            <button class="btn-clear" onclick="clearLog()">清空日志</button>
+        </div>
+        <div id="logArea"></div>
+    </div>
+
+    <!-- 第二行：链栈代码（左） + 链栈动画（右） -->
+    <div class="row">
+        <div class="card code-card">
+            <h2>实验三 栈（链式存储）</h2>
+            <p class="tip-text">【实验要求】链式栈入栈出栈<br>【算法思想】仅在链表头部插入删除（头插法模拟栈）</p>
+            <div class="code-header">链栈C调试代码</div>
+<pre id="linkCode">
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 struct stack
@@ -160,41 +247,31 @@ void main()
     pop(top,k);
 }
 </pre>
-</div>
-<!-- 右侧动画区 -->
-<div class="right-box">
-    <!-- 模块1：顺序栈 -->
-    <div class="card">
-        <h2>顺序栈动画模拟（数组存储 top=-1初始）</h2>
-        <div class="canvas-box" id="seqCanvas"></div>
-        <div class="oper-row">
-            <input id="seqInput" placeholder="批量入栈，英文逗号分隔，如a,b,c">
-            <button onclick="seqInit()">初始化顺序栈</button>
-            <button onclick="seqPushSingle()">单个入栈</button>
-            <button onclick="seqPop()">出栈</button>
-            <button onclick="seqReset()">重置顺序栈</button>
         </div>
-        <div class="tip-text">规则：初始top=-1；入栈top+1；出栈top-1；栈顶橙色高亮</div>
-    </div>
-    <!-- 模块2：链栈 -->
-    <div class="card">
-        <h2>链栈动画模拟（仅头部入/出）</h2>
-        <div class="canvas-box" id="linkCanvas"></div>
-        <div class="oper-row">
-            <input id="linkInput" placeholder="批量入栈，英文逗号分隔，如x,y,z">
-            <button onclick="linkInit()">初始化链栈</button>
-            <button onclick="linkPush()">入栈（头插）</button>
-            <button onclick="linkPop()">出栈（删头）</button>
-            <button onclick="linkReset()">重置链栈</button>
+        <div class="card">
+            <h2>链栈动画模拟（仅头部入/出）</h2>
+            <div class="canvas-box" id="linkCanvas">
+                <div class="top-pointer" id="topPointer">top</div>
+            </div>
+            <div class="oper-row">
+                <input id="linkInput" placeholder="字符或ASCII码，逗号分隔，如x,y,z 或 100,97">
+                <button onclick="linkInit()">初始化链栈</button>
+                <button onclick="linkPush()">入栈（头插）</button>
+                <button onclick="linkPop()">出栈（删头）</button>
+                <button onclick="linkReset()">重置链栈</button>
+            </div>
+            <div class="speed-bar">
+                <span>动画速度：</span>
+                <span class="speed-presets">
+                    <button class="speed-btn" data-ms="1200" onclick="setSpeed(1200)">慢速</button>
+                    <button class="speed-btn active" data-ms="600" onclick="setSpeed(600)">中速</button>
+                    <button class="speed-btn" data-ms="300" onclick="setSpeed(300)">快速</button>
+                </span>
+                <span class="speed-tip">0.6 秒/步 · 中速</span>
+            </div>
+            <div class="tip-text">规则：链栈等价单链表头插，入出只操作栈顶头部结点<br>输入 1~3 位数字按 ASCII 码转字符（如 100 → d），字母等字符原样入栈</div>
         </div>
-        <div class="tip-text">规则：链栈等价单链表头插，入出只操作栈顶头部结点</div>
     </div>
-    <!-- 日志 -->
-    <div class="card">
-        <h3>程序运行日志</h3>
-        <div id="logArea"></div>
-    </div>
-</div>
 </div>
 
 <script>
@@ -202,79 +279,201 @@ void main()
 const logBox = document.getElementById("logArea");
 function log(text){
     const d=new Date();
-    logBox.innerHTML += `[${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}] ${text}\n`;
+    // 每条日志单独一个 div，保证一行一条，可用滑动条翻阅
+    const line=document.createElement("div");
+    line.className="log-line";
+    line.textContent=`[${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}] ${text}`;
+    logBox.appendChild(line);
     logBox.scrollTop = logBox.scrollHeight;
 }
-function sleep(ms){return r=>setTimeout(r,ms);}
+// 清空运行日志
+function clearLog(){
+    logBox.innerHTML="";
+    log("日志已清空");
+}
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+// ====================== 代码行同步跟踪 ======================
+const seqCodeEl = document.getElementById("seqCode");
+const linkCodeEl = document.getElementById("linkCode");
+const seqCodeLines = [], linkCodeLines = [];
+// 把源码拆成可按行高亮的行元素
+function buildLines(preEl, store){
+    const raw = preEl.textContent.replace(/^\n+/,"").replace(/\s+$/,"");
+    preEl.textContent = "";
+    raw.split("\n").forEach(t => {
+        const d = document.createElement("div");
+        d.className = "code-line";
+        d.textContent = t === "" ? " " : t;
+        preEl.appendChild(d);
+        store.push(d);
+    });
+}
+// 高亮第n行（从1开始），并把该行滚动到代码区中间
+function markLine(preEl, store, n){
+    store.forEach((el,i) => {
+        el.classList.toggle("active-line", i+1 === n);
+        if(i+1 < n) el.classList.add("visited");
+    });
+    const el = store[n-1];
+    if(!el) return;
+    const maxScroll = Math.max(0, preEl.scrollHeight - preEl.clientHeight);
+    const target = el.offsetTop - (preEl.clientHeight - el.offsetHeight) / 2;
+    preEl.scrollTop = Math.max(0, Math.min(target, maxScroll));
+}
+function markSeq(n){ markLine(seqCodeEl, seqCodeLines, n); }
+function markLink(n){ markLine(linkCodeEl, linkCodeLines, n); }
+function clearLines(preEl, store){
+    store.forEach(el => el.classList.remove("active-line","visited"));
+    preEl.scrollTop = 0;
+}
+
+// ====================== 动画速度 ======================
+let animSpeed = 600;
+function getDelay(){ return animSpeed; }
+function setSpeed(ms){
+    animSpeed = ms;
+    const level = ms >= 900 ? "慢速" : (ms <= 350 ? "快速" : "中速");
+    document.querySelectorAll(".speed-tip").forEach(t => t.textContent = `${(ms/1000).toFixed(1)} 秒/步 · ${level}`);
+    document.querySelectorAll(".speed-btn").forEach(b => b.classList.toggle("active", Number(b.dataset.ms) === ms));
+}
 
 // ====================== 顺序栈逻辑 ======================
 const seqCanvas = document.getElementById("seqCanvas");
 let seqArr = [];
 const MAX_SEQ = 20;
-const ITEM_W =70, ITEM_H=46, GAP=12, START_Y=160;
+let seqVer = 0, linkVer = 0;   // 动画版本号：重置后让未跑完的动画自动作废
+// 顺序栈按"横向方框数组"绘制：每个方框是数组的一个存储空间
 function renderSeq(){
     seqCanvas.innerHTML="";
-    const topIdx = seqArr.length-1;
-    for(let i=0;i<seqArr.length;i++){
-        const div=document.createElement("div");
-        div.className="stack-item";
-        if(i===topIdx) div.classList.add("stack-top");
-        div.innerText = seqArr[i];
-        // 从下往上堆叠
-        const y = START_Y - i*(ITEM_H+GAP);
-        div.style.left = "30px";
-        div.style.top = y + "px";
-        seqCanvas.appendChild(div);
+    const topIdx = seqArr.length - 1;
+    const total = Math.min(MAX_SEQ, Math.max(8, seqArr.length + 2));   // 已用 + 预留空位
+    const wrap = document.createElement("div");
+    wrap.className = "arr-wrap";
+    const cap = document.createElement("div");
+    cap.className = "arr-caption";
+    cap.textContent = `顺序栈｜数组存储 MAXSIZE=${MAX_SEQ}｜栈顶 top = ${topIdx}`;
+    const row = document.createElement("div");
+    row.className = "arr-row";
+    for(let i=0;i<total;i++){
+        const g = document.createElement("div");
+        g.className = "cell-group";
+        const c = document.createElement("div");
+        c.className = "cell";
+        if(i < seqArr.length){
+            c.textContent = seqArr[i];
+        }else{
+            c.classList.add("empty");
+        }
+        if(i === topIdx) c.classList.add("top-cell");
+        const idx = document.createElement("div");
+        idx.className = "cell-idx";
+        idx.textContent = i;
+        g.appendChild(c);
+        g.appendChild(idx);
+        row.appendChild(g);
     }
+    wrap.appendChild(cap);
+    wrap.appendChild(row);
+    seqCanvas.appendChild(wrap);
+}
+// 输入项 → {ch, code}：1~3 位数字按 ASCII 码转换（如 100 → d），其余按字符本身
+function toItem(tok){
+    if(/^\d{1,3}$/.test(tok)){
+        const code = Number(tok);
+        if(code >= 32 && code <= 126) return {ch: String.fromCharCode(code), code};
+    }
+    return {ch: tok, code: null};
+}
+// 日志展示：来自 ASCII 码的字符附带码值
+function label(item){
+    return item.code === null ? item.ch : `${item.ch}（ASCII ${item.code}）`;
 }
 // 解析批量字符
 function parseChars(id){
     const s = document.getElementById(id).value.trim().replace(/\s/g,"");
     if(!s){log("输入不能为空，使用英文逗号分隔字符");return null;}
-    return s.split(",").filter(v=>v.length===1);
+    return s.split(/[,，]/).filter(v=>v).map(toItem).filter(it=>it.ch.length===1);
 }
 // 初始化顺序栈批量入栈
 async function seqInit(){
     const chars = parseChars("seqInput");
     if(!chars) return;
+    const ver = ++seqVer;
     seqArr=[];
     renderSeq();
+    const d=getDelay();
+    clearLines(seqCodeEl, seqCodeLines);
     log("===== 顺序栈初始化，初始top=-1 =====");
-    for(let c of chars){
-        await sleep(400);
-        seqArr.push(c);
+    markSeq(36);                       // main：i=push(a,k)
+    await sleep(d/2);
+    markSeq(4);                        // 进入 push 函数
+    await sleep(d/3);
+    markSeq(7);                        // top=-1
+    await sleep(d/3);
+    for(let it of chars){
+        markSeq(8);                    // while(n>0)
+        await sleep(d/4);
+        markSeq(10);                   // top++
+        await sleep(d/4);
+        markSeq(11);                   // scanf 读入字符
+        await sleep(d/4);
+        markSeq(13);                   // s[top]=c
+        if(ver !== seqVer) return;     // 已被重置/新动画打断
+        seqArr.push(it.ch);
         renderSeq();
-        log(`入栈元素${c}，top = ${seqArr.length-1}`);
+        log(`入栈元素${label(it)}，top = ${seqArr.length-1}`);
+        await sleep(d/2);
+        markSeq(14);                   // n--
+        await sleep(d/4);
     }
+    markSeq(16);                       // return top
     log(`批量入栈完成，当前栈顶top=${seqArr.length-1}`);
 }
-// 单个入栈
+// 单个入栈：输入框里可以是单字符，也可以是多个字符，只取第一个入栈
 async function seqPushSingle(){
-    const c = document.getElementById("seqInput").value.trim();
-    if(c.length!==1){log("请输入单个字符入栈");return;}
+    const raw = document.getElementById("seqInput").value.replace(/[\s,，]/g,"");
+    if(!raw){log("请输入要入栈的字符");return;}
+    const c = /^\d{1,3}$/.test(raw) ? toItem(raw) : {ch: raw[0], code: null};
     if(seqArr.length>=MAX_SEQ){log("栈已满，无法入栈");return;}
-    seqArr.push(c);
+    const ver = ++seqVer;
+    const d=getDelay();
+    markSeq(10);                       // top++
+    await sleep(d/3);
+    markSeq(13);                       // s[top]=c
+    if(ver !== seqVer) return;
+    seqArr.push(c.ch);
     renderSeq();
-    log(`单个入栈${c}，top=${seqArr.length-1}`);
+    log(`单个入栈${label(c)}，top=${seqArr.length-1}`);
 }
 // 出栈
 async function seqPop(){
     if(seqArr.length===0){log("栈空top=-1，无法出栈");return;}
+    const ver = ++seqVer;
+    const d=getDelay();
+    markSeq(25);                       // e=s[top]
+    await sleep(d/3);
+    markSeq(26);                       // top--
+    await sleep(d/3);
+    markSeq(27);                       // printf 输出
+    if(ver !== seqVer) return;
     const out = seqArr.pop();
     renderSeq();
     log(`出栈元素${out}，新top=${seqArr.length-1}`);
 }
 function seqReset(){
+    ++seqVer;          // 让还在跑的入栈/出栈动画作废
     seqArr=[];
-    seqCanvas.innerHTML="";
+    renderSeq();
     document.getElementById("seqInput").value="";
+    clearLines(seqCodeEl, seqCodeLines);
     log("顺序栈已重置，top=-1");
 }
 
 // ====================== 链栈逻辑 ======================
 const linkCanvas = document.getElementById("linkCanvas");
 let linkStack = [];
-const NODE_W=80, NODE_GAP=90, L_START_X=20, L_Y=100;
+const NODE_W=80, NODE_GAP=90, L_START_X=20, L_Y=128;
 // 绘制箭头
 function drawLine(x1,y1,x2,y2){
     const line=document.createElement("div");
@@ -289,9 +488,9 @@ function drawLine(x1,y1,x2,y2){
     tip.style.top=(y1-6)+"px";
     linkCanvas.appendChild(tip);
 }
-// 渲染链栈（栈顶在最左侧）
-function renderLink(){
-    linkCanvas.innerHTML="";
+// 渲染链栈（栈顶在最左侧）；startIndex 用于让 top 指针从旧位置滑到新栈顶
+function renderLink(startIndex){
+    [...linkCanvas.querySelectorAll(".link-node,.arrow,.arrow-tip")].forEach(el=>el.remove());
     for(let i=0;i<linkStack.length;i++){
         const wrap=document.createElement("div");
         wrap.className="link-node";
@@ -310,52 +509,129 @@ function renderLink(){
             drawLine(curX+NODE_W, L_Y+22, L_START_X+(i+1)*NODE_GAP, L_Y+22);
         }
     }
+    updateTopPointer(startIndex);
+}
+// top 指针：始终指向第 0 个结点（栈顶），位置变化时带滑动动画
+function updateTopPointer(startIndex){
+    const p = document.getElementById("topPointer");
+    if(!linkStack.length){
+        p.style.display = "none";
+        p.style.opacity = "0";
+        return;
+    }
+    const targetX = L_START_X + NODE_W/2;      // 栈顶结点中心
+    p.style.display = "block";
+    p.style.top = (L_Y - 36) + "px";
+    if(startIndex !== undefined && startIndex !== null && startIndex < linkStack.length){
+        // 先落到旧栈顶的位置，再滑到新栈顶，形成"指针移动"动画
+        p.style.transition = "none";
+        p.style.left = (L_START_X + startIndex*NODE_GAP + NODE_W/2) + "px";
+        p.style.opacity = "1";
+        void p.offsetWidth;                    // 强制回流，锁定动画起点
+        requestAnimationFrame(()=>{
+            p.style.transition = "left .45s ease, opacity .3s ease";
+            p.style.left = targetX + "px";
+        });
+    }else{
+        p.style.transition = "left .45s ease, opacity .3s ease";
+        p.style.left = targetX + "px";
+        p.style.opacity = "1";
+    }
 }
 // 批量初始化链栈（头插）
 async function linkInit(){
     const chars = parseChars("linkInput");
     if(!chars) return;
+    const ver = ++linkVer;
     linkStack=[];
     renderLink();
+    const d=getDelay();
+    clearLines(linkCodeEl, linkCodeLines);
     log("===== 链栈初始化（头插入栈） =====");
-    for(let c of chars){
-        await sleep(400);
-        linkStack.unshift(c);
-        renderLink();
-        log(`链栈入栈${c}（栈顶头部）`);
+    markLink(54);                      // main：top=push(k)
+    await sleep(d/2);
+    markLink(9);                       // 进入 push 函数
+    await sleep(d/3);
+    markLink(13);                      // malloc 申请首个结点
+    await sleep(d/3);
+    markLink(16);                      // scanf 第一个字符
+    await sleep(d/3);
+    markLink(17);                      // top->next=NULL
+    await sleep(d/3);
+    for(let it of chars){
+        markLink(20);                  // for 循环
+        await sleep(d/4);
+        markLink(22);                  // malloc 新结点
+        await sleep(d/4);
+        markLink(23);                  // scanf 读入数据
+        await sleep(d/4);
+        markLink(25);                  // p->next=top
+        await sleep(d/4);
+        markLink(26);                  // top=p
+        if(ver !== linkVer) return;    // 已被重置/新动画打断
+        linkStack.unshift(it.ch);
+        renderLink(1);                 // top 指针从旧栈顶滑到新栈顶
+        log(`链栈入栈${label(it)}（栈顶头部）`);
+        await sleep(d/2);
     }
+    markLink(28);                      // return top
     log("链栈批量入栈完成");
 }
 // 单个入栈
 async function linkPush(){
-    const c = document.getElementById("linkInput").value.trim();
-    if(c.length!==1){log("请输入单个字符");return;}
-    linkStack.unshift(c);
-    renderLink();
-    log(`链栈入栈${c}，新栈顶`);
+    const raw = document.getElementById("linkInput").value.replace(/[\s,，]/g,"");
+    if(!raw){log("请输入要入栈的字符");return;}
+    const c = /^\d{1,3}$/.test(raw) ? toItem(raw) : {ch: raw[0], code: null};
+    const ver = ++linkVer;
+    const d=getDelay();
+    markLink(22);                      // malloc 新结点
+    await sleep(d/3);
+    markLink(23);                      // scanf 读入数据
+    await sleep(d/3);
+    markLink(25);                      // p->next=top
+    await sleep(d/3);
+    markLink(26);                      // top=p
+    if(ver !== linkVer) return;
+    linkStack.unshift(c.ch);
+    renderLink(1);
+    log(`链栈入栈${label(c)}，新栈顶`);
 }
 // 出栈（删除头部）
 async function linkPop(){
     if(linkStack.length===0){log("链栈为空，无法出栈");return;}
+    const ver = ++linkVer;
+    const d=getDelay();
+    markLink(38);                      // printf 输出栈顶
+    await sleep(d/4);
+    markLink(39);                      // p=top
+    await sleep(d/4);
+    markLink(40);                      // top=top->next
+    await sleep(d/4);
+    markLink(41);                      // free(p)
     const nodes = linkCanvas.querySelectorAll(".link-node");
     nodes[0].classList.add("del-animate");
-    await sleep(400);
+    await sleep(d/2);
+    if(ver !== linkVer) return;
     const out = linkStack.shift();
     renderLink();
     log(`链栈出栈栈顶${out}`);
 }
 function linkReset(){
+    ++linkVer;         // 让还在跑的入栈/出栈动画作废
     linkStack=[];
-    linkCanvas.innerHTML="";
+    renderLink();      // 只清结点，保留 top 指针元素
     document.getElementById("linkInput").value="";
+    clearLines(linkCodeEl, linkCodeLines);
     log("链栈已全部重置");
 }
-window.onload=()=>{renderSeq();renderLink();}
+window.onload=()=>{
+    renderSeq();
+    renderLink();
+    buildLines(seqCodeEl, seqCodeLines);
+    buildLines(linkCodeEl, linkCodeLines);
+}
 </script>
 
-  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
-    <p>数据结构课程学习网站</p>
-  </footer>
 
 </body>
 </html>
