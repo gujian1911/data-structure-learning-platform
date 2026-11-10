@@ -5,15 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>自测答题 - 数据结构课程学习平台</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .app-figures { margin: 12px 0; display: flex; flex-wrap: wrap; gap: 16px; }
+    .app-figure { margin: 0; padding: 8px; border: 1px solid var(--border, #e5e7eb); border-radius: 8px; background: #fff; }
+    .app-figure img { display: block; max-width: 100%; max-height: 320px; cursor: zoom-in; }
+    .app-figure figcaption { font-size: .85rem; color: #6b7280; text-align: center; margin-top: 6px; }
+    .app-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+    .app-toolbar .hint { font-size: .85rem; color: #9ca3af; }
+    .app-upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px dashed #9ca3af; border-radius: 8px; background: #f9fafb; color: #374151; font-size: .9rem; cursor: pointer; }
+    .app-upload-btn:hover { background: #eef2ff; border-color: var(--primary, #6366f1); }
+    .app-attachments { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .attach-item { position: relative; border: 1px solid var(--border, #e5e7eb); border-radius: 8px; background: #fff; padding: 6px; max-width: 180px; }
+    .attach-item img { display: block; max-width: 166px; max-height: 120px; border-radius: 6px; cursor: zoom-in; }
+    .attach-item .attach-name { display: block; margin-top: 4px; font-size: .78rem; color: #6b7280; word-break: break-all; max-height: 2.4em; overflow: hidden; }
+    .attach-doc { display: flex; align-items: center; gap: 6px; font-size: .85rem; color: #374151; padding: 8px 10px; }
+    .attach-remove { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border: none; border-radius: 50%; background: #ef4444; color: #fff; font-size: 12px; line-height: 20px; text-align: center; cursor: pointer; padding: 0; }
+    .help-row { margin-top: 8px; }
+    .help-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border: 1px solid #93c5fd; border-radius: 999px; background: #eff6ff; color: #2563eb; font-size: .85rem; cursor: pointer; }
+    .help-btn:hover { background: #dbeafe; }
+    .help-btn-qwen { border-color: #c4b5fd; background: #f5f3ff; color: #7c3aed; }
+    .help-btn-qwen:hover { background: #ede9fe; }
+  </style>
 </head>
 <body>
   <!-- 导航栏（与平台保持一致） -->
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html" class="active">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html">实验中心</a></li>
@@ -87,7 +108,7 @@
     <p>数据结构课程学习网站</p>
   </footer>
 
-  <script src="js/selftest-data.js?v=3"></script>
+  <script src="js/selftest-data.js?v=4"></script>
   <script>
     const chapters = {
       1: '绪论', 2: '线性表', 3: '栈和队列', 4: '串、数组和广义表',
@@ -110,6 +131,22 @@
       };
     }
 
+    // 转义题干中的尖括号，避免被当作 HTML 标签解析（如 0<i<=n+1、<a,b>）
+    function escHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function escapeQuestion(q) {
+      const o = { ...q };
+      ['question', 'analysis', 'explanation'].forEach(k => {
+        if (typeof o[k] === 'string') o[k] = escHtml(o[k]);
+      });
+      if (typeof o.answer === 'string') o.answer = escHtml(o.answer);
+      if (Array.isArray(o.answer)) o.answer = o.answer.map(escHtml);
+      if (Array.isArray(o.options)) o.options = o.options.map(escHtml);
+      return o;
+    }
+
     // 收集题目
     function collectQuestions(params) {
       let all = [];
@@ -121,7 +158,7 @@
         params.types.forEach(type => {
           const questions = data[type] || [];
           questions.forEach(q => {
-            all.push({ ...q, chapter: chId, chapterName: chapters[chId], type: type });
+            all.push(escapeQuestion({ ...q, chapter: chId, chapterName: chapters[chId], type: type }));
           });
         });
       });
@@ -156,6 +193,11 @@
       const judges = quizQuestions.filter(q => q.type === 'judge');
       const choices = quizQuestions.filter(q => q.type === 'choice');
       const fills = quizQuestions.filter(q => q.type === 'fill');
+      const applications = quizQuestions.filter(q => q.type === 'application');
+
+      // 按「判断 → 选择 → 填空 → 应用」的渲染顺序重排题目，
+      // 保证页面题号与 submitQuiz 中的批改索引一一对应
+      quizQuestions = [...judges, ...choices, ...fills, ...applications];
 
       if (judges.length > 0) {
         html += `<div class="card" style="margin-bottom:20px;"><div class="card-title">✅ 判断题（共${judges.length}题）</div></div>`;
@@ -181,7 +223,6 @@
         });
       }
 
-      const applications = quizQuestions.filter(q => q.type === 'application');
       if (applications.length > 0) {
         html += `<div class="card" style="margin:24px 0 20px;"><div class="card-title">📝 应用题（共${applications.length}题，提交后查看参考答案自评）</div></div>`;
         applications.forEach(q => {
@@ -211,6 +252,7 @@
             <label><input type="radio" name="q${idx}" value="true" onchange="updateProgress()"> ✓ 正确</label>
             <label><input type="radio" name="q${idx}" value="false" onchange="updateProgress()"> ✗ 错误</label>
           </div>
+          <div class="help-row">${helpButtons(idx)}</div>
           <div class="explanation" id="exp-${idx}">正确答案：${q.answer ? '✓ 正确' : '✗ 错误'}。${q.explanation || ''}</div>
         </div>`;
     }
@@ -229,6 +271,7 @@
           <div class="quiz-options">
             ${optionsHtml}
           </div>
+          <div class="help-row">${helpButtons(idx)}</div>
           <div class="explanation" id="exp-${idx}">正确答案：${q.answer}。${q.explanation || ''}</div>
         </div>`;
     }
@@ -252,8 +295,22 @@
       return `
         <div class="quiz-question" id="q-${idx}">
           <p><strong>${idx + 1}、${chTag}${questionText}</strong></p>
+          <div class="help-row">${helpButtons(idx)}</div>
           <div class="explanation" id="exp-${idx}">正确答案：${answerText}。${q.explanation || ''}</div>
         </div>`;
+    }
+
+    // 渲染应用题配图（题目图 / 参考答案图）
+    function renderFigures(list) {
+      if (!list || !list.length) return '';
+      return `<div class="app-figures">` + list.map(item => {
+        const src = typeof item === 'string' ? item : item.src;
+        const cap = typeof item === 'string' ? '' : (item.caption || '');
+        return `<figure class="app-figure">
+          <img src="${src}" alt="题目插图" loading="lazy" onclick="window.open(this.src)" title="点击查看大图">
+          ${cap ? `<figcaption>${cap}</figcaption>` : ''}
+        </figure>`;
+      }).join('') + `</div>`;
     }
 
     // 渲染应用题
@@ -263,13 +320,24 @@
       let questionHtml = q.question
         .replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>')
         .replace(/\n/g, '<br>');
+      const qFigures = renderFigures(q.images || (q.image ? [q.image] : []));
+      const aFigures = renderFigures(q.answerImages || (q.answerImage ? [q.answerImage] : []));
       return `
         <div class="quiz-question application-question" id="q-${idx}">
           <p><strong>${idx + 1}、${chTag}${questionHtml}</strong></p>
-          <textarea class="app-textarea" id="app-${idx}" rows="8" placeholder="请在此输入你的答案..." oninput="updateProgress()"></textarea>
+          ${qFigures}
+          <textarea class="app-textarea" id="app-${idx}" rows="8" placeholder="请在此输入你的答案（支持直接 Ctrl+V 粘贴图片或文字）..." oninput="updateProgress()" onpaste="handleAppPaste(event, ${idx})"></textarea>
+          <div class="app-toolbar">
+            <button type="button" class="app-upload-btn" onclick="triggerUpload(${idx}, 'image')">📷 上传图片</button>
+            <button type="button" class="app-upload-btn" onclick="triggerUpload(${idx}, 'doc')">📎 上传文档</button>
+            ${helpButtons(idx)}
+            <span class="hint">也可直接在答题框中粘贴截图 / 文字 / 代码</span>
+          </div>
+          <div class="app-attachments" id="attach-${idx}"></div>
           <div class="app-answer" id="app-answer-${idx}" style="display:none;">
             <div class="app-ref-title">📋 参考答案：</div>
             <div class="app-ref-body">${(q.answer || '').replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>').replace(/\n/g, '<br>')}</div>
+            ${aFigures}
             ${q.analysis ? `<div class="app-analysis"><strong>解析：</strong>${q.analysis}</div>` : ''}
             <div class="app-selfeval">
               <span>自评打分：</span>
@@ -279,6 +347,111 @@
             </div>
           </div>
         </div>`;
+    }
+
+    // ====== 求助：百度AI（带题干搜索）/ 千问（复制题干打开页面） ======
+    function askHelp(idx, engine) {
+      const q = quizQuestions[idx];
+      if (!q) return;
+      // 去掉 HTML 标签（题干可能含转义后的实体、选项标签等）
+      const tmp = document.createElement('div');
+      tmp.innerHTML = q.question.split('```').join('');
+      let text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+      if (engine === 'qwen') {
+        // 千问不支持 URL 带题，复制题干到剪贴板，打开后 Ctrl+V 即可
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('请解答这道数据结构题：' + text).catch(() => {});
+        }
+        window.open('https://www.tongyi.com/qianwen/', '_blank');
+      } else {
+        // 百度搜索结果页顶部会直接显示百度AI生成的解答
+        if (text.length > 180) text = text.slice(0, 180);
+        window.open('https://www.baidu.com/s?wd=' + encodeURIComponent(text), '_blank');
+      }
+    }
+
+    // 所有题型共用的求助按钮组
+    function helpButtons(idx) {
+      return `<button type="button" class="help-btn" onclick="askHelp(${idx}, 'baidu')">🤖 不会？求助百度AI</button>
+              <button type="button" class="help-btn help-btn-qwen" onclick="askHelp(${idx}, 'qwen')">🤖 不会？求助千问</button>`;
+    }
+
+    // ====== 应用题/编程题附件：粘贴与上传 ======
+    // 每题附件仅保存在本页内存中（纯静态站，无后端），刷新后清空
+    const appAttachments = {};
+
+    function addAttachment(idx, att) {
+      (appAttachments[idx] = appAttachments[idx] || []).push(att);
+      renderAttachments(idx);
+      updateProgress();
+    }
+
+    function removeAttachment(idx, i) {
+      if (!appAttachments[idx]) return;
+      appAttachments[idx].splice(i, 1);
+      renderAttachments(idx);
+      updateProgress();
+    }
+
+    function renderAttachments(idx) {
+      const box = document.getElementById('attach-' + idx);
+      if (!box) return;
+      const list = appAttachments[idx] || [];
+      box.innerHTML = list.map((a, i) => {
+        const removeBtn = `<button type="button" class="attach-remove" onclick="removeAttachment(${idx}, ${i})" title="删除">×</button>`;
+        if (a.kind === 'image') {
+          return `<div class="attach-item">${removeBtn}
+            <img src="${a.dataUrl}" alt="${a.name}" onclick="window.open(this.src)" title="点击查看大图">
+            <span class="attach-name">${a.name}</span>
+          </div>`;
+        }
+        return `<div class="attach-item attach-doc">${removeBtn}📄 <span class="attach-name">${a.name}（${a.sizeText}）</span></div>`;
+      }).join('');
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + 'B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+      return (bytes / 1024 / 1024).toFixed(2) + 'MB';
+    }
+
+    // 处理粘贴：图片读成 dataURL 插入附件；文字/代码走默认粘贴行为
+    function handleAppPaste(event, idx) {
+      const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          event.preventDefault();
+          const file = item.getAsFile();
+          if (!file) continue;
+          const reader = new FileReader();
+          reader.onload = e => addAttachment(idx, { kind: 'image', name: '粘贴图片 ' + new Date().toLocaleTimeString(), dataUrl: e.target.result });
+          reader.readAsDataURL(file);
+        }
+        // 文本（含代码）不拦截，由浏览器正常粘贴到 textarea
+      }
+    }
+
+    // 触发文件选择
+    function triggerUpload(idx, kind) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = kind === 'image'
+        ? 'image/*'
+        : '.doc,.docx,.pdf,.txt,.md,.c,.cpp,.java,.py,.js,.html,.css,.zip,.rar';
+      input.onchange = () => {
+        Array.from(input.files || []).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => addAttachment(idx, { kind: 'image', name: file.name, dataUrl: e.target.result });
+            reader.readAsDataURL(file);
+          } else {
+            addAttachment(idx, { kind: 'doc', name: file.name, sizeText: formatSize(file.size) });
+          }
+        });
+      };
+      input.click();
     }
 
     // 更新进度
@@ -297,7 +470,8 @@
           if (hasAnswer) answered++;
         } else if (q.type === 'application') {
           const textarea = document.getElementById(`app-${idx}`);
-          if (textarea && textarea.value.trim()) answered++;
+          const hasAttach = (appAttachments[idx] || []).length > 0;
+          if ((textarea && textarea.value.trim()) || hasAttach) answered++;
         } else {
           const selected = document.querySelector(`input[name="q${idx}"]:checked`);
           if (selected) answered++;
@@ -380,7 +554,7 @@
               allCorrect = false;
               input.style.background = '#fee2e2';
               input.style.borderColor = '#dc2626';
-            } else if (i < answers.length && normalizeAnswer(userVal) === normalizeAnswer(answers[i])) {
+            } else if (isFillMatch(userVal, answers, i, blankCount)) {
               input.style.background = '#d1fae5';
               input.style.borderColor = '#059669';
             } else {
@@ -439,7 +613,23 @@
 
     // 答案标准化（忽略空格和大小写差异）
     function normalizeAnswer(s) {
-      return String(s).trim().replace(/\s+/g, '').replace(/[；;]/g, ',').toLowerCase();
+      return String(s).trim()
+        .replace(/\s+/g, '')
+        .replace(/[，、；;]/g, ',')
+        .replace(/[（）()]/g, '')
+        .replace(/。$/, '')
+        .toLowerCase();
+    }
+
+    // 判断某个空是否答对
+    // 多个空：答案数组按顺序与空一一对应
+    // 单个空但答案数组含多个要素（如“0”“n-1”）：需全部答出才算对
+    function isFillMatch(userVal, answers, i, blankCount) {
+      const user = normalizeAnswer(userVal);
+      if (blankCount === 1 && answers.length > 1) {
+        return answers.every(a => user.includes(normalizeAnswer(a)));
+      }
+      return i < answers.length && user === normalizeAnswer(answers[i]);
     }
 
     // 重新答题
