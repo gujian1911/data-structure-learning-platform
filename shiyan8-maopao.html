@@ -6,28 +6,61 @@
   <title>实验八 冒泡排序 - 数据结构课程</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .lab-container { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+    .lab-container { max-width: 1600px; margin: 0 auto; padding: 32px 20px; }
     .lab-section { background:#fff; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
     .lab-section h2 { margin-top:0; }
-    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow-x:auto; }
+    /* 左边代码窗口，右边动画与输入，两栏等高 */
+    .row { display:grid; grid-template-columns:480px minmax(0,1fr); gap:24px; align-items:stretch; margin-bottom:24px; }
+    .row .lab-section { margin-bottom:0; }
+    .col { display:flex; flex-direction:column; gap:24px; min-width:0; }
+    .code-card { display:flex; flex-direction:column; min-height:0; }
+    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px 16px 8px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow:auto; white-space:normal; flex:1 1 0; height:0; min-height:420px; }
     .algo-code .kw { color:#c084fc; }
     .algo-code .fn { color:#60a5fa; }
     .algo-code .cm { color:#64748b; }
     .algo-code .num { color:#fbbf24; }
+    /* 代码行号与高亮跟踪 */
+    #codeView { counter-reset:codeline; position:relative; }
+    .code-line { position:relative; display:block; padding:1px 8px 1px 34px; border-left:3px solid transparent; border-radius:3px; white-space:pre; transition:background .2s ease,color .2s ease; }
+    .code-line::before { counter-increment:codeline; content:counter(codeline); position:absolute; left:6px; width:20px; text-align:right; color:#64748b; font-size:11px; }
+    .code-line.visited { background:rgba(37,99,235,0.22); }
+    .code-line.visited::before { color:#93c5fd; }
+    .code-line.active-line { background:rgba(245,158,11,0.28); border-left-color:#f59e0b; color:#fff; box-shadow:inset 0 0 0 1px rgba(245,158,11,0.45); }
+    .code-line.active-line::before { color:#fbbf24; font-weight:700; }
+    /* 代码区滑动条 */
+    .algo-code::-webkit-scrollbar { width:12px; height:12px; }
+    .algo-code::-webkit-scrollbar-track { background:#0f172a; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb { background:#475569; border:2px solid #1e293b; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb:hover { background:#64748b; }
 
     .viz-area { background:#f8fafc; border-radius:12px; padding:32px 20px; text-align:center; }
-    .bars-container { display:flex; justify-content:center; align-items:flex-end; gap:6px; min-height:240px; margin-bottom:24px; flex-wrap:wrap; }
-    .bar { border-radius:6px 6px 0 0; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; transition:all 0.4s cubic-bezier(0.4,0,0.2,1); position:relative; width:48px; }
-    .bar .bar-val { font-size:1rem; font-weight:700; color:#fff; padding:6px 0; }
-    .bar .bar-idx { font-size:0.7rem; color:#64748b; margin-top:3px; }
-    .bar-default { background:#6366f1; }
-    .bar-comparing { background:#f59e0b; transform:translateY(-8px); box-shadow:0 0 12px rgba(245,158,11,0.5); }
-    .bar-swapping { background:#ef4444; transform:translateY(-8px); box-shadow:0 0 12px rgba(239,68,68,0.5); }
-    .bar-sorted { background:#10b981; }
+    .array-container { position:relative; padding:24px 0 44px; margin-bottom:24px; }
+    .array-track { display:flex; justify-content:center; align-items:center; gap:10px; min-height:80px; flex-wrap:wrap; }
+    /* 数组元素：矩形格子 */
+    .cell { width:66px; height:66px; border-radius:8px; background:#eef2ff; border:2px solid #c7d2fe; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:all .35s cubic-bezier(0.4,0,0.2,1); }
+    .cell .cell-val { font-size:1.15rem; font-weight:700; color:#1e293b; }
+    .cell .cell-idx { font-size:0.7rem; color:#64748b; margin-top:2px; }
+    .cell-comparing { background:#fef3c7; border-color:#f59e0b; transform:translateY(-6px); box-shadow:0 6px 14px rgba(245,158,11,0.35); }
+    .cell-swapping { background:#fee2e2; border-color:#ef4444; transform:translateY(-6px); box-shadow:0 6px 14px rgba(239,68,68,0.35); }
+    .cell-sorted { background:#dcfce7; border-color:#10b981; }
+    .cell-sorted .cell-val { color:#047857; }
+    /* j / j+1 指针，跟随比较位置平滑移动 */
+    .ptr { position:absolute; bottom:6px; transform:translateX(-50%); font-size:12px; font-weight:700; color:#fff; padding:2px 10px; border-radius:10px; white-space:nowrap; opacity:0; pointer-events:none; transition:left .35s ease, opacity .2s ease; z-index:2; }
+    .ptr.show { opacity:1; }
+    .ptr::before { content:''; position:absolute; top:-6px; left:50%; margin-left:-5px; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:6px solid var(--pc); }
+    .ptr-j { background:#3b82f6; --pc:#3b82f6; }
+    .ptr-j1 { background:#f59e0b; --pc:#f59e0b; box-shadow:0 0 10px rgba(245,158,11,0.6); }
 
     .controls { display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-top:20px; }
-    .controls select, .controls input { padding:8px 12px; border:2px solid #e5e7eb; border-radius:8px; font-size:0.95rem; }
-    .controls select:focus, .controls input:focus { outline:none; border-color:var(--primary); }
+    .controls input { padding:8px 12px; border:2px solid #e5e7eb; border-radius:8px; font-size:0.95rem; }
+    .controls input:focus { outline:none; border-color:var(--primary); }
+
+    /* 动画速度 */
+    .speed-bar { display:flex; justify-content:center; align-items:center; gap:8px; margin-top:16px; flex-wrap:wrap; font-size:13px; color:#475569; }
+    .speed-btn { padding:5px 14px; font-size:13px; border:none; border-radius:6px; background:#e2e8f0; color:#334155; cursor:pointer; transition:background .2s; }
+    .speed-btn:hover { background:#cbd5e1; }
+    .speed-btn.active { background:#2563eb; color:#fff; }
+    .speed-tip { font-size:13px; color:#64748b; }
 
     .step-info { background:#eff6ff; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin:16px 0; font-size:0.95rem; min-height:48px; text-align:left; }
     .step-info strong { color:var(--primary); }
@@ -38,15 +71,30 @@
     .stat-box .stat-lbl { font-size:0.85rem; color:var(--text-light); }
 
     .pass-label { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.75rem; background:#dcfce7; color:#15803d; margin-left:8px; }
+
+    /* 运行日志 */
+    .log-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .log-head h2 { margin:0; font-size:1.15rem; }
+    #logBox { height:160px; border:1px solid #dde2eb; padding:12px; overflow-y:scroll; overflow-x:auto; background:#fafbfd; font-size:13px; line-height:1.7; font-family:'Consolas','Monaco',monospace; }
+    .log-line { white-space:nowrap; }
+    #logBox::-webkit-scrollbar { width:12px; height:12px; }
+    #logBox::-webkit-scrollbar-track { background:#e2e8f0; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb { background:#64748b; border:2px solid #fafbfd; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb:hover { background:#475569; }
+
+    @media (max-width:1100px){
+      .row { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar">
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -68,58 +116,80 @@
         <p><strong>时间复杂度：</strong>最好 O(n)，最坏/平均 O(n²)　<strong>空间复杂度：</strong>O(1)　<strong>稳定性：</strong>稳定</p>
       </div>
 
-      <div class="lab-section">
-        <h2>💻 算法代码</h2>
-<pre class="algo-code"><span class="kw">void</span> <span class="fn">BubbleSort</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {
-  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n - <span class="num">1</span>; i++) {       <span class="cm">// n-1 趟</span>
-    <span class="kw">bool</span> swapped = <span class="kw">false</span>;
-    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; n - <span class="num">1</span> - i; j++) { <span class="cm">// 每趟比较范围递减</span>
-      <span class="kw">if</span> (arr[j] &gt; arr[j + <span class="num">1</span>]) {   <span class="cm">// 相邻元素比较</span>
-        <span class="kw">int</span> temp = arr[j];      <span class="cm">// 交换</span>
-        arr[j] = arr[j + <span class="num">1</span>];
-        arr[j + <span class="num">1</span>] = temp;
-        swapped = <span class="kw">true</span>;
-      }
-    }
-    <span class="kw">if</span> (!swapped) <span class="kw">break</span>;         <span class="cm">// 本趟无交换，已有序</span>
-  }
-}</pre>
-      </div>
+      <div class="row">
+        <!-- 左：算法代码，逐行高亮 -->
+        <div class="lab-section code-card">
+          <h2>💻 算法代码</h2>
+<pre id="codeView" class="algo-code">
+<div class="code-line"><span class="kw">void</span> <span class="fn">BubbleSort</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {</div>
+<div class="code-line">  <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n - <span class="num">1</span>; i++) {       <span class="cm">// n-1 趟</span></div>
+<div class="code-line">    <span class="kw">bool</span> swapped = <span class="kw">false</span>;</div>
+<div class="code-line">    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; n - <span class="num">1</span> - i; j++) { <span class="cm">// 每趟比较范围递减</span></div>
+<div class="code-line">      <span class="kw">if</span> (arr[j] &gt; arr[j + <span class="num">1</span>]) {   <span class="cm">// 相邻元素比较</span></div>
+<div class="code-line">        <span class="kw">int</span> temp = arr[j];      <span class="cm">// 交换</span></div>
+<div class="code-line">        arr[j] = arr[j + <span class="num">1</span>];</div>
+<div class="code-line">        arr[j + <span class="num">1</span>] = temp;</div>
+<div class="code-line">        swapped = <span class="kw">true</span>;</div>
+<div class="code-line">      }</div>
+<div class="code-line">    }</div>
+<div class="code-line">    <span class="kw">if</span> (!swapped) <span class="kw">break</span>;         <span class="cm">// 本趟无交换，已有序</span></div>
+<div class="code-line">  }</div>
+<div class="code-line">}</div>
+</pre>
+        </div>
 
-      <div class="lab-section">
-        <h2>🎬 动画模拟</h2>
-        <div class="viz-area">
-          <div class="bars-container" id="bars-container"></div>
+        <!-- 右：动画模拟与输入 -->
+        <div class="col">
+          <div class="lab-section">
+            <h2>🎬 动画模拟</h2>
+            <div class="viz-area">
+              <div class="array-container" id="array-container">
+                <div class="array-track" id="array-track"></div>
+                <div class="ptr ptr-j" id="ptrJ">j</div>
+                <div class="ptr ptr-j1" id="ptrJ1">j+1</div>
+              </div>
 
-          <div class="step-info" id="step-info">
-            点击「开始排序」按钮，观察冒泡排序的执行过程。
+              <div class="step-info" id="step-info">
+                点击「开始排序」按钮，观察冒泡排序的执行过程。
+              </div>
+
+              <div class="controls">
+                <button class="btn btn-primary" onclick="startSort()">▶ 开始排序</button>
+                <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
+                <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
+              </div>
+
+              <div class="speed-bar">
+                <span>动画速度：</span>
+                <button class="speed-btn" data-ms="700" onclick="setSpeed(700)">慢速</button>
+                <button class="speed-btn active" data-ms="450" onclick="setSpeed(450)">中速</button>
+                <button class="speed-btn" data-ms="250" onclick="setSpeed(250)">快速</button>
+                <span class="speed-tip">0.5 秒/步 · 中速</span>
+              </div>
+
+              <div class="stats-row">
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-compare">0</div>
+                  <div class="stat-lbl">比较次数</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-swap">0</div>
+                  <div class="stat-lbl">交换次数</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-pass">0</div>
+                  <div class="stat-lbl">排序趟数</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="controls">
-            <label>速度：</label>
-            <select id="speed-select">
-              <option value="800">慢速</option>
-              <option value="500" selected>中速</option>
-              <option value="250">快速</option>
-            </select>
-            <button class="btn btn-primary" onclick="startSort()">▶ 开始排序</button>
-            <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
-            <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
-          </div>
-
-          <div class="stats-row">
-            <div class="stat-box">
-              <div class="stat-val" id="stat-compare">0</div>
-              <div class="stat-lbl">比较次数</div>
+          <div class="lab-section">
+            <div class="log-head">
+              <h2>📋 程序运行日志</h2>
+              <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
             </div>
-            <div class="stat-box">
-              <div class="stat-val" id="stat-swap">0</div>
-              <div class="stat-lbl">交换次数</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-val" id="stat-pass">0</div>
-              <div class="stat-lbl">排序趟数</div>
-            </div>
+            <div id="logBox"></div>
           </div>
         </div>
       </div>
@@ -136,31 +206,85 @@
       </div>
     </div>
   </main>
-
-  <footer class="footer">
-    <p>数据结构课程学习网站</p>
-  </footer>
-
   <script>
     let data = [64, 34, 25, 12, 22, 11, 90, 45];
     let isAnimating = false;
 
-    function getSpeed() { return parseInt(document.getElementById('speed-select').value); }
+    // ============ 代码逐行高亮（与动画同步） ============
+    const codeLines = Array.from(document.querySelectorAll('#codeView .code-line'));
+    const codeView = document.getElementById('codeView');
+
+    function markCode(n) {
+      codeLines.forEach((el, i) => {
+        el.classList.toggle('active-line', i === n - 1);
+        el.classList.toggle('visited', i < n - 1);
+      });
+      const cur = codeLines[n - 1];
+      if (cur) {
+        codeView.scrollTop = Math.max(0, cur.offsetTop - codeView.clientHeight / 2 + cur.clientHeight / 2);
+      }
+    }
+
+    function clearMarks() {
+      codeLines.forEach(el => el.classList.remove('active-line', 'visited'));
+    }
+
+    // ============ 运行日志 ============
+    const logBox = document.getElementById('logBox');
+    function log(msg) {
+      const d = document.createElement('div');
+      d.className = 'log-line';
+      const t = new Date();
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      const ss = String(t.getSeconds()).padStart(2, '0');
+      d.textContent = `[${hh}:${mm}:${ss}] ${msg}`;
+      logBox.appendChild(d);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    function clearLog() { logBox.innerHTML = ''; }
+
+    // ============ 速度控制 ============
+    let baseDelay = 450;
+    const SPEED_NAMES = { 700: '慢速', 450: '中速', 250: '快速' };
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function pause(mult) { return sleep(Math.round(baseDelay * mult)); }
+    function setSpeed(ms) {
+      baseDelay = ms;
+      document.querySelectorAll('.speed-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.dataset.ms) === ms);
+      });
+      const tip = (ms / 1000).toFixed(1) + ' 秒/步 · ' + (SPEED_NAMES[ms] || '');
+      document.querySelectorAll('.speed-tip').forEach(t => { t.textContent = tip; });
+    }
+
+    // ============ 数组格子与指针 ============
+    const ptrJ = document.getElementById('ptrJ');
+    const ptrJ1 = document.getElementById('ptrJ1');
 
     function renderBars(states, sortedCount) {
-      const container = document.getElementById('bars-container');
-      const maxVal = Math.max(...data);
+      const container = document.getElementById('array-track');
       container.innerHTML = data.map((val, i) => {
-        let cls = 'bar bar-default';
-        let h = Math.max(30, (val / maxVal) * 180);
+        let cls = 'cell';
         if (states) {
-          if (states[i] === 'comparing') cls = 'bar bar-comparing';
-          else if (states[i] === 'swapping') cls = 'bar bar-swapping';
+          if (states[i] === 'comparing') cls += ' cell-comparing';
+          else if (states[i] === 'swapping') cls += ' cell-swapping';
         }
-        if (sortedCount && i >= data.length - sortedCount) cls = 'bar bar-sorted';
-        return `<div class="${cls}" style="height:${h + 24}px;"><span class="bar-val">${val}</span><span class="bar-idx">[${i}]</span></div>`;
+        if (sortedCount && i >= data.length - sortedCount) cls += ' cell-sorted';
+        return `<div class="${cls}"><span class="cell-val">${val}</span><span class="cell-idx">[${i}]</span></div>`;
       }).join('');
+    }
+
+    function placePtrs(j, j1) {
+      const cells = document.querySelectorAll('#array-track .cell');
+      [[ptrJ, j], [ptrJ1, j1]].forEach(([el, idx]) => {
+        if (idx === null || idx === undefined || idx < 0 || idx >= cells.length) {
+          el.classList.remove('show');
+          return;
+        }
+        el.classList.add('show');
+        el.style.left = (cells[idx].offsetLeft + cells[idx].offsetWidth / 2) + 'px';
+      });
     }
 
     function updateStepInfo(html) {
@@ -170,61 +294,113 @@
     async function startSort() {
       if (isAnimating) return;
       isAnimating = true;
+      clearMarks();
+      clearLog();
+      placePtrs(null, null);
       let n = data.length;
       let compareCount = 0, swapCount = 0, passCount = 0;
       document.getElementById('stat-compare').textContent = '0';
       document.getElementById('stat-swap').textContent = '0';
       document.getElementById('stat-pass').textContent = '0';
 
+      // 第1行：函数入口
+      markCode(1);
+      updateStepInfo(`<strong>调用 BubbleSort：</strong>对长度为 ${n} 的数组进行冒泡排序`);
+      log(`调用 BubbleSort(arr, ${n})，初始数组：${data.join(', ')}`);
+      await pause(1);
+
       for (let i = 0; i < n - 1; i++) {
         passCount++;
         document.getElementById('stat-pass').textContent = passCount;
         let swapped = false;
 
+        // 第2行：外层 for，第 i 趟
+        markCode(2);
         updateStepInfo(`<strong>第 ${passCount} 趟排序开始</strong>，比较范围：0 ~ ${n - 2 - i}`);
-        await sleep(getSpeed());
+        log(`第 ${passCount} 趟开始，比较范围 0 ~ ${n - 2 - i}`);
+        await pause(0.9);
+
+        // 第3行：swapped = false
+        markCode(3);
+        await pause(0.45);
 
         for (let j = 0; j < n - 1 - i; j++) {
           compareCount++;
           document.getElementById('stat-compare').textContent = compareCount;
 
-          // 高亮比较中的两个元素
+          // 第4行：内层 for
+          markCode(4);
+          await pause(0.35);
+
+          // 第5行：相邻元素比较
+          markCode(5);
           renderBars({ [j]: 'comparing', [j + 1]: 'comparing' }, i);
+          placePtrs(j, j + 1);
           updateStepInfo(`<strong>第${passCount}趟 第${j + 1}次比较：</strong>比较 arr[${j}]=${data[j]} 和 arr[${j + 1}]=${data[j + 1]}`);
-          await sleep(getSpeed());
+          log(`第 ${passCount} 趟第 ${j + 1} 次比较：arr[${j}] = ${data[j]}，arr[${j + 1}] = ${data[j + 1]}`);
+          await pause(1);
 
           if (data[j] > data[j + 1]) {
-            // 交换
+            // 第6~9行：交换
+            markCode(6);
+            const temp = data[j];
             renderBars({ [j]: 'swapping', [j + 1]: 'swapping' }, i);
-            updateStepInfo(`<strong>🔄 交换！</strong>${data[j]} &gt; ${data[j + 1]}，交换 arr[${j}] 和 arr[${j + 1}]`);
-            await sleep(getSpeed());
-            [data[j], data[j + 1]] = [data[j + 1], data[j]];
-            swapCount++;
+            await pause(0.45);
+
+            markCode(7);
+            data[j] = data[j + 1];
+            renderBars({ [j]: 'swapping', [j + 1]: 'swapping' }, i);
+            await pause(0.45);
+
+            markCode(8);
+            data[j + 1] = temp;
+            renderBars({ [j]: 'swapping', [j + 1]: 'swapping' }, i);
+            await pause(0.45);
+
+            markCode(9);
             swapped = true;
+            swapCount++;
             document.getElementById('stat-swap').textContent = swapCount;
+            updateStepInfo(`<strong>🔄 交换！</strong>${temp} &gt; ${data[j]}，交换 arr[${j}] 和 arr[${j + 1}]`);
+            log(`交换：${temp} > ${data[j]}，交换 arr[${j}] 与 arr[${j + 1}]，结果 ${data[j]}, ${data[j + 1]}`);
+            await pause(0.45);
           }
 
           renderBars(null, i);
-          await sleep(getSpeed() / 2);
+          placePtrs(j, j + 1);
+          await pause(0.3);
         }
 
-        // 本趟结束，标记已排序部分
+        // 第10、11行：内层循环结束
+        markCode(11);
+
+        // 第12行：if (!swapped) break
+        markCode(12);
         renderBars(null, i + 1);
+        placePtrs(null, null);
         updateStepInfo(`<strong>第 ${passCount} 趟完成</strong>，最大值 ${data[n - 1 - i]} 已就位 <span class="pass-label">✓ 已排序</span>`);
-        await sleep(getSpeed());
+        log(`第 ${passCount} 趟完成，${data[n - 1 - i]} 已就位`);
+        await pause(0.9);
 
         if (!swapped) {
           // 提前结束
+          markCode(12);
           renderBars(null, n);
           updateStepInfo(`<strong>✅ 排序提前完成！</strong>第 ${passCount} 趟无交换，数组已有序。共比较 ${compareCount} 次，交换 ${swapCount} 次。`);
+          log(`提前结束：第 ${passCount} 趟无交换，数组已有序（比较 ${compareCount} 次，交换 ${swapCount} 次）`);
           isAnimating = false;
           return;
         }
       }
 
-      // 全部完成
+      // 第13、14行：外层循环结束，函数返回
+      markCode(13);
+      await pause(0.5);
+      markCode(14);
       renderBars(null, n);
+      placePtrs(null, null);
       updateStepInfo(`<strong>✅ 排序完成！</strong>共 ${passCount} 趟，比较 ${compareCount} 次，交换 ${swapCount} 次。`);
+      log(`排序完成：共 ${passCount} 趟，比较 ${compareCount} 次，交换 ${swapCount} 次，结果：${data.join(', ')}`);
       isAnimating = false;
     }
 
@@ -232,6 +408,9 @@
       if (isAnimating) return;
       data = [64, 34, 25, 12, 22, 11, 90, 45];
       renderBars();
+      clearMarks();
+      clearLog();
+      placePtrs(null, null);
       updateStepInfo('点击「开始排序」按钮，观察冒泡排序的执行过程。');
       document.getElementById('stat-compare').textContent = '0';
       document.getElementById('stat-swap').textContent = '0';
@@ -247,10 +426,14 @@
       }
       data = arr;
       renderBars();
+      clearMarks();
+      clearLog();
+      placePtrs(null, null);
       updateStepInfo('已生成随机数据，点击「开始排序」开始。');
       document.getElementById('stat-compare').textContent = '0';
       document.getElementById('stat-swap').textContent = '0';
       document.getElementById('stat-pass').textContent = '0';
+      log(`随机生成数组：${data.join(', ')}`);
     }
 
     renderBars();
