@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>实验十一 希尔排序 - 数据结构课程</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .lab-container { max-width: 1600px; margin: 0 auto; padding: 32px 20px; }
+    .lab-section { background:#fff; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .lab-section h2 { margin-top:0; }
+    /* 左边代码窗口，右边动画与输入，两栏等高 */
+    .row { display:grid; grid-template-columns:480px minmax(0,1fr); gap:24px; align-items:stretch; margin-bottom:24px; }
+    .row .lab-section { margin-bottom:0; }
+    .col { display:flex; flex-direction:column; gap:24px; min-width:0; }
+    .code-card { display:flex; flex-direction:column; min-height:0; }
+    .algo-code { background:#1e293b; color:#e2e8f0; padding:16px 20px 16px 8px; border-radius:8px; font-family:'Consolas','Monaco',monospace; font-size:0.9rem; line-height:1.7; overflow:auto; white-space:normal; flex:1 1 0; height:0; min-height:420px; }
+    .algo-code .kw { color:#c084fc; }
+    .algo-code .fn { color:#60a5fa; }
+    .algo-code .cm { color:#64748b; }
+    .algo-code .num { color:#fbbf24; }
+    /* 代码行号与高亮跟踪 */
+    #codeView { counter-reset:codeline; position:relative; }
+    .code-line { position:relative; display:block; padding:1px 8px 1px 34px; border-left:3px solid transparent; border-radius:3px; white-space:pre; transition:background .2s ease,color .2s ease; }
+    .code-line::before { counter-increment:codeline; content:counter(codeline); position:absolute; left:6px; width:20px; text-align:right; color:#64748b; font-size:11px; }
+    .code-line.visited { background:rgba(37,99,235,0.22); }
+    .code-line.visited::before { color:#93c5fd; }
+    .code-line.active-line { background:rgba(245,158,11,0.28); border-left-color:#f59e0b; color:#fff; box-shadow:inset 0 0 0 1px rgba(245,158,11,0.45); }
+    .code-line.active-line::before { color:#fbbf24; font-weight:700; }
+    /* 代码区滑动条 */
+    .algo-code::-webkit-scrollbar { width:12px; height:12px; }
+    .algo-code::-webkit-scrollbar-track { background:#0f172a; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb { background:#475569; border:2px solid #1e293b; border-radius:6px; }
+    .algo-code::-webkit-scrollbar-thumb:hover { background:#64748b; }
+
+    .viz-area { background:#f8fafc; border-radius:12px; padding:32px 20px; text-align:center; }
+    .array-container { position:relative; padding:24px 0 44px; margin-bottom:24px; }
+    .array-track { display:flex; justify-content:center; align-items:center; gap:10px; min-height:80px; flex-wrap:wrap; }
+    /* 数组元素：矩形格子 */
+    .cell { width:66px; height:66px; border-radius:8px; background:#eef2ff; border:2px solid #c7d2fe; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:all .35s cubic-bezier(0.4,0,0.2,1); }
+    .cell .cell-val { font-size:1.15rem; font-weight:700; color:#1e293b; }
+    .cell .cell-idx { font-size:0.7rem; color:#64748b; margin-top:2px; }
+    .cell-comparing { background:#fef3c7; border-color:#f59e0b; transform:translateY(-6px); box-shadow:0 6px 14px rgba(245,158,11,0.35); }
+    .cell-swapping { background:#fee2e2; border-color:#ef4444; transform:translateY(-6px); box-shadow:0 6px 14px rgba(239,68,68,0.35); }
+    .cell-sorted { background:#dcfce7; border-color:#10b981; }
+    .cell-sorted .cell-val { color:#047857; }
+    /* 暂存器：保存待插入元素 temp */
+    .temp-bar { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:16px; padding:8px 14px; background:#fff; border:1px dashed #fcd34d; border-radius:10px; }
+    .temp-bar-label { font-size:0.85rem; color:#64748b; font-weight:600; }
+    .temp-box { min-width:76px; height:58px; padding:0 12px; border-radius:8px; border:2px dashed #fcd34d; background:#fffbeb; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:all .3s ease; }
+    .temp-box .temp-val { font-size:1.25rem; font-weight:700; color:#fbbf24; line-height:1.1; }
+    .temp-box .temp-cap { font-size:0.65rem; color:#d97706; margin-top:2px; }
+    .temp-box.filled { border-style:solid; border-color:#f59e0b; background:#fef3c7; box-shadow:0 4px 12px rgba(245,158,11,0.25); }
+    .temp-box.filled .temp-val { color:#b45309; }
+    .temp-box.pop { animation:tempPop .35s ease; }
+    @keyframes tempPop { 0% { transform:scale(.82); } 100% { transform:scale(1); } }
+    .temp-box.compare { animation:tempShake .35s ease; border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,0.18); }
+    @keyframes tempShake { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-4px); } 75% { transform:translateX(4px); } }
+    .temp-note { font-size:0.82rem; color:#94a3b8; }
+    /* i / j 指针，跟随比较位置平滑移动 */
+    .ptr { position:absolute; bottom:6px; transform:translateX(-50%); font-size:12px; font-weight:700; color:#fff; padding:2px 10px; border-radius:10px; white-space:nowrap; opacity:0; pointer-events:none; transition:left .35s ease, opacity .2s ease; z-index:2; }
+    .ptr.show { opacity:1; }
+    .ptr::before { content:''; position:absolute; top:-6px; left:50%; margin-left:-5px; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:6px solid var(--pc); }
+    .ptr-i { background:#f59e0b; --pc:#f59e0b; box-shadow:0 0 10px rgba(245,158,11,0.6); }
+    .ptr-j { background:#3b82f6; --pc:#3b82f6; }
+    /* 当前增量标签 */
+    .gap-chip { position:absolute; top:0; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; color:#1e40af; background:#dbeafe; border:1px solid #bfdbfe; padding:1px 12px; border-radius:10px; opacity:0; transition:opacity .2s ease; }
+    .gap-chip.show { opacity:1; }
+
+    .controls { display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-top:20px; }
+    .controls input { padding:8px 12px; border:2px solid #e5e7eb; border-radius:8px; font-size:0.95rem; }
+    .controls input:focus { outline:none; border-color:var(--primary); }
+
+    /* 动画速度 */
+    .speed-bar { display:flex; justify-content:center; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; font-size:13px; color:#475569; }
+    .speed-btn { padding:5px 14px; font-size:13px; border:none; border-radius:6px; background:#e2e8f0; color:#334155; cursor:pointer; transition:background .2s; }
+    .speed-btn:hover { background:#cbd5e1; }
+    .speed-btn.active { background:#2563eb; color:#fff; }
+    .speed-bar input[type="range"] { width:200px; cursor:pointer; accent-color:#2563eb; }
+    .speed-tip { font-size:13px; color:#64748b; min-width:128px; }
+
+    .step-info { background:#eff6ff; border-left:4px solid var(--primary); padding:12px 16px; border-radius:6px; margin:16px 0; font-size:0.95rem; min-height:48px; text-align:left; }
+    .step-info strong { color:var(--primary); }
+
+    .stats-row { display:flex; justify-content:center; gap:24px; margin-top:16px; flex-wrap:wrap; }
+    .stat-box { text-align:center; }
+    .stat-box .stat-val { font-size:1.6rem; font-weight:700; color:var(--primary); }
+    .stat-box .stat-lbl { font-size:0.85rem; color:var(--text-light); }
+
+    .pass-label { display:inline-block; padding:2px 10px; border-radius:12px; font-size:0.75rem; background:#dcfce7; color:#15803d; margin-left:8px; }
+
+    /* 运行日志 */
+    .log-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .log-head h2 { margin:0; font-size:1.15rem; }
+    #logBox { height:160px; border:1px solid #dde2eb; padding:12px; overflow-y:scroll; overflow-x:auto; background:#fafbfd; font-size:13px; line-height:1.7; font-family:'Consolas','Monaco',monospace; }
+    .log-line { white-space:nowrap; }
+    #logBox::-webkit-scrollbar { width:12px; height:12px; }
+    #logBox::-webkit-scrollbar-track { background:#e2e8f0; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb { background:#64748b; border:2px solid #fafbfd; border-radius:6px; }
+    #logBox::-webkit-scrollbar-thumb:hover { background:#475569; }
+
+    @media (max-width:1100px){
+      .row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
+    <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <div class="lab-container">
+      <div class="page-header">
+        <h1>🧩 实验十一 希尔排序</h1>
+        <p>通过动画模拟理解希尔排序的分组插入过程</p>
+      </div>
+
+      <div class="lab-section">
+        <h2>📖 算法原理</h2>
+        <p>希尔排序（Shell Sort）又称缩小增量排序，是直接插入排序的改进版本。它先选取一个增量 gap，把待排序序列按下标间隔 gap 分成若干组，对每组分别做直接插入排序；然后不断缩小增量，重复上述分组与组内插入排序的过程。随着增量逐渐减小，序列的"局部有序"程度越来越高，当增量减为 1 时，整个序列再做一次直接插入排序即可完成，此时序列已基本有序，插入排序的效率最高。</p>
+        <p>常用的增量序列为 n/2、n/4、n/8……直到 1（每次折半）。<strong>时间复杂度：</strong>平均约 O(n^1.3)，最坏 O(n²)　<strong>空间复杂度：</strong>O(1)　<strong>稳定性：</strong>不稳定</p>
+      </div>
+
+      <div class="row">
+        <!-- 左：算法代码，逐行高亮 -->
+        <div class="lab-section code-card">
+          <h2>💻 算法代码</h2>
+<pre id="codeView" class="algo-code">
+<div class="code-line"><span class="kw">void</span> <span class="fn">ShellSort</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {</div>
+<div class="code-line">  <span class="kw">for</span> (<span class="kw">int</span> gap = n / <span class="num">2</span>; gap &gt; <span class="num">0</span>; gap /= <span class="num">2</span>) {    <span class="cm">// 增量逐步缩小，直到 1</span></div>
+<div class="code-line">    <span class="kw">for</span> (<span class="kw">int</span> g = <span class="num">0</span>; g &lt; gap; g++) {            <span class="cm">// 按 gap 划分出 gap 个分组</span></div>
+<div class="code-line">      <span class="kw">for</span> (<span class="kw">int</span> i = g + gap; i &lt; n; i += gap) { <span class="cm">// 组内做直接插入排序</span></div>
+<div class="code-line">        <span class="kw">int</span> temp = arr[i];                    <span class="cm">// 待插入元素</span></div>
+<div class="code-line">        <span class="kw">int</span> j = i - gap;</div>
+<div class="code-line">        <span class="kw">while</span> (j &gt;= <span class="num">0</span> &amp;&amp; arr[j] &gt; temp) {      <span class="cm">// 比 temp 大的元素后移 gap 位</span></div>
+<div class="code-line">          arr[j + gap] = arr[j];</div>
+<div class="code-line">          j -= gap;</div>
+<div class="code-line">        }</div>
+<div class="code-line">        arr[j + gap] = temp;                  <span class="cm">// 插入到正确位置</span></div>
+<div class="code-line">      }</div>
+<div class="code-line">    }</div>
+<div class="code-line">  }</div>
+<div class="code-line">}</div>
+</pre>
+        </div>
+
+        <!-- 右：动画模拟与输入 -->
+        <div class="col">
+          <div class="lab-section">
+            <h2>🎬 动画模拟</h2>
+            <div class="viz-area">
+              <div class="temp-bar">
+                <span class="temp-bar-label">📦 暂存器</span>
+                <div class="temp-box" id="tempBox">
+                  <span class="temp-val" id="tempVal">—</span>
+                  <span class="temp-cap">temp</span>
+                </div>
+                <span class="temp-note" id="tempNote">暂存待插入元素</span>
+              </div>
+              <div class="array-container" id="array-container">
+                <div class="gap-chip" id="gapChip">gap = —</div>
+                <div class="array-track" id="array-track"></div>
+                <div class="ptr ptr-i" id="ptrI">i</div>
+                <div class="ptr ptr-j" id="ptrJ">j</div>
+              </div>
+
+              <div class="step-info" id="step-info">
+                点击「开始排序」按钮，观察希尔排序的分组插入过程。
+              </div>
+
+              <div class="controls">
+                <button class="btn btn-primary" onclick="startSort()">▶ 开始排序</button>
+                <button class="btn btn-secondary" onclick="resetViz()">🔄 重置</button>
+                <button class="btn btn-secondary" onclick="randomData()">🎲 随机数据</button>
+              </div>
+
+              <div class="speed-bar">
+                <span>动画速度：</span>
+                <input type="range" id="speedSlider" min="150" max="1200" step="50" value="450" oninput="updateSpeedTip()">
+                <span class="speed-tip" id="speedTip">0.45 秒/步 · 中速</span>
+                <button class="speed-btn" data-ms="700" onclick="setSpeed(700)">慢速</button>
+                <button class="speed-btn active" data-ms="450" onclick="setSpeed(450)">中速</button>
+                <button class="speed-btn" data-ms="250" onclick="setSpeed(250)">快速</button>
+              </div>
+
+              <div class="stats-row">
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-compare">0</div>
+                  <div class="stat-lbl">比较次数</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-move">0</div>
+                  <div class="stat-lbl">移动次数</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-val" id="stat-gap">—</div>
+                  <div class="stat-lbl">当前增量</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lab-section">
+            <div class="log-head">
+              <h2>📋 程序运行日志</h2>
+              <button class="btn btn-secondary" onclick="clearLog()">清空日志</button>
+            </div>
+            <div id="logBox"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-section">
+        <h2>📝 实验要点</h2>
+        <ul style="line-height:1.8;">
+          <li>希尔排序是<strong>缩小增量排序</strong>：增量取 n/2、n/4……依次折半，直到 1</li>
+          <li>每个增量 gap 下，序列被分成 gap 个组，下标相差 gap 的元素属于同一组</li>
+          <li>组内采用<strong>直接插入排序</strong>，只是元素移动的步长由 1 变成了 gap</li>
+          <li>增量较大的阶段让元素大步跳跃移动，使序列快速趋于"基本有序"</li>
+          <li>当 gap = 1 时退化为普通的直接插入排序，此时序列已接近有序，效率很高</li>
+          <li>希尔排序是<strong>不稳定排序</strong>，且增量序列的选取会显著影响算法性能</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+
+  <script>
+    const INIT_DATA = [64, 34, 25, 12, 22, 11, 90, 45];
+    let data = [64, 34, 25, 12, 22, 11, 90, 45];
+    let isAnimating = false;
+
+    // ============ 代码逐行高亮（与动画同步） ============
+    const codeLines = Array.from(document.querySelectorAll('#codeView .code-line'));
+    const codeView = document.getElementById('codeView');
+
+    function markCode(n) {
+      codeLines.forEach((el, i) => {
+        el.classList.toggle('active-line', i === n - 1);
+        el.classList.toggle('visited', i < n - 1);
+      });
+      const cur = codeLines[n - 1];
+      if (cur) {
+        codeView.scrollTop = Math.max(0, cur.offsetTop - codeView.clientHeight / 2 + cur.clientHeight / 2);
+      }
+    }
+
+    function clearMarks() {
+      codeLines.forEach(el => el.classList.remove('active-line', 'visited'));
+    }
+
+    // ============ 运行日志 ============
+    const logBox = document.getElementById('logBox');
+    function log(msg) {
+      const d = document.createElement('div');
+      d.className = 'log-line';
+      const t = new Date();
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      const ss = String(t.getSeconds()).padStart(2, '0');
+      d.textContent = `[${hh}:${mm}:${ss}] ${msg}`;
+      logBox.appendChild(d);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    function clearLog() { logBox.innerHTML = ''; }
+
+    // ============ 速度控制（滑动条连续调节） ============
+    let baseDelay = 450;
+    const speedSlider = document.getElementById('speedSlider');
+    const speedTipEl = document.getElementById('speedTip');
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    function pause(mult) { return sleep(Math.round(baseDelay * mult)); }
+    function speedLevel(ms) {
+      if (ms <= 300) return '快速';
+      if (ms >= 800) return '慢速';
+      return '中速';
+    }
+    function updateSpeedTip() {
+      baseDelay = Number(speedSlider.value);
+      speedTipEl.textContent = `${(baseDelay / 1000).toFixed(2)} 秒/步 · ${speedLevel(baseDelay)}`;
+      document.querySelectorAll('.speed-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.dataset.ms) === baseDelay);
+      });
+    }
+    function setSpeed(ms) {
+      speedSlider.value = ms;
+      updateSpeedTip();
+    }
+
+    // ============ 数组格子与指针 ============
+    const ptrI = document.getElementById('ptrI');
+    const ptrJ = document.getElementById('ptrJ');
+    const gapChip = document.getElementById('gapChip');
+
+    function renderBars(states, sortedCount) {
+      const container = document.getElementById('array-track');
+      container.innerHTML = data.map((val, i) => {
+        let cls = 'cell';
+        if (states) {
+          if (states[i] === 'comparing') cls += ' cell-comparing';
+          else if (states[i] === 'swapping') cls += ' cell-swapping';
+        }
+        if (sortedCount && i >= data.length - sortedCount) cls += ' cell-sorted';
+        return `<div class="${cls}"><span class="cell-val">${val}</span><span class="cell-idx">[${i}]</span></div>`;
+      }).join('');
+    }
+
+    // ============ 暂存器：保存待插入元素 temp ============
+    const tempBox = document.getElementById('tempBox');
+    const tempValEl = document.getElementById('tempVal');
+    const tempNote = document.getElementById('tempNote');
+    function setTemp(val, note) {
+      tempValEl.textContent = val;
+      tempNote.textContent = note;
+      tempBox.classList.add('filled');
+      tempBox.classList.remove('pop');
+      void tempBox.offsetWidth;
+      tempBox.classList.add('pop');
+    }
+    function clearTemp() {
+      tempValEl.textContent = '—';
+      tempBox.classList.remove('filled', 'pop', 'compare');
+      tempNote.textContent = '暂存待插入元素';
+    }
+    function flashTemp() {
+      tempBox.classList.remove('compare');
+      void tempBox.offsetWidth;
+      tempBox.classList.add('compare');
+    }
+
+    function placePtrs(i, j) {
+      const cells = document.querySelectorAll('#array-track .cell');
+      [[ptrI, i], [ptrJ, j]].forEach(([el, idx]) => {
+        if (idx === null || idx === undefined || idx < 0 || idx >= cells.length) {
+          el.classList.remove('show');
+          return;
+        }
+        el.classList.add('show');
+        el.style.left = (cells[idx].offsetLeft + cells[idx].offsetWidth / 2) + 'px';
+      });
+    }
+
+    function clearPtrs() {
+      ptrI.classList.remove('show');
+      ptrJ.classList.remove('show');
+    }
+
+    function setGapChip(gap) {
+      if (gap === null || gap === undefined) {
+        gapChip.classList.remove('show');
+        return;
+      }
+      gapChip.classList.add('show');
+      gapChip.textContent = 'gap = ' + gap;
+    }
+
+    function updateStepInfo(html) {
+      document.getElementById('step-info').innerHTML = html;
+    }
+
+    async function startSort() {
+      if (isAnimating) return;
+      isAnimating = true;
+      clearMarks();
+      clearLog();
+      clearTemp();
+      clearPtrs();
+      const n = data.length;
+      let compareCount = 0, moveCount = 0;
+      document.getElementById('stat-compare').textContent = '0';
+      document.getElementById('stat-move').textContent = '0';
+      document.getElementById('stat-gap').textContent = '—';
+      renderBars();
+
+      // 第1行：函数入口
+      markCode(1);
+      updateStepInfo(`<strong>调用 ShellSort：</strong>对长度为 ${n} 的数组进行希尔排序`);
+      log(`调用 ShellSort(arr, ${n})，初始数组：${data.join(', ')}`);
+      await pause(1);
+
+      for (let gap = Math.floor(n / 2); gap >= 1; gap = Math.floor(gap / 2)) {
+        document.getElementById('stat-gap').textContent = gap;
+        setGapChip(gap);
+
+        // 第2行：增量 for
+        markCode(2);
+        updateStepInfo(`<strong>当前增量 gap = ${gap}</strong>，数组被分为 ${gap} 个分组（下标相差 ${gap} 的元素同组），逐组进行直接插入排序。`);
+        log(`增量 gap = ${gap}：数组划分为 ${gap} 个分组`);
+        await pause(0.9);
+
+        for (let g = 0; g < gap; g++) {
+          // 第3行：分组 for
+          markCode(3);
+          updateStepInfo(`<strong>增量 gap = ${gap}，对第 ${g + 1} 组做插入排序</strong>（起始下标 ${g}，步长 ${gap}）`);
+          log(`gap = ${gap}，第 ${g + 1} 组开始：起始下标 ${g}，步长 ${gap}`);
+          await pause(0.5);
+
+          for (let i = g + gap; i < n; i += gap) {
+            // 第4行：组内 i 循环
+            markCode(4);
+            await pause(0.3);
+
+            // 第5行：暂存待插入元素 key
+            markCode(5);
+            const temp = data[i];
+            setTemp(temp, `gap=${gap} · 来自 arr[${i}] = ${temp}`);
+            renderBars({ [i]: 'comparing' }, 0);
+            placePtrs(i, null);
+            updateStepInfo(`<strong>gap = ${gap}，第 ${g + 1} 组：</strong>暂存待插入元素 arr[${i}] = ${temp}`);
+            log(`暂存待插入元素 arr[${i}] = ${temp}`);
+            await pause(0.6);
+
+            // 第6行：j = i - gap
+            markCode(6);
+            let j = i - gap;
+            placePtrs(i, j);
+            await pause(0.4);
+
+            // 第7行：while 比较
+            while (j >= 0) {
+              compareCount++;
+              document.getElementById('stat-compare').textContent = compareCount;
+              markCode(7);
+              renderBars({ [j]: 'comparing', [i]: 'comparing' }, 0);
+              placePtrs(i, j);
+              updateStepInfo(`<strong>gap = ${gap}，第 ${g + 1} 组：</strong>比较 arr[${j}] = ${data[j]} 与待插入元素 ${temp}`);
+              log(`比较 arr[${j}] = ${data[j]} 与待插入元素 ${temp}`);
+              flashTemp();
+              await pause(1);
+
+              if (data[j] > temp) {
+                // 第8行：元素后移 gap 位
+                markCode(8);
+                const moved = data[j];
+                data[j + gap] = moved;
+                moveCount++;
+                document.getElementById('stat-move').textContent = moveCount;
+                renderBars({ [j]: 'swapping', [j + gap]: 'swapping' }, 0);
+                updateStepInfo(`<strong>🔴 后移：</strong>${moved} &gt; ${temp}，arr[${j}] 向后移动 ${gap} 位到下标 ${j + gap}`);
+                log(`后移：${moved} > ${temp}，arr[${j}] → 下标 ${j + gap}`);
+                await pause(0.8);
+
+                // 第9行：j -= gap
+                markCode(9);
+                j -= gap;
+                placePtrs(i, j);
+                await pause(0.4);
+              } else {
+                log(`arr[${j}] = ${data[j]} ≤ ${temp}，本组后移结束`);
+                break;
+              }
+            }
+
+            // 第11行：插入 key 到正确位置
+            markCode(11);
+            data[j + gap] = temp;
+            moveCount++;
+            document.getElementById('stat-move').textContent = moveCount;
+            renderBars({ [j + gap]: 'swapping' }, 0);
+            placePtrs(i, null);
+            updateStepInfo(`<strong>🔴 插入：</strong>把 ${temp} 放入下标 ${j + gap} 的位置`);
+            log(`插入：${temp} → 下标 ${j + gap}`);
+            await pause(0.8);
+            renderBars(null, 0);
+            clearPtrs();
+            clearTemp();
+          }
+
+          // 第13行：分组循环结束
+          markCode(13);
+          updateStepInfo(`<strong>第 ${g + 1} 组完成</strong>（gap = ${gap}）<span class="pass-label">✓ 组内有序</span>`);
+          log(`gap = ${gap}，第 ${g + 1} 组完成`);
+          await pause(0.4);
+        }
+
+        // 第14行：gap 缩小
+        markCode(14);
+        log(`增量缩小：gap 由 ${gap} 变为 ${Math.floor(gap / 2) || 0}`);
+        await pause(0.5);
+      }
+
+      // 第15行：函数返回
+      markCode(15);
+      setGapChip(null);
+      renderBars(null, n);
+      clearPtrs();
+      document.getElementById('stat-gap').textContent = '1';
+      updateStepInfo(`<strong>✅ 排序完成！</strong>共比较 ${compareCount} 次，移动 ${moveCount} 次，最终结果：${data.join(', ')}。`);
+      log(`排序完成：共比较 ${compareCount} 次，移动 ${moveCount} 次，结果：${data.join(', ')}`);
+      isAnimating = false;
+    }
+
+    function resetViz() {
+      if (isAnimating) return;
+      data = INIT_DATA.slice();
+      renderBars();
+      clearMarks();
+      clearLog();
+      clearTemp();
+      clearPtrs();
+      setGapChip(null);
+      updateStepInfo('点击「开始排序」按钮，观察希尔排序的分组插入过程。');
+      document.getElementById('stat-compare').textContent = '0';
+      document.getElementById('stat-move').textContent = '0';
+      document.getElementById('stat-gap').textContent = '—';
+    }
+
+    function randomData() {
+      if (isAnimating) return;
+      let arr = [];
+      while (arr.length < 8) {
+        let n = Math.floor(Math.random() * 89) + 10;
+        if (!arr.includes(n)) arr.push(n);
+      }
+      data = arr;
+      renderBars();
+      clearMarks();
+      clearLog();
+      clearTemp();
+      clearPtrs();
+      setGapChip(null);
+      updateStepInfo('已生成随机数据，点击「开始排序」开始。');
+      document.getElementById('stat-compare').textContent = '0';
+      document.getElementById('stat-move').textContent = '0';
+      document.getElementById('stat-gap').textContent = '—';
+      log(`随机生成数组：${data.join(', ')}`);
+    }
+
+    renderBars();
+    updateSpeedTip();
+  </script>
+</body>
+</html>
