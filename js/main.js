@@ -38,8 +38,18 @@ const Progress = {
 function scoreQuiz(formId, answers) {
   const form = document.getElementById(formId);
   if (!form) return;
-  let correct = 0, total = answers.length;
+  // 被"练习设置"隐藏的题目不参与判分
+  const hiddenNames = new Set();
+  form.querySelectorAll('.quiz-question').forEach(el => {
+    if (el.style.display === 'none') {
+      const input = el.querySelector('input[name]');
+      if (input) hiddenNames.add(input.name);
+    }
+  });
+  let correct = 0, total = 0;
   answers.forEach((ans, idx) => {
+    if (hiddenNames.has('q' + idx)) return;
+    total++;
     const selected = form.querySelector(`input[name="q${idx}"]:checked`);
     const opts = form.querySelectorAll(`input[name="q${idx}"]`);
     opts.forEach(opt => {
