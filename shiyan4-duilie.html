@@ -6,18 +6,38 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
 body{background:#f4f7fc;padding:24px;}
-.wrap{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:480px 1fr;gap:24px;}
-.left-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
-.right-box{display:flex;flex-direction:column;gap:20px;}
+.wrap{max-width:1600px;margin:0 auto;display:flex;flex-direction:column;gap:24px;}
+/* 每一行：左边代码，右边对应的动画，顶部对齐 */
+.row{display:grid;grid-template-columns:460px minmax(0,1fr);gap:24px;align-items:start;}
+.code-card{display:flex;flex-direction:column;min-height:0;}
 .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
 h2{color:#1d3557;margin-bottom:16px;border-left:6px #2563eb solid;padding-left:10px;font-size:20px;}
 h3{margin:14px 0 8px;color:#222;font-size:16px;}
-.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:-20px -20px 16px -20px;border-radius:12px 12px 0 0;}
-pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow:auto;max-height:340px;font-size:13px;line-height:1.5;}
+.code-header{background:#2563eb;color:#fff;padding:8px 14px;margin:12px -20px 16px -20px;border-radius:6px;}
+pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow-y:scroll;overflow-x:auto;height:300px;flex:0 0 auto;font-size:13px;line-height:1.5;}
+/* 代码区竖向滑动条 */
+pre::-webkit-scrollbar{width:12px;height:12px;}
+pre::-webkit-scrollbar-track{background:#2a2a2a;border-radius:6px;}
+pre::-webkit-scrollbar-thumb{background:#6b7280;border:2px solid #1e1e1e;border-radius:6px;}
+pre::-webkit-scrollbar-thumb:hover{background:#9ca3af;}
+/* 代码行高亮跟踪 */
+#cqCode,#lqCode{counter-reset:codeline;padding-left:8px;position:relative;}
+.code-line{position:relative;display:block;padding:1px 8px 1px 34px;border-left:3px solid transparent;border-radius:3px;white-space:pre;transition:background .2s ease,color .2s ease;}
+.code-line::before{counter-increment:codeline;content:counter(codeline);position:absolute;left:6px;width:20px;text-align:right;color:#5c6370;font-size:11px;}
+.code-line.visited{background:rgba(41,128,185,0.16);}
+.code-line.visited::before{color:#7fa8c4;}
+.code-line.active-line{background:rgba(243,156,18,0.26);border-left-color:#f39c12;color:#fff;box-shadow:inset 0 0 0 1px rgba(243,156,18,0.45);}
+.code-line.active-line::before{color:#ffb066;font-weight:700;}
+/* 动画速度 */
+.speed-bar{display:flex;align-items:center;gap:8px;margin:2px 0 10px;flex-wrap:wrap;font-size:13px;color:#475569;}
+.speed-btn{padding:5px 14px;font-size:13px;background:#e2e8f0;color:#334155;}
+.speed-btn:hover{background:#cbd5e1;}
+.speed-btn.active{background:#2563eb;color:#fff;}
+.speed-tip{font-size:13px;color:#64748b;}
 .tip-text{color:#555;font-size:14px;line-height:1.6;margin-bottom:10px;}
 .split{height:1px;background:#ddd;margin:30px 0;}
 /* 画布通用 */
-.canvas-box{width:100%;height:260px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;margin-bottom:12px;}
+.canvas-box{width:100%;height:300px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:auto;background:#fafbfd;margin-bottom:10px;}
 /* 循环队列格子 */
 .cq-cell{position:absolute;width:60px;height:50px;background:#4285f4;color:#fff;text-align:center;line-height:50px;border-radius:6px;transition:0.3s;}
 .cq-empty{background:#e8edf5;color:#666;border:1px solid #bbc;}
@@ -36,20 +56,48 @@ pre{background:#1e1e1e;color:#ddd;padding:16px;border-radius:8px;overflow:auto;m
 input{padding:8px 10px;border:1px #ccd6e0 solid;border-radius:6px;width:200px;font-size:14px;}
 button{padding:8px 14px;border:none;border-radius:6px;background:#2563eb;color:#fff;cursor:pointer;font-size:14px;}
 button:hover{background:#3b82f6;}
-#logBox{height:150px;border:1px solid #dde2eb;padding:12px;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+/* 运行日志 */
+.log-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.log-head h3{margin:0;}
+.btn-clear{padding:6px 14px;font-size:13px;background:#e2e8f0;color:#334155;}
+.btn-clear:hover{background:#cbd5e1;}
+#logBox{height:160px;border:1px solid #dde2eb;padding:12px;overflow-y:scroll;overflow-x:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+/* 每条日志独占一行，过长时出现横向滑动条 */
+.log-line{white-space:nowrap;}
+/* 让日志窗口的滑动条明显可见 */
+#logBox::-webkit-scrollbar{width:12px;height:12px;}
+#logBox::-webkit-scrollbar-track{background:#e2e8f0;border-radius:6px;}
+#logBox::-webkit-scrollbar-thumb{background:#64748b;border:2px solid #fafbfd;border-radius:6px;}
+#logBox::-webkit-scrollbar-thumb:hover{background:#475569;}
+/* 窄屏时改为上下排列 */
+@media (max-width:1100px){
+    .row{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">📚 数据结构课程</a>
+    <ul class="nav-links">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="ch1.html">课程学习</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
+      <li><a href="selftest.html">题库自测</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
+      <li><a href="experiment.html" class="active">实验中心</a></li>
+      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="discuss.html">交流讨论</a></li>
+    </ul>
+  </nav>
 <div class="wrap">
-<!-- 左侧：两份实验C源码 -->
-<div class="left-box">
-    <h2>实验四 循环队列</h2>
-    <h3>实验要求</h3>
-    <p class="tip-text">顺序存储实现循环队列入队、出队操作。</p>
-    <h3>算法思想</h3>
-    <p class="tip-text">max=5；(rear+1)%max==front 队列满；rear==front队空；front指向队头前一位置，rear指向队尾。</p>
-    <div class="code-header">循环队列C调试代码</div>
-<pre>
+<!-- 第一行：循环队列代码（左） + 循环队列动画（右） -->
+<div class="row">
+    <div class="card code-card">
+        <h2>实验四 循环队列（顺序存储）</h2>
+        <p class="tip-text">【实验要求】顺序存储实现循环队列入队、出队操作<br>【算法思想】max=5；(rear+1)%max==front 队列满；rear==front 队空；front 指向队头前一位置，rear 指向队尾</p>
+        <div class="code-header">循环队列C调试代码</div>
+<pre id="cqCode">
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 #define max 5
@@ -102,16 +150,46 @@ void main()
     insertQueue(a,x);
 }
 </pre>
+    </div>
+    <!-- 循环队列动画 -->
+    <div class="card">
+        <h2>循环队列动画模拟（max=5）</h2>
+        <div class="canvas-box" id="cqCanvas"></div>
+        <div class="oper-row">
+            <input id="cqInput" placeholder="批量字符，如a,b,c">
+            <button onclick="cqBatchIn()">批量入队</button>
+            <button onclick="cqSingleIn()">单个入队</button>
+            <button onclick="cqSingleOut()">单个出队</button>
+            <button onclick="cqAllOut()">全部出队</button>
+            <button onclick="cqReset()">重置</button>
+        </div>
+        <div class="speed-bar">
+            <span>动画速度：</span>
+            <button class="speed-btn" data-ms="1200" onclick="setSpeed(1200)">慢速</button>
+            <button class="speed-btn active" data-ms="600" onclick="setSpeed(600)">中速</button>
+            <button class="speed-btn" data-ms="300" onclick="setSpeed(300)">快速</button>
+            <span class="speed-tip">0.6 秒/步 · 中速</span>
+        </div>
+        <p class="tip-text">规则：max=5；(rear+1)%5==front 满；rear==front 空；红框 front，橙框 rear</p>
+    </div>
+</div>
 
-<div class="split"></div>
+<!-- 运行日志，放在两个实验中间，方便边动画边看输出 -->
+<div class="card">
+    <div class="log-head">
+        <h3>程序运行日志</h3>
+        <button class="btn-clear" onclick="clearLog()">清空日志</button>
+    </div>
+    <div id="logBox"></div>
+</div>
 
-<h2>实验五 链队列</h2>
-<h3>实验要求</h3>
-<p class="tip-text">链式存储实现链队列，带头结点，front队头指针，rear队尾指针。</p>
-<h3>算法思想</h3>
-入队：在rear后新增节点；出队：删除front后继，仅剩一个节点时rear置回头结点。
-<div class="code-header">链队列C调试代码</div>
-<pre>
+<!-- 第二行：链队列代码（左） + 链队列动画（右） -->
+<div class="row">
+    <div class="card code-card">
+        <h2>实验五 链队列（链式存储）</h2>
+        <p class="tip-text">【实验要求】链式存储实现链队列，带头结点，front 队头指针，rear 队尾指针<br>【算法思想】入队：在 rear 后新增结点；出队：删除 front 后继，仅剩一个结点时 rear 置回头结点</p>
+        <div class="code-header">链队列C调试代码</div>
+<pre id="lqCode">
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 // 数据节点
@@ -187,27 +265,10 @@ void main()
     delQueue(p,i);
 }
 </pre>
-</div>
-
-<!-- 右侧动画区 -->
-<div class="right-box">
-    <!-- 循环队列 -->
-    <div class="card">
-        <h2>实验四 循环队列动画(max=5)</h2>
-        <div class="canvas-box" id="cqCanvas"></div>
-        <div class="oper-row">
-            <input id="cqInput" placeholder="批量字符，如a,b,c">
-            <button onclick="cqBatchIn()">批量入队</button>
-            <button onclick="cqSingleIn()">单个入队</button>
-            <button onclick="cqSingleOut()">单个出队</button>
-            <button onclick="cqAllOut()">全部出队</button>
-            <button onclick="cqReset()">重置</button>
-        </div>
-        <p class="tip-text">规则：max=5；(rear+1)%5==front 满；rear==front空；红front，橙rear</p>
     </div>
-    <!-- 链队列 -->
+    <!-- 链队列动画 -->
     <div class="card">
-        <h2>实验五 链队列动画（带头结点）</h2>
+        <h2>链队列动画模拟（带头结点）</h2>
         <div class="canvas-box" id="lqCanvas"></div>
         <div class="oper-row">
             <input id="lqInput" placeholder="批量字符，如x,y,z">
@@ -217,12 +278,14 @@ void main()
             <button onclick="lqAllOut()">全部出队</button>
             <button onclick="lqReset()">重置</button>
         </div>
-        <p class="tip-text">规则：带头结点，队尾入、队头出；仅剩元素时rear归头</p>
-    </div>
-    <!-- 运行日志 -->
-    <div class="card">
-        <h3>C程序运行日志</h3>
-        <div id="logBox"></div>
+        <div class="speed-bar">
+            <span>动画速度：</span>
+            <button class="speed-btn" data-ms="1200" onclick="setSpeed(1200)">慢速</button>
+            <button class="speed-btn active" data-ms="600" onclick="setSpeed(600)">中速</button>
+            <button class="speed-btn" data-ms="300" onclick="setSpeed(300)">快速</button>
+            <span class="speed-tip">0.6 秒/步 · 中速</span>
+        </div>
+        <p class="tip-text">规则：带头结点，队尾入、队头出；仅剩元素时 rear 归头结点</p>
     </div>
 </div>
 </div>
@@ -232,14 +295,70 @@ void main()
 const logBox = document.getElementById("logBox");
 function log(msg){
     const t = new Date();
-    logBox.innerHTML += `[${t.getHours()}:${t.getMinutes()}] ${msg}\n`;
+    const d = document.createElement("div");
+    d.className = "log-line";
+    d.textContent = `[${t.getHours()}:${String(t.getMinutes()).padStart(2,"0")}] ${msg}`;
+    logBox.appendChild(d);
     logBox.scrollTop = logBox.scrollHeight;
+}
+function clearLog(){
+    logBox.innerHTML = "";
 }
 function sleep(ms){
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ===================== 循环队列 完全不动，保留原有可用代码 =====================
+// 动画速度：两个实验共用
+let delay = 600;
+function getDelay(){ return delay; }
+function setSpeed(ms){
+    delay = ms;
+    const name = ms >= 1200 ? "慢速" : (ms >= 600 ? "中速" : "快速");
+    document.querySelectorAll(".speed-btn").forEach(b=>{
+        b.classList.toggle("active", Number(b.dataset.ms) === ms);
+    });
+    document.querySelectorAll(".speed-tip").forEach(t=>{
+        t.textContent = (ms/1000).toFixed(1) + " 秒/步 · " + name;
+    });
+}
+
+// 把 <pre> 内容拆成可逐行高亮的代码行
+function buildLines(preEl){
+    const raw = preEl.textContent.split("\n");
+    while(raw.length && raw[0].trim() === "") raw.shift();
+    while(raw.length && raw[raw.length-1].trim() === "") raw.pop();
+    preEl.textContent = "";
+    raw.forEach(t=>{
+        const d = document.createElement("div");
+        d.className = "code-line";
+        d.textContent = t === "" ? " " : t;
+        preEl.appendChild(d);
+    });
+    return [...preEl.querySelectorAll(".code-line")];
+}
+function markCode(preEl, lines, n){
+    if(!lines.length || n < 1 || n > lines.length) return;
+    lines.forEach((el,i)=>{
+        el.classList.toggle("active-line", i === n - 1);
+        el.classList.toggle("visited", i < n - 1);
+    });
+    const cur = lines[n-1];
+    preEl.scrollTop = Math.max(0, cur.offsetTop - preEl.clientHeight/2 + cur.clientHeight/2);
+}
+function clearMarks(lines){
+    lines.forEach(el=>el.classList.remove("active-line","visited"));
+}
+const cqPre = document.getElementById("cqCode");
+const lqPre = document.getElementById("lqCode");
+const cqLines = buildLines(cqPre);
+const lqLines = buildLines(lqPre);
+const markCQ = n => markCode(cqPre, cqLines, n);
+const markLQ = n => markCode(lqPre, lqLines, n);
+
+// 动画版本号：重置后让未跑完的动画自动作废
+let cqVer = 0, lqVer = 0;
+
+// ===================== 循环队列（数组模拟，环形排列） =====================
 const MAX_CQ = 5;
 let cqData = [null,null,null,null,null];
 let c_front = 0;
@@ -248,11 +367,11 @@ const cqCanvas = document.getElementById("cqCanvas");
 const CELL_W = 60;
 const CELL_H = 50;
 const RADIUS = 90;
-const CX = 220;
-const CY = 130;
+const CY = 150;   // 画布高 300，环心垂直居中
 
 function renderCQ(){
     cqCanvas.innerHTML = "";
+    const CX = Math.max(140, cqCanvas.clientWidth / 2);   // 环心水平居中
     for(let i=0;i<MAX_CQ;i++){
         const deg = (360 / MAX_CQ) * i;
         const rad = deg * Math.PI / 180;
@@ -290,18 +409,29 @@ function parseInput(id){
 async function cqBatchIn(){
     const arr = parseInput("cqInput");
     if(!arr) return;
+    const ver = ++cqVer;
+    const d = getDelay();
+    markCQ(47); await sleep(d/3);
+    markCQ(48);
     cqData = [null,null,null,null,null];
     c_front = 0;
     c_rear = 0;
     renderCQ();
     log("===== 循环队列批量入队 =====");
     for(let ch of arr){
+        if(ver !== cqVer) return;
+        markCQ(36); await sleep(d/3);
+        if(ver !== cqVer) return;
         if(isCQFull()){
             log("队列已满，停止入队");
             break;
         }
-        await sleep(400);
+        markCQ(40);
         c_rear = (c_rear + 1) % MAX_CQ;
+        renderCQ();
+        await sleep(d/3);
+        if(ver !== cqVer) return;
+        markCQ(41);
         cqData[c_rear] = ch;
         renderCQ();
         log(`入队${ch} front=${c_front} rear=${c_rear}`);
@@ -314,44 +444,75 @@ async function cqSingleIn(){
         log("请输入单个字符");
         return;
     }
+    const ver = ++cqVer;
+    const d = getDelay();
+    markCQ(36); await sleep(d/3);
+    if(ver !== cqVer) return;
     if(isCQFull()){
         log("循环队列已满，无法入队");
         return;
     }
+    markCQ(40);
     c_rear = (c_rear + 1) % MAX_CQ;
+    renderCQ();
+    await sleep(d/3);
+    if(ver !== cqVer) return;
+    markCQ(41);
     cqData[c_rear] = ch;
     renderCQ();
     log(`单个入队${ch} front=${c_front} rear=${c_rear}`);
 }
 async function cqSingleOut(){
+    const ver = ++cqVer;
+    const d = getDelay();
+    markCQ(24); await sleep(d/3);
+    if(ver !== cqVer) return;
     if(isCQEmpty()){
         log("循环队列为空，无法出队");
         return;
     }
+    markCQ(26);
     c_front = (c_front + 1) % MAX_CQ;
+    renderCQ();
+    await sleep(d/3);
+    if(ver !== cqVer) return;
+    markCQ(27);
     const out = cqData[c_front];
     cqData[c_front] = null;
     renderCQ();
     log(`出队${out} front=${c_front} rear=${c_rear}`);
 }
 async function cqAllOut(){
+    const ver = ++cqVer;
+    const d = getDelay();
+    markCQ(43); await sleep(d/3);
     log("循环队列全部出队：");
     while(!isCQEmpty()){
-        await sleep(300);
+        if(ver !== cqVer) return;
+        markCQ(24); await sleep(d/3);
+        if(ver !== cqVer) return;
+        markCQ(26);
         c_front = (c_front + 1) % MAX_CQ;
+        renderCQ();
+        await sleep(d/3);
+        if(ver !== cqVer) return;
+        markCQ(27);
         const out = cqData[c_front];
         cqData[c_front] = null;
         renderCQ();
         log(`出队${out}`);
     }
+    markCQ(29);
     log("队列清空 front="+c_front+" rear="+c_rear);
 }
 function cqReset(){
+    ++cqVer;
     cqData = [null,null,null,null,null];
     c_front = 0;
     c_rear = 0;
     renderCQ();
     document.getElementById("cqInput").value = "";
+    clearMarks(cqLines);
     log("循环队列已重置 front=0 rear=0");
 }
 
@@ -361,7 +522,7 @@ const lqCanvas = document.getElementById("lqCanvas");
 const NODE_W = 80;
 const NODE_GAP = 95;
 const L_START_X = 10;
-const L_Y = 100;
+const L_Y = 127;   // 画布高 300，结点垂直居中
 
 function drawArrow(x1,y1,x2,y2){
     const line = document.createElement("div");
@@ -417,15 +578,28 @@ function renderLQ(){
 async function lqBatchIn(){
     const arr = parseInput("lqInput");
     if(!arr) return;
+    const ver = ++lqVer;
+    const d = getDelay();
     lqList = [];
-    renderLQ();
+    markLQ(20); renderLQ(); await sleep(d/3);
+    if(ver !== lqVer) return;
+    markLQ(21); await sleep(d/4);
     log("===== 链队列批量入队 =====");
     for(let ch of arr){
-        await sleep(400);
+        if(ver !== lqVer) return;
+        markLQ(29); await sleep(d/4);
+        markLQ(31); await sleep(d/4);
+        markLQ(32); await sleep(d/4);
+        if(ver !== lqVer) return;
         lqList.push(ch);
-        renderLQ();
+        markLQ(34); renderLQ(); await sleep(d/4);
+        markLQ(35); await sleep(d/4);
+        markLQ(36); await sleep(d/4);
+        markLQ(37); await sleep(d/4);
+        if(ver !== lqVer) return;
         log(`队尾入队元素：${ch}`);
     }
+    if(ver !== lqVer) return;
     log("链队列批量入队完成");
 }
 
@@ -436,8 +610,16 @@ async function lqSingleIn(){
         log("链队列单个入队请输入单个字符");
         return;
     }
+    const ver = ++lqVer;
+    const d = getDelay();
+    markLQ(31); await sleep(d/4);
+    markLQ(32); await sleep(d/4);
+    if(ver !== lqVer) return;
     lqList.push(ch);
-    renderLQ();
+    markLQ(34); renderLQ(); await sleep(d/4);
+    markLQ(36); await sleep(d/4);
+    markLQ(37); await sleep(d/4);
+    if(ver !== lqVer) return;
     log(`队尾单个入队：${ch}`);
 }
 
@@ -447,9 +629,26 @@ async function lqSingleOut(){
         log("链队列为空，无法出队");
         return;
     }
+    const ver = ++lqVer;
+    const d = getDelay();
+    const lastOne = lqList.length === 1;
+    markLQ(45); await sleep(d/3);
+    if(ver !== lqVer) return;
     const nodes = lqCanvas.querySelectorAll(".link-node");
-    nodes[1].classList.add("del-ani");
-    await sleep(400);
+    if(nodes[1]) nodes[1].classList.add("del-ani");
+    markLQ(47); await sleep(d/4);
+    if(lastOne){
+        markLQ(56); await sleep(d/4);
+        markLQ(57); await sleep(d/4);
+        markLQ(58); await sleep(d/4);
+        markLQ(59); await sleep(d/4);
+    }else{
+        markLQ(49); await sleep(d/4);
+        markLQ(50); await sleep(d/4);
+        markLQ(51); await sleep(d/4);
+        markLQ(52); await sleep(d/4);
+    }
+    if(ver !== lqVer) return;
     const out = lqList.shift();
     renderLQ();
     log(`队头出队元素：${out}`);
@@ -457,12 +656,24 @@ async function lqSingleOut(){
 
 // 链队列：全部出队
 async function lqAllOut(){
+    const ver = ++lqVer;
+    const d = getDelay();
+    markLQ(45); await sleep(d/3);
     log("链队列全部出队：");
     while(lqList.length > 0){
-        await sleep(300);
+        if(ver !== lqVer) return;
+        const lastOne = lqList.length === 1;
         const nodes = lqCanvas.querySelectorAll(".link-node");
-        nodes[1].classList.add("del-ani");
-        await sleep(400);
+        if(nodes[1]) nodes[1].classList.add("del-ani");
+        if(lastOne){
+            markLQ(56); await sleep(d/4);
+            markLQ(58); await sleep(d/4);
+            markLQ(59); await sleep(d/4);
+        }else{
+            markLQ(49); await sleep(d/4);
+            markLQ(51); await sleep(d/4);
+        }
+        if(ver !== lqVer) return;
         const out = lqList.shift();
         renderLQ();
         log(`出队：${out}`);
@@ -472,9 +683,11 @@ async function lqAllOut(){
 
 // 链队列重置
 function lqReset(){
+    ++lqVer;
     lqList = [];
     renderLQ();
     document.getElementById("lqInput").value = "";
+    clearMarks(lqLines);
     log("链队列重置完成");
 }
 
