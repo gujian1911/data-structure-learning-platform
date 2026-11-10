@@ -7,13 +7,23 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
 body{background:#f4f7fc;padding:24px;}
 .wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:420px 1fr;gap:24px;}
-.left-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);height:calc(100vh - 48px);overflow-y:auto;}
+.left-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);min-height:calc(100vh - 48px);display:flex;flex-direction:column;}
+/* 除代码区外其余内容保持自然高度，代码区撑满剩余空间 */
+.left-box > *{flex:0 0 auto;}
 .right-box{display:flex;flex-direction:column;gap:20px;}
 .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 15px rgba(0,0,0,0.08);}
 h2{color:#1d3557;margin-bottom:16px;border-left:5px solid #2980b9;padding-left:10px;font-size:20px;}
 h3{margin:14px 0 8px;color:#222;font-size:16px;}
-.code-header{background:#2980b9;color:#fff;padding:8px 14px;margin:-20px -20px 16px -20px;border-radius:12px 12px 0 0;}
-pre{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8;overflow:auto;max-height:420px;font-size:13px;line-height:1.5;}
+.code-header{background:#2980b9;color:#fff;padding:8px 14px;margin:6px -20px 16px -20px;border-radius:12px 12px 0 0;}
+pre{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8px;overflow:auto;max-height:420px;font-size:13px;line-height:1.5;}
+/* 代码行高亮跟踪 */
+#codeBlock{counter-reset:codeline;padding-left:8px;position:relative;scroll-behavior:auto;flex:1 1 0;min-height:420px;max-height:none;}
+.code-line{position:relative;display:block;padding:1px 8px 1px 34px;border-left:3px solid transparent;border-radius:3px;white-space:pre;transition:background 0.2s ease,color 0.2s ease;}
+.code-line::before{counter-increment:codeline;content:counter(codeline);position:absolute;left:6px;width:20px;text-align:right;color:#5c6370;font-size:11px;}
+.code-line.visited{background:rgba(41,128,185,0.16);}
+.code-line.visited::before{color:#7fa8c4;}
+.code-line.active-line{background:rgba(243,156,18,0.26);border-left-color:#f39c12;color:#fff;box-shadow:inset 0 0 0 1px rgba(243,156,18,0.45);}
+.code-line.active-line::before{color:#ffb066;font-weight:700;}
 .tip-text{color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;}
 #linkCanvas{width:100%;height:280px;border:1px solid #dde2eb;border-radius:8px;position:relative;overflow:hidden;background:#fafbfd;}
 .node{position:absolute;display:flex;}
@@ -28,18 +38,31 @@ pre{background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8;overflow:auto;
 input[type="text"],input[type="number"]{padding:8px 10px;border:1px #ccd6e0 solid;border-radius:6px;width:180px;font-size:14px;}
 button{padding:8px 14px;border:none;border-radius:6px;background:#2980b9;color:#fff;cursor:pointer;transition:0.2s;font-size:14px;}
 button:hover{background:#3498db;}
-#logBox{height:160px;border:1px #dde2eb solid;padding:12;overflow-y:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
-.speed-bar{display:flex;align-items:center;gap:10px;margin-top:8px;}
+#logBox{height:160px;border:1px #dde2eb solid;padding:12px;overflow-y:scroll;overflow-x:auto;background:#fafbfd;font-size:13px;line-height:1.7;}
+/* 每条日志独占一行，过长时出现横向滑动条 */
+.log-line{white-space:nowrap;}
+/* 让日志窗口的竖向滑动条明显可见 */
+#logBox::-webkit-scrollbar{width:12px;height:12px;}
+#logBox::-webkit-scrollbar-track{background:#e2e8f0;border-radius:6px;}
+#logBox::-webkit-scrollbar-thumb{background:#64748b;border:2px solid #fafbfd;border-radius:6px;}
+#logBox::-webkit-scrollbar-thumb:hover{background:#475569;}
+.speed-bar{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.speed-tip{font-size:13px;color:#64748b;min-width:120px;}
+.speed-presets{display:flex;gap:6px;}
+.speed-btn{padding:5px 14px;font-size:13px;background:#e2e8f0;color:#334155;}
+.speed-btn:hover{background:#cbd5e1;}
+.speed-btn.active{background:#2980b9;color:#fff;}
 </style>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<script>if(window.self!==window.top){/*in-lab-frame-hide*/var s=document.createElement('style');s.textContent='.navbar{display:none!important}';document.head.appendChild(s);}</script>
 <nav class="navbar" style="position:relative;margin:-24px -24px 16px -24px;width:calc(100% + 48px);border-radius:0;">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -56,7 +79,7 @@ button:hover{background:#3498db;}
         <p class="tip-text">尾插法：先分配头结点，所有新结点依次连接到链表尾部；头插法：新结点插入在头结点之后。</p>
         <h3>C语言完整代码</h3>
         <div class="code-header"></div>
-<pre>
+<pre id="codeBlock">
 #include&lt;stdio.h&gt;
 #include&lt;stdlib.h&gt;
 typedef struct node
@@ -235,7 +258,13 @@ void main()
                 <button onclick="animInsert()">后方插入</button>
             <div class="speed-bar">
                 <span>动画速度：</span>
-                <input type="range" id="speedSlider" min="200" max="1200" value="400">
+                <input type="range" id="speedSlider" min="200" max="1600" step="100" value="600" oninput="updateSpeedTip()">
+                <span id="speedTip" class="speed-tip">0.6 秒/步 · 中速</span>
+                <span class="speed-presets">
+                    <button class="speed-btn" data-ms="1200" onclick="setSpeed(1200)">慢速</button>
+                    <button class="speed-btn active" data-ms="600" onclick="setSpeed(600)">中速</button>
+                    <button class="speed-btn" data-ms="300" onclick="setSpeed(300)">快速</button>
+                </span>
             </div>
         </div>
         <div class="card">
@@ -251,17 +280,68 @@ let linkList = [];
 const canvas = document.getElementById("linkCanvas");
 const logBox = document.getElementById("logBox");
 const speedSlider = document.getElementById("speedSlider");
+const codeBlock = document.getElementById("codeBlock");
+const codeLineEls = [];
 const NODE_WIDTH = 80;
 const NODE_GAP = 100;
 const START_X = 10;
 const NODE_Y = 100;
 
+// 把左侧源码拆成可按行高亮的行元素
+function buildCodeLines(){
+    const raw = codeBlock.textContent.replace(/^\n+/, "").replace(/\s+$/, "");
+    codeBlock.textContent = "";
+    raw.split("\n").forEach(text => {
+        const div = document.createElement("div");
+        div.className = "code-line";
+        div.textContent = text === "" ? " " : text;
+        codeBlock.appendChild(div);
+        codeLineEls.push(div);
+    });
+}
+// 高亮第 n 行（从 1 开始），并把该行滚动到代码区中间
+function markLine(n){
+    codeLineEls.forEach((el, i) => {
+        el.classList.toggle("active-line", i + 1 === n);
+        if (i + 1 < n) el.classList.add("visited");
+    });
+    const el = codeLineEls[n - 1];
+    if (!el) return;
+    const maxScroll = Math.max(0, codeBlock.scrollHeight - codeBlock.clientHeight);
+    const target = el.offsetTop - (codeBlock.clientHeight - el.offsetHeight) / 2;
+    codeBlock.scrollTop = Math.max(0, Math.min(target, maxScroll));
+}
+// 清除所有行状态
+function clearLines(){
+    codeLineEls.forEach(el => el.classList.remove("active-line", "visited"));
+    codeBlock.scrollTop = 0;
+}
+
 function getDelay(){
     return Number(speedSlider.value);
 }
+// 更新速度提示文字与档位按钮高亮
+function updateSpeedTip(){
+    const ms = getDelay();
+    let level = "中速";
+    if(ms <= 350) level = "快速";
+    else if(ms >= 900) level = "慢速";
+    document.getElementById("speedTip").textContent = `${(ms / 1000).toFixed(1)} 秒/步 · ${level}`;
+    document.querySelectorAll(".speed-btn").forEach(btn => {
+        btn.classList.toggle("active", Number(btn.dataset.ms) === ms);
+    });
+}
+function setSpeed(ms){
+    speedSlider.value = ms;
+    updateSpeedTip();
+}
 function log(msg){
     const t = new Date();
-    logBox.innerHTML += `[${t.getHours()}:${t.getMinutes()}] ${msg}\n`;
+    // 每条日志单独一个 div，保证一行一条，可用滑动条翻阅
+    const line = document.createElement("div");
+    line.className = "log-line";
+    line.textContent = `[${t.getHours()}:${t.getMinutes()}] ${msg}`;
+    logBox.appendChild(line);
     logBox.scrollTop = logBox.scrollHeight;
 }
 function sleep(ms){
@@ -345,12 +425,33 @@ async function createTail(){
     linkList = [];
     renderLink();
     log("===== 尾插法创建链表 =====");
+    const d = getDelay();
+    markLine(118);                 // main：weicha(head,n)
+    await sleep(d / 2);
+    markLine(77);                  // 进入 weicha
+    await sleep(d / 2);
+    markLine(80);                  // r=head
+    await sleep(d / 2);
     for(let num of nums){
-        await sleep(getDelay());
+        markLine(81);              // while(n>=1)
+        await sleep(d / 3);
+        markLine(83);              // malloc 申请新结点
+        await sleep(d / 3);
+        markLine(84);              // scanf 读入数据
         linkList.push(num);
         renderLink(linkList.length - 1);
         log("尾插入：" + num);
+        await sleep(d / 2);
+        markLine(85);              // p->next=NULL
+        await sleep(d / 3);
+        markLine(86);              // r->next=p
+        await sleep(d / 3);
+        markLine(87);              // r=p
+        await sleep(d / 3);
+        markLine(88);              // n--
+        await sleep(d / 3);
     }
+    markLine(90);                  // weicha 结束
     log("链表完整数据：" + linkList.join(" "));
 }
 // 头插建表
@@ -360,12 +461,29 @@ async function createHead(){
     linkList = [];
     renderLink();
     log("===== 头插法创建链表 =====");
+    const d = getDelay();
+    markLine(116);                 // main：toucha(head,n)
+    await sleep(d / 2);
+    markLine(92);                  // 进入 toucha
+    await sleep(d / 2);
     for(let num of nums){
-        await sleep(getDelay());
+        markLine(95);              // while(n>=1)
+        await sleep(d / 3);
+        markLine(97);              // malloc 申请新结点
+        await sleep(d / 3);
+        markLine(98);              // scanf 读入数据
         linkList.unshift(num);
         renderLink(0);
         log("头插入：" + num);
+        await sleep(d / 2);
+        markLine(99);              // p->next=head->next
+        await sleep(d / 3);
+        markLine(100);             // head->next=p
+        await sleep(d / 3);
+        markLine(101);             // n--
+        await sleep(d / 3);
     }
+    markLine(102);                 // toucha 结束
     log("链表完整数据：" + linkList.join(" "));
 }
 // 重置
@@ -374,6 +492,7 @@ function resetLink(){
     canvas.innerHTML = "";
     logBox.innerHTML = "";
     document.getElementById("initNums").value = "";
+    clearLines();
     log("链表已全部重置");
 }
 // 查找
@@ -384,22 +503,33 @@ async function animSearch(){
         log("请输入合法数字");
         return;
     }
+    const d = getDelay();
     log(`开始遍历查找数值${target}`);
     renderLink(-1);
-    await sleep(300);
+    markLine(145);                 // main：search(head,x)
+    await sleep(d / 2);
+    markLine(24);                  // q=head
+    markLine(25);                  // p=head->next
+    await sleep(d / 2);
     let findIndex = -1;
     for(let i = 0; i < linkList.length; i++){
+        markLine(26);              // while(p!=NULL && p->data!=x)
         renderLink(i);
-        await sleep(getDelay());
+        await sleep(d);
         if(linkList[i] === target){
             findIndex = i;
+            markLine(34);          // return q
             break;
         }
+        markLine(29);              // p=p->next
+        await sleep(d / 3);
     }
     if(findIndex !== -1){
         log("找到");
         renderLink(findIndex);
     }else{
+        markLine(31);              // if(p==NULL)
+        markLine(32);              // return 0
         log("链表中没有");
         renderLink(-1);
     }
@@ -416,24 +546,35 @@ async function animReplace(){
     }
     log(`开始查找待替换数值${old}`);
     renderLink(-1);
-    await sleep(300);
+    const d = getDelay();
+    markLine(125);                 // main：replace(head,x,y)
+    await sleep(d / 2);
+    markLine(40);                  // q=search(head,x)
+    await sleep(d / 2);
     let findIndex = -1;
     for(let i = 0; i < linkList.length; i++){
+        markLine(26);              // while 遍历比较
         renderLink(i);
-        await sleep(getDelay()/2);
+        await sleep(d / 2);
         if(linkList[i] === old){
             findIndex = i;
             break;
         }
+        markLine(29);              // p=p->next
+        await sleep(d / 3);
     }
     if(findIndex === -1){
+        markLine(41);              // if(q==0)
+        markLine(42);              // 没有你要替换的值
         log(`链表中没有，无法替换`);
         renderLink(-1);
         return;
     }
+    markLine(45);                  // p=q->next
     linkList[findIndex] = newV;
+    markLine(46);                  // p->data=y
     renderLink(findIndex);
-    await sleep(getDelay());
+    await sleep(d);
     renderLink(-1);
     log(`替换完成 ${old} → ${newV}`);
 }
@@ -447,23 +588,33 @@ async function animDel(){
     }
     log(`开始查找待删除数值${delNum}`);
     renderLink(-1);
-    await sleep(300);
+    const d = getDelay();
+    markLine(131);                 // main：dele(head,x)
+    await sleep(d / 2);
+    markLine(53);                  // q=search(head,x)
+    await sleep(d / 2);
     let findIndex = -1;
     // 遍历查找高亮
     for(let i = 0; i < linkList.length; i++){
+        markLine(26);              // while 遍历比较
         renderLink(i);
-        await sleep(getDelay()/2);
+        await sleep(d / 2);
         if(linkList[i] === delNum){
             findIndex = i;
             break;
         }
+        markLine(29);              // p=p->next
+        await sleep(d / 3);
     }
     if(findIndex === -1){
+        markLine(54);              // if(q==0)
+        markLine(55);              // 没有你要删除的值
         log("链表中没有，无法删除");
         renderLink(-1);
         return;
     }
     // 停留高亮画面
+    markLine(58);                  // p=q->next
     renderLink(findIndex);
     await sleep(getDelay());
     // 单独获取目标节点，添加上浮消失动画
@@ -474,10 +625,12 @@ async function animDel(){
     }
     // 等待动画播放完毕再重绘
     await sleep(600);
+    markLine(59);                  // q->next=p->next
     // 删除数组元素
     linkList.splice(findIndex, 1);
     // 重绘新链表，自动生成长箭头
     renderLink(-1);
+    markLine(60);                  // free(p)
     if(findIndex === linkList.length){
         log(`删除${delNum}完成，该结点为末尾结点，已清除尾部箭头`);
     }else{
@@ -496,36 +649,50 @@ async function animInsert(){
     }
     log(`查找参考数值${ref}`);
     renderLink(-1);
-    await sleep(300);
+    const d = getDelay();
+    markLine(138);                 // main：instert(head,x,y)
+    await sleep(d / 2);
+    markLine(65);                  // q=search(head,x)
+    await sleep(d / 2);
     let findIndex = -1;
     for(let i = 0; i < linkList.length; i++){
+        markLine(26);              // while 遍历比较
         renderLink(i);
-        await sleep(getDelay()/2);
+        await sleep(d / 2);
         if(linkList[i] === ref){
             findIndex = i;
             break;
         }
+        markLine(29);              // p=p->next
+        await sleep(d / 3);
     }
     if(findIndex === -1){
+        markLine(66);              // if(q==0)
+        markLine(67);              // 没有你要插入的数
         log(`链表中没有${ref}，无法插入`);
         renderLink(-1);
         return;
     }
     const pos = findIndex + 1;
+    markLine(70);                  // malloc 申请新结点
+    await sleep(d / 3);
+    markLine(71);                  // p->data=y
     linkList.splice(pos, 0, insNum);
     renderLink(pos);
-    await sleep(getDelay());
+    markLine(72);                  // p->next=q->next
+    await sleep(d / 3);
+    markLine(73);                  // q->next=p
+    await sleep(d);
     renderLink(-1);
     log(`在${ref}后方插入${insNum}完成`);
 }
 window.onload = function(){
     renderLink();
+    buildCodeLines();
+    updateSpeedTip();
 }
 </script>
 
-  <footer class="footer" style="margin:24px -24px -24px -24px;width:calc(100% + 48px);border-radius:0;">
-    <p>数据结构课程学习网站</p>
-  </footer>
 
 </body>
 </html>
