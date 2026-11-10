@@ -436,6 +436,38 @@
     .modal-actions .btn-cancel { background: var(--border); color: var(--text); }
     .modal-actions .btn-save { background: var(--primary); color: #fff; }
 
+    /* 账号栏 */
+    .kb-account-bar {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+    .kb-account-bar .acc-user {
+      background: rgba(255,255,255,0.18);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .kb-account-bar button {
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.7);
+      background: #fff;
+      color: #1a56db;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .kb-account-bar button:hover { background: #e8f0fe; }
+    .kb-account-bar button.ghost {
+      background: transparent;
+      color: #fff;
+      border-color: rgba(255,255,255,0.7);
+    }
+    .kb-account-bar button.ghost:hover { background: rgba(255,255,255,0.15); }
+
     @media (max-width: 600px) {
       .kb-header { padding: 32px 16px; }
       .kb-header h1 { font-size: 1.5rem; }
@@ -445,16 +477,16 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
-        <li><a href="index.html">首页</a></li>
+      <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
-      <li><a href="mock-exam.html" class="active">模拟试题</a></li>
+      <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html">实验中心</a></li>
-      <li><a href="knowledge.html">知识库</a></li>
+      <li><a href="knowledge.html" class="active">知识库</a></li>
       <li><a href="discuss.html">交流讨论</a></li>
     </ul>
   </nav>
@@ -464,6 +496,7 @@
     <div class="kb-header">
       <h1>🧠 智能知识库</h1>
       <p>基于《数据结构习题册》构建，100+核心知识点，随时提问即时解答</p>
+      <div class="kb-account-bar" id="accountBar"></div>
     </div>
 
     <!-- 搜索框 -->
@@ -550,9 +583,83 @@
     </div>
   </div>
 
+  <!-- 登录 / 注册弹窗 -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-title">
+        <span id="authTitle">🔐 登录</span>
+        <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+      </div>
+      <div class="modal-field">
+        <label>用户名</label>
+        <input type="text" id="authUsername" placeholder="2-20 个字符" autocomplete="username">
+      </div>
+      <div class="modal-field">
+        <label>密码</label>
+        <input type="password" id="authPassword" placeholder="至少 4 位" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')submitAuth()">
+      </div>
+      <div id="authError" style="color:#ef4444;font-size:0.85rem;min-height:20px;"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeAuthModal()">取消</button>
+        <button class="btn-save" onclick="submitAuth()" id="authSubmitBtn">登录</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-size:0.85rem;">
+        <a href="javascript:void(0)" onclick="switchAuthMode()" style="color:var(--primary);" id="authSwitchLink">没有账号？去注册</a>
+      </div>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
   <script src="js/knowledge-data.js"></script>
   <script>
+    // ========== Supabase 云端数据库配置（已停用：本机网络访问 supabase.co 被运营商阻断） ==========
+    // 以后想重新启用：把下面两项填回项目 URL 和 Publishable key 即可（Project Settings → API）
+    var SUPABASE_CONFIG = {
+      url: '',
+      key: ''
+    };
+    var isConfigured = !!(SUPABASE_CONFIG.url && SUPABASE_CONFIG.key);
+    var useCloud = isConfigured;
+    // 直连 Supabase REST 接口（不依赖 supabase-js），网络抖动自动重试
+    function sbApi(path, opts) {
+      opts = opts || {};
+      var url = SUPABASE_CONFIG.url + '/rest/v1/' + path;
+      var headers = {
+        apikey: SUPABASE_CONFIG.key,
+        Authorization: 'Bearer ' + SUPABASE_CONFIG.key
+      };
+      if (opts.body) headers['Content-Type'] = 'application/json';
+      if (opts.prefer) headers['Prefer'] = opts.prefer;
+      var tries = 0;
+      function attempt() {
+        return fetch(url, { method: opts.method || 'GET', headers: headers, body: opts.body }).then(function (r) {
+          return r.text().then(function (t) {
+            if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + t);
+            return t ? JSON.parse(t) : null;
+          });
+        }, function (e) {
+          tries++;
+          if (tries < 3) {
+            return new Promise(function (r) { setTimeout(r, 400); }).then(attempt);
+          }
+          throw e;
+        });
+      }
+      return attempt();
+    }
+    // 云端记录与本地数据结构的互相转换
+    function cloudToItem(obj) {
+      return {
+        id: obj.id,
+        chapter: obj.chapter,
+        chapterName: obj.chapter_name,
+        question: obj.question,
+        answer: obj.answer,
+        keywords: obj.keywords || '',
+        isCustom: true
+      };
+    }
     // ========== 状态 ==========
     var currentMode = 'browse';
     var activeChapter = 0; // 0 = 全部, -1 = 我的知识库
@@ -561,7 +668,8 @@
     var customKnowledge = []; // 用户自定义知识
     var allKnowledge = [];    // 内置 + 自定义
 
-    // ========== localStorage 读写 ==========
+    // ========== 数据读写（优先服务器 SQLite，服务不可用时退回浏览器 localStorage） ==========
+    var useServer = false;
     function loadCustomFromStorage() {
       try {
         var raw = localStorage.getItem('ds_custom_knowledge');
@@ -573,6 +681,33 @@
       localStorage.setItem('ds_custom_knowledge', JSON.stringify(customKnowledge));
       rebuildAllKnowledge();
     }
+    function loadCustom() {
+      if (useCloud) {
+        return sbApi('custom_knowledge?select=*&order=created_at.asc')
+          .then(function (rows) {
+            customKnowledge = (rows || []).map(cloudToItem);
+            rebuildAllKnowledge();
+          })
+          .catch(function () {
+            // 云端不可用时退回本地服务 / localStorage
+            useCloud = false;
+            return loadCustom();
+          });
+      }
+      // 未登录：不加载任何个人数据
+      if (!currentUser) {
+        customKnowledge = [];
+        rebuildAllKnowledge();
+        return Promise.resolve();
+      }
+      return fetch('/api/knowledge')
+        .then(function (r) {
+          if (r.status === 401) { customKnowledge = []; useServer = true; rebuildAllKnowledge(); return; }
+          if (!r.ok) throw new Error('bad');
+          return r.json().then(function (list) { useServer = true; customKnowledge = list || []; rebuildAllKnowledge(); });
+        })
+        .catch(function () { useServer = false; customKnowledge = []; rebuildAllKnowledge(); });
+    }
     function rebuildAllKnowledge() {
       allKnowledge = knowledgeData.slice();
       for (var i = 0; i < customKnowledge.length; i++) {
@@ -580,12 +715,117 @@
       }
     }
 
+    // ========== 账号 ==========
+    var currentUser = null;
+    var authMode = 'login';
+
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function renderAccountBar() {
+      var bar = document.getElementById('accountBar');
+      if (!bar) return;
+      if (currentUser) {
+        bar.innerHTML = '<span class="acc-user">👤 ' + escHtml(currentUser.username) + '</span>' +
+          '<button class="ghost" onclick="doLogout()">退出登录</button>';
+      } else {
+        bar.innerHTML = '<span class="acc-user">👤 未登录，登录后可拥有个人知识库</span>' +
+          '<button onclick="openAuthModal(\'login\')">登录</button>' +
+          '<button class="ghost" onclick="openAuthModal(\'register\')">注册</button>';
+      }
+    }
+    function loadMe() {
+      return fetch('/api/me')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (u) { currentUser = u || null; renderAccountBar(); })
+        .catch(function () { currentUser = null; renderAccountBar(); });
+    }
+    function openAuthModal(mode) {
+      authMode = mode || 'login';
+      switchAuthModeUI();
+      document.getElementById('authError').textContent = '';
+      document.getElementById('authUsername').value = '';
+      document.getElementById('authPassword').value = '';
+      document.getElementById('authModal').classList.add('active');
+      setTimeout(function () { document.getElementById('authUsername').focus(); }, 50);
+    }
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('active');
+    }
+    function switchAuthMode() {
+      authMode = authMode === 'login' ? 'register' : 'login';
+      switchAuthModeUI();
+      document.getElementById('authError').textContent = '';
+    }
+    function switchAuthModeUI() {
+      var isLogin = authMode === 'login';
+      document.getElementById('authTitle').textContent = isLogin ? '🔐 登录' : '📝 注册账号';
+      document.getElementById('authSubmitBtn').textContent = isLogin ? '登录' : '注册并登录';
+      document.getElementById('authSwitchLink').textContent = isLogin ? '没有账号？去注册' : '已有账号？去登录';
+      document.getElementById('authPassword').setAttribute('autocomplete', isLogin ? 'current-password' : 'new-password');
+    }
+    function submitAuth() {
+      var username = document.getElementById('authUsername').value.trim();
+      var password = document.getElementById('authPassword').value;
+      var errEl = document.getElementById('authError');
+      errEl.textContent = '';
+      if (!username || !password) { errEl.textContent = '用户名和密码不能为空'; return; }
+      var url = authMode === 'login' ? '/api/login' : '/api/register';
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+      })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var d = {};
+          try { d = t ? JSON.parse(t) : {}; } catch (e) {
+            throw new Error('接口不存在（HTTP ' + r.status + '），请确认是用 http://localhost:8000/ 打开的页面');
+          }
+          if (!r.ok) throw new Error(d.error || '操作失败');
+          return d;
+        });
+      })
+      .then(function (u) {
+        currentUser = u;
+        renderAccountBar();
+        closeAuthModal();
+        loadCustom().then(function () { renderChapterFilter(); applyFilter(); });
+      })
+      .catch(function (e) {
+        var msg = e && e.message ? e.message : '';
+        if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) {
+          msg = (location.protocol === 'file:')
+            ? '当前是直接双击打开的本地文件，无法连接账号服务。请改用 http://localhost:8000/knowledge.html 打开'
+            : '连不上账号服务，请确认本地服务已启动（http://localhost:8000/）';
+        }
+        errEl.textContent = msg || '网络异常，请确认服务已启动';
+      });
+    }
+    function doLogout() {
+      fetch('/api/logout', { method: 'POST' })
+        .catch(function () {})
+        .then(function () {
+          currentUser = null;
+          customKnowledge = [];
+          rebuildAllKnowledge();
+          renderAccountBar();
+          renderChapterFilter();
+          applyFilter();
+        });
+    }
+
     // ========== 初始化 ==========
     function init() {
-      loadCustomFromStorage();
-      renderChapterFilter();
-      renderSuggestions();
-      renderList();
+      loadMe().then(function () {
+        return loadCustom();
+      }).then(function () {
+        renderChapterFilter();
+        renderSuggestions();
+        renderList();
+      });
     }
 
     // ========== 章节筛选器 ==========
@@ -699,8 +939,8 @@
         var item = filteredData[i];
         var customCls = item.isCustom ? 'kb-item-custom' : '';
         var chapterLabel = item.isCustom ? '我的' : ('第' + item.chapter + '章');
-        var deleteBtn = item.isCustom ? '<span style="color:#ef4444;font-size:0.75rem;margin-left:auto;cursor:pointer;padding:4px 8px;" onclick="event.stopPropagation();deleteCustomKnowledge(' + item.id + ')">🗑 删除</span>' : '<span class="kb-item-arrow">▶</span>';
-        html += '<div class="kb-item ' + customCls + '" onclick="toggleItem(this,' + item.id + ')">' +
+        var deleteBtn = item.isCustom ? '<span style="color:#ef4444;font-size:0.75rem;margin-left:auto;cursor:pointer;padding:4px 8px;" onclick="event.stopPropagation();deleteCustomKnowledge(\'' + item.id + '\')">🗑 删除</span>' : '<span class="kb-item-arrow">▶</span>';
+        html += '<div class="kb-item ' + customCls + '" onclick="toggleItem(this,\'' + item.id + '\')">' +
           '<div class="kb-item-header">' +
             '<span class="kb-item-chapter">' + chapterLabel + '</span>' +
             '<span class="kb-item-q">' + highlight(item.question, searchKeyword) + '</span>' +
@@ -961,6 +1201,7 @@
 
     // ========== 弹窗操作 ==========
     function openAddModal() {
+      if (!currentUser) { alert('请先登录或注册，添加的知识会保存到你的个人知识库'); openAuthModal('login'); return; }
       document.getElementById('modalQuestion').value = lastQuestion || '';
       document.getElementById('modalAnswer').value = '';
       document.getElementById('modalChapter').value = '0';
@@ -968,6 +1209,7 @@
       document.getElementById('addModal').classList.add('active');
     }
     function openAddModalWithQuestion(q) {
+      if (!currentUser) { alert('请先登录或注册，添加的知识会保存到你的个人知识库'); openAuthModal('login'); return; }
       document.getElementById('modalQuestion').value = q || '';
       document.getElementById('modalAnswer').value = '';
       document.getElementById('modalChapter').value = '0';
@@ -984,6 +1226,67 @@
       var kw = document.getElementById('modalKeywords').value.trim();
       if (!q || !a) {
         alert('问题和答案不能为空');
+        return;
+      }
+      var names = ['绪论','线性表','栈和队列','串','数组和广义表','树','图','查找','排序','其他'];
+      if (isConfigured) {
+        // 存入 Supabase 云端数据库
+        sbApi('custom_knowledge', {
+          method: 'POST',
+          body: JSON.stringify({ question: q, answer: a, chapter: ch, chapter_name: names[ch] || '其他', keywords: kw }),
+          prefer: 'return=representation'
+        })
+        .then(function (rows) {
+          useCloud = true;
+          var saved = rows && rows[0] ? rows[0] : { id: Date.now() };
+          customKnowledge.push({
+            id: saved.id,
+            chapter: ch,
+            chapterName: names[ch] || '其他',
+            question: q,
+            answer: a,
+            keywords: kw,
+            isCustom: true
+          });
+          rebuildAllKnowledge();
+          closeAddModal();
+          renderChapterFilter();
+          if (currentMode === 'browse') applyFilter();
+          alert('已保存到"我的知识库"（云端）');
+        })
+        .catch(function (err) {
+          alert('云端保存失败：' + ((err && err.message) || '网络异常') + '\n已改为保存到本地数据库');
+          saveToServer(q, a, ch, kw, names);
+        });
+        return;
+      }
+      saveToServer(q, a, ch, kw, names);
+    }
+    function saveToServer(q, a, ch, kw, names) {
+      if (useServer) {
+        // 存入服务器 SQLite 数据库
+        fetch('/api/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q, answer: a, chapter: ch, keywords: kw })
+        })
+        .then(function (r) {
+          if (r.status === 401) throw new Error('login');
+          if (!r.ok) throw new Error('bad');
+          return r.json();
+        })
+        .then(function (saved) {
+          customKnowledge.push(saved);
+          rebuildAllKnowledge();
+          closeAddModal();
+          renderChapterFilter();
+          if (currentMode === 'browse') applyFilter();
+          alert('已保存到你的知识库' + (currentUser ? '（' + currentUser.username + '）' : ''));
+        })
+        .catch(function (e) {
+          if (e && e.message === 'login') { alert('登录状态已失效，请重新登录'); openAuthModal('login'); return; }
+          alert('保存失败：服务器异常');
+        });
         return;
       }
       var names = ['绪论','线性表','栈和队列','串','数组和广义表','树','图','查找','排序','其他'];
@@ -1004,10 +1307,45 @@
       if (currentMode === 'browse') {
         applyFilter();
       }
-      alert('已保存到"我的知识库"');
+      alert('已保存到"我的知识库"（本地）');
     }
     function deleteCustomKnowledge(id) {
       if (!confirm('确定要删除这条知识吗？')) return;
+      if (isConfigured) {
+        sbApi('custom_knowledge?id=eq.' + encodeURIComponent(id), { method: 'DELETE' })
+        .then(function () {
+          useCloud = true;
+          var idx = -1;
+          for (var i = 0; i < customKnowledge.length; i++) {
+            if (customKnowledge[i].id === id) { idx = i; break; }
+          }
+          if (idx >= 0) customKnowledge.splice(idx, 1);
+          rebuildAllKnowledge();
+          renderChapterFilter();
+          applyFilter();
+        })
+        .catch(function (err) { alert('删除失败：' + ((err && err.message) || '云端异常')); });
+        return;
+      }
+      if (useServer) {
+        fetch('/api/knowledge/' + encodeURIComponent(id), { method: 'DELETE' })
+        .then(function (r) { if (r.status === 401) throw new Error('login'); if (!r.ok) throw new Error('bad'); })
+        .then(function () {
+          var idx = -1;
+          for (var i = 0; i < customKnowledge.length; i++) {
+            if (customKnowledge[i].id === id) { idx = i; break; }
+          }
+          if (idx >= 0) customKnowledge.splice(idx, 1);
+          rebuildAllKnowledge();
+          renderChapterFilter();
+          applyFilter();
+        })
+        .catch(function (e) {
+          if (e && e.message === 'login') { alert('登录状态已失效，请重新登录'); openAuthModal('login'); return; }
+          alert('删除失败：服务器异常');
+        });
+        return;
+      }
       var idx = -1;
       for (var i = 0; i < customKnowledge.length; i++) {
         if (customKnowledge[i].id === id) { idx = i; break; }
