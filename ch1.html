@@ -97,12 +97,12 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html" class="active">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html">实验中心</a></li>
@@ -121,7 +121,7 @@
             <li><a href="ch2.html" data-chapter="2">第二章 线性表</a></li>
             <li><a href="ch3.html" data-chapter="3">第三章 栈和队列</a></li>
             <li><a href="ch4.html" data-chapter="4">第四章 串、数组和广义表</a></li>
-            <li><a href="ch5.html" data-chapter="5">第五章 树</a></li>
+            <li><a href="ch5.html" data-chapter="5">第五章 树与二叉树</a></li>
             <li><a href="ch6.html" data-chapter="6">第六章 图</a></li>
             <li><a href="ch7.html" data-chapter="7">第七章 查找</a></li>
             <li><a href="ch8.html" data-chapter="8">第八章 排序</a></li>
@@ -148,6 +148,7 @@
             </div>
           </div>
 
+          <div class="ppt-layout">
           <div class="ppt-player">
             <div class="ppt-stage">
               <img id="slide-img" src="slides/ch1/slide_001.png" alt="课件幻灯片">
@@ -161,6 +162,32 @@
               <button id="btn-last" onclick="showSlide(43)" title="末页">⏭</button>
             </div>
             <div class="ppt-thumbs" id="slide-thumbs"></div>
+          </div>
+          <aside class="ppt-toc">
+            <div class="ppt-toc-title">📑 本节目录</div>
+            <ul id="pptTocList"></ul>
+          </aside>
+          </div>
+        </div>
+
+        <!-- 视频讲解 -->
+        <div class="card" style="margin-top: 32px;">
+          <div class="card-title">🎬 视频讲解</div>
+          <div style="display: grid; gap: 20px; margin-top: 16px;">
+            <div>
+              <p style="font-weight: 600; margin-bottom: 8px;">绪论-基本概念</p>
+              <video controls preload="metadata" style="width: 100%; max-width: 720px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <source src="视频讲解/第一章 绪论/绪论-基本概念.mp4" type="video/mp4">
+                您的浏览器不支持视频播放。
+              </video>
+            </div>
+            <div>
+              <p style="font-weight: 600; margin-bottom: 8px;">时间复杂度</p>
+              <video controls preload="metadata" style="width: 100%; max-width: 720px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <source src="视频讲解/第一章 绪论/时间复杂度.mp4" type="video/mp4">
+                您的浏览器不支持视频播放。
+              </video>
+            </div>
           </div>
         </div>
 
@@ -190,7 +217,7 @@
             </ul>
           </div>
         </div>
-          <a href="quiz-ch1.html" class="btn btn-primary">开始测试</a>
+          <a href="quiz-ch1.html" class="btn btn-primary">开始练习</a>
         </div>
       </div>
     </div>
@@ -287,6 +314,45 @@
 
     // 初始化
     showSlide(1);
+  </script>
+
+  <script>
+    // 本节目录：点击跳转到对应课件页
+    var TOC_ITEMS = [
+      { page: 6, title: '1.1 什么是数据结构' },
+      { page: 13, title: '1.2 基本概念和术语' },
+      { page: 21, title: '1.3 抽象数据类型' },
+      { page: 28, title: '1.4 算法和算法分析' }
+    ];
+    (function () {
+      var list = document.getElementById('pptTocList');
+      TOC_ITEMS.forEach(function (item) {
+        var li = document.createElement('li');
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.page = item.page;
+        btn.innerHTML = '<span class="toc-text">' + item.title + '</span><span class="toc-page">P' + item.page + '</span>';
+        btn.addEventListener('click', function () {
+          showSlide(item.page);
+          document.querySelector('.ppt-player').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+      function syncToc() {
+        var activePage = TOC_ITEMS[0].page;
+        for (var i = 0; i < TOC_ITEMS.length; i++) {
+          if (currentSlide >= TOC_ITEMS[i].page) activePage = TOC_ITEMS[i].page;
+        }
+        var btns = list.querySelectorAll('button');
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].classList.toggle('active', parseInt(btns[j].dataset.page) === activePage);
+        }
+      }
+      var origShowSlide = showSlide;
+      showSlide = function (n) { origShowSlide(n); syncToc(); };
+      syncToc();
+    })();
   </script>
 </body>
 </html>
