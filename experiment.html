@@ -6,55 +6,85 @@
   <title>实验中心 - 数据结构课程</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .lab-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 24px;
-      margin-top: 24px;
-    }
-    .lab-card {
-      background: #fff;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-    .lab-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.14);
-    }
-    .lab-banner {
-      height: 140px;
+    .lab-layout {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.5rem;
-      background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+      gap: 0;
+      align-items: stretch;
+      margin-top: 24px;
+      width: 100%;
+      height: calc(100vh - 200px);
+      min-height: 560px;
     }
-    .lab-banner span { filter: grayscale(1) brightness(2); }
-    .lab-body { padding: 20px 24px 24px; }
-    .lab-body h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--dark); }
-    .lab-body p { margin: 0; color: var(--text-light); font-size: 0.92rem; line-height: 1.6; }
-    .lab-tags { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-    .lab-tag {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      background: #eff6ff;
-      color: var(--primary);
+    .lab-sidebar {
+      width: 230px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      overflow-y: auto;
+      padding: 12px 10px;
+    }
+    .lab-sidebar-title {
+      font-size: 0.9rem;
+      color: var(--text-light, #6b7280);
+      padding: 6px 12px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+    }
+    .lab-menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      color: var(--dark, #1f2937);
+      cursor: pointer;
+      line-height: 1.4;
+      margin-bottom: 2px;
+      transition: background .15s, color .15s;
+    }
+    .lab-menu-item:hover { background: #f1f5f9; }
+    .lab-menu-item.active {
+      background: var(--primary, #6366f1);
+      color: #fff;
+      font-weight: 600;
+    }
+    .lab-frame-wrap {
+      flex: 1;
+      min-width: 0;
+      background: #fff;
+      overflow: hidden;
+      display: flex;
+    }
+    #lab-frame {
+      flex: 1;
+      width: 100%;
+      border: none;
+    }
+    @media (max-width: 768px) {
+      .lab-layout { flex-direction: column; height: auto; }
+      .lab-sidebar {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px;
+      }
+      .lab-sidebar-title { display: none; }
+      .lab-menu-item { white-space: nowrap; margin-bottom: 0; }
+      .lab-frame-wrap { min-height: 70vh; }
     }
   </style>
 </head>
 <body>
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="index.html" class="nav-brand">📚 数据结构课程</a>
     <ul class="nav-links">
       <li><a href="index.html">首页</a></li>
       <li><a href="ch1.html">课程学习</a></li>
-      <li><a href="quiz-ch1.html">课程测试</a></li>
+      <li><a href="quiz-ch1.html">随堂练习</a></li>
       <li><a href="selftest.html">题库自测</a></li>
       <li><a href="mock-exam.html">模拟试题</a></li>
       <li><a href="experiment.html" class="active">实验中心</a></li>
@@ -64,135 +94,107 @@
   </nav>
 
   <main class="main">
-    <div class="container" style="padding-top: 32px;">
-      <div class="page-header">
+    <div style="padding: 32px 24px 0;">
+      <div class="page-header" style="margin-bottom: 0;">
         <h1>🧪 实验中心</h1>
-        <p>动手实践，可视化理解数据结构与算法</p>
+        <p>左侧选择实验，右侧直接操作，无需跳转</p>
       </div>
+    </div>
 
-      <div class="lab-grid">
-        <a href="shiyan1-shunxubiao.html" class="lab-card">
-          <div class="lab-banner"><span>📊</span></div>
-          <div class="lab-body">
-            <h3>实验一 顺序表的基本运算</h3>
-            <p>掌握顺序表的初始化、插入、删除、查找等基本操作，通过可视化动画直观理解顺序存储结构。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">顺序表</span>
-              <span class="lab-tag">线性表</span>
-              <span class="lab-tag">可视化</span>
-            </div>
-          </div>
-        </a>
+    <div class="lab-layout">
+        <!-- 左侧：实验目录 -->
+        <aside class="lab-sidebar" id="lab-sidebar">
+          <div class="lab-sidebar-title">📋 实验目录（15 个）</div>
+          <!-- 菜单由 JS 生成 -->
+        </aside>
 
-        <a href="shiyan2-danlianbiao.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><span>🔗</span></div>
-          <div class="lab-body">
-            <h3>实验二 单链表的建立</h3>
-            <p>实现头插法和尾插法创建单链表，支持查找、替换、按值删除、指定位置插入等操作。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">单链表</span>
-              <span class="lab-tag">链式存储</span>
-              <span class="lab-tag">可视化</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan3-shunxuzhan.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><span>📚</span></div>
-          <div class="lab-body">
-            <h3>实验三 顺序栈与链栈</h3>
-            <p>对比学习顺序栈和链栈的入栈、出栈操作，理解栈的LIFO特性及两种存储方式的差异。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">栈</span>
-              <span class="lab-tag">顺序栈</span>
-              <span class="lab-tag">链栈</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan4-duilie.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"><span>🚶</span></div>
-          <div class="lab-body">
-            <h3>实验四 循环队列与链队列</h3>
-            <p>实现循环队列和链队列的入队、出队操作，理解队列的FIFO特性及队空队满的判断条件。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">队列</span>
-              <span class="lab-tag">循环队列</span>
-              <span class="lab-tag">链队列</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan5-zhuanzhi.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);"><span>🔄</span></div>
-          <div class="lab-body">
-            <h3>实验五 三元组稀疏矩阵转置</h3>
-            <p>通过三元组表实现稀疏矩阵的转置运算，理解稀疏矩阵的压缩存储及快速转置算法。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">稀疏矩阵</span>
-              <span class="lab-tag">三元组</span>
-              <span class="lab-tag">转置</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan6-erchashu.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);"><span>🌳</span></div>
-          <div class="lab-body">
-            <h3>实验六 二叉树</h3>
-            <p>实现二叉树的创建、遍历（先序、中序、后序）、查找等基本操作，理解二叉树的递归特性。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">二叉树</span>
-              <span class="lab-tag">遍历</span>
-              <span class="lab-tag">递归</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan7-erfenfind.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);"><span>🔍</span></div>
-          <div class="lab-body">
-            <h3>实验七 二分法查找</h3>
-            <p>通过动画模拟二分查找过程，理解折半查找的原理、前提条件及时间复杂度 O(log n)。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">查找</span>
-              <span class="lab-tag">二分法</span>
-              <span class="lab-tag">动画模拟</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan8-maopao.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"><span>🫧</span></div>
-          <div class="lab-body">
-            <h3>实验八 冒泡排序</h3>
-            <p>通过动画模拟冒泡排序过程，直观展示相邻元素比较与交换，理解稳定排序特性。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">排序</span>
-              <span class="lab-tag">冒泡排序</span>
-              <span class="lab-tag">动画模拟</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="shiyan9-xuanze.html" class="lab-card">
-          <div class="lab-banner" style="background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);"><span>📋</span></div>
-          <div class="lab-body">
-            <h3>实验九 选择排序</h3>
-            <p>通过动画模拟选择排序过程，展示每趟选取最小值并交换的过程，对比与冒泡排序的差异。</p>
-            <div class="lab-tags">
-              <span class="lab-tag">排序</span>
-              <span class="lab-tag">选择排序</span>
-              <span class="lab-tag">动画模拟</span>
-            </div>
-          </div>
-        </a>
-      </div>
+        <!-- 右侧：实验内容（iframe 子框架，原实验页面不改） -->
+        <div class="lab-frame-wrap">
+          <iframe id="lab-frame" title="实验内容"></iframe>
+        </div>
     </div>
   </main>
 
   <footer class="footer">
     <p>数据结构课程学习网站</p>
   </footer>
+
+  <script>
+    // 15 个实验：文件名 + 目录显示名（与 shiyan*.html 一一对应）
+    const labs = [
+      { file: 'shiyan1-shunxubiao.html',  name: '实验一 顺序表的基本运算' },
+      { file: 'shiyan2-danlianbiao.html', name: '实验二 单链表的建立' },
+      { file: 'shiyan3-shunxuzhan.html',  name: '实验三 顺序栈与链栈' },
+      { file: 'shiyan4-duilie.html',      name: '实验四 循环队列与链队列' },
+      { file: 'shiyan5-zhuanzhi.html',    name: '实验五 三元组稀疏矩阵转置' },
+      { file: 'shiyan6-erchashu.html',    name: '实验六 二叉树' },
+      { file: 'shiyan7-erfenfind.html',   name: '实验七 二分法查找' },
+      { file: 'shiyan8-maopao.html',      name: '实验八 冒泡排序' },
+      { file: 'shiyan9-xuanze.html',      name: '实验九 选择排序' },
+      { file: 'shiyan10-charu.html',      name: '实验十 插入排序' },
+      { file: 'shiyan11-xier.html',       name: '实验十一 希尔排序' },
+      { file: 'shiyan12-kuaisu.html',     name: '实验十二 快速排序' },
+      { file: 'shiyan13-dui.html',        name: '实验十三 堆排序' },
+      { file: 'shiyan14-haxi.html',       name: '实验十四 哈希表模拟数据存储' },
+      { file: 'shiyan15-erfen.html',      name: '实验十五 二分法排序' }
+    ];
+
+    const frame = document.getElementById('lab-frame');
+    const sidebar = document.getElementById('lab-sidebar');
+    let current = 0;
+
+    // 生成左侧目录
+    labs.forEach((lab, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'lab-menu-item';
+      btn.textContent = lab.name;
+      btn.onclick = () => selectLab(i);
+      sidebar.appendChild(btn);
+    });
+
+    function selectLab(i, pushHistory) {
+      current = i;
+      // 加版本号防 iframe 缓存旧实验页（改完实验页后递增即可）
+      frame.src = labs[i].file + '?v=20261109d';
+      sidebar.querySelectorAll('.lab-menu-item').forEach((el, j) => {
+        el.classList.toggle('active', j === i);
+      });
+      if (pushHistory !== false) {
+        history.replaceState(null, '', 'experiment.html?lab=' + (i + 1));
+      }
+    }
+
+    // iframe 加载完成后：把实验页内的链接改为顶层跳转，避免页面套娃；
+    // 除实验四（本身没有导航栏）外，隐藏实验页顶部与本页重复的导航栏（仅框架内隐藏，单独打开不受影响）
+    function hideInnerNav() {
+      try {
+        const doc = frame.contentDocument;
+        if (!doc) return;
+        doc.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          if (href && !href.startsWith('#') && !a.target) {
+            a.target = '_top';
+          }
+        });
+        if (!doc.getElementById('hide-nav-style')) {
+          const style = doc.createElement('style');
+          style.id = 'hide-nav-style';
+          // 实验七~十五：隐藏导航栏后去掉预留的顶部间距，让正文与左侧目录标题对齐
+          const extra = current >= 6 ? '.main{padding-top:0!important}.lab-container{padding-top:20px!important}' : '';
+          style.textContent = '.navbar{display:none!important;}' + extra;
+          (doc.head || doc.documentElement).appendChild(style);
+        }
+      } catch (e) { /* 跨域时忽略（本站同源不会发生） */ }
+    }
+    // load 后再补一次，兜住个别浏览器 load 时 head 尚未就绪的情况
+    frame.addEventListener('load', () => {
+      hideInnerNav();
+      setTimeout(hideInnerNav, 50);
+    });
+
+    // 支持 ?lab=N 直达，默认打开实验一
+    const initLab = parseInt(new URLSearchParams(location.search).get('lab')) || 1;
+    selectLab(Math.min(Math.max(initLab, 1), labs.length) - 1, false);
+  </script>
 </body>
 </html>
